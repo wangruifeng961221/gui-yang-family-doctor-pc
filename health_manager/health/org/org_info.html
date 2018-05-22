@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>机构管理</title>
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <!--<link rel="stylesheet" href="/css/organizational.css">-->
+    <link rel="stylesheet" href="/css/org_info.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=9IBeDDaqnqQGP96q7AeTQE4b1lWYUTDf"></script>
+
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>机构管理 > 机构信息</span>
+                </div>
+                <div class="org_info">
+                    <form id="edit_org">
+                    <div class="modal-body">
+                        <div class="errorText"></div>
+                        <div class="model-org">
+
+                                <label class="model-required">机构编码</label>&nbsp;<span><!--{{EditOrgContent.code}}--><input
+                                    style="border: none"
+                                    type="text" v-model="jgcodeEdit" readonly class="input_info"></span><br>
+                                <label class="model-required" id="lab_name_edit">机构名称</label>
+                                <input type="text" class="input_info" placeholder="请输入机构名称" vname="lab_name_edit"
+                                       validator="notNull" maxlength="20" v-model="CnNameEdit">
+                                <label class="model-required" id="lab_tel_edit">联系电话</label>
+                                <!--<input type="text" placeholder="区号" class="area" vname="lab_tel_edit" validator="notNull"
+                                       vtype="AreaCode">-->
+                                <input type="text" placeholder="座机或手机号" class="input_info" vname="lab_tel_edit"
+                                       validator="notNull" maxlength="15" vtype="phone" v-model="TelPhoneEdit">
+                                <label class="model-required" id="lab_res_edit">覆盖居民数</label>
+                                <input type="text" class="input_info resident" vname="lab_res_edit" validator="notNull"
+                                       vtype="posIntP" v-model="coverageEdit"><br>
+                                <label class="model-required" id="label_required">所在省份</label>
+                                <el-select v-model="valueEdit" class="select-e select-right"
+                                           @change="ChangeoptionsEdit">
+                                    <el-option
+                                            v-for="item in optionsEdit"
+                                            :key="item.value"
+                                            :label="item.name"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            <input type="hidden" vname="label_required" v-model="valueEdit" validator="notNull" vel-type="select">
+                                <label class="model-required region" id="label_city">所在城市</label>
+                                <el-select v-model="valueCityEdit" class="select-e select-right"
+                                           @change="ChangeoptionsCityEdit">
+                                    <el-option
+                                            v-for="item in optionsCityEdit"
+                                            :key="item.value"
+                                            :label="item.name"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            <input type="hidden" v-name="label_city" v-model="valueCityEdit" validator="notNull" vel-type="select">
+                                <label class="model-required region" id="label_county">所在区县</label>
+                                <el-select v-model="valueCountyEdit" class="select-e" @change="ChangeoptionsCountyEdit"
+                                           id="valueCounty">
+                                    <el-option
+                                            v-for="item in optionsCountyEdit"
+                                            :key="item.value"
+                                            :label="item.name"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+                            <input type="hidden" vname="label_county" v-model="valueCountyEdit" validator="notNull" vel-type="select">
+                                <br>
+                                <label class="model-required" id="lab_address_edit">街道地址</label>
+                                <input type="text" class="model-address input_info" placeholder="请输入详细街道地址"
+                                       vname="lab_address_edit"
+                                       validator="notNull" v-model="AddressEdit" v-on:blur="GetStreetOfficeEdit"><br>
+                                <label class="model-required" id="lab_det_edit">详细地址</label>
+                                <input type="text" class="detail-address input_info" vname="lab_det_edit"
+                                       validator="notNull"
+                                       v-model="DetailAddressEdit">
+
+                        </div>
+
+                        <!-- 获取经纬度 -->
+                        <div>
+                            <div class="lat-lon-con">
+                            <span class="lat-lon" @click="getLatLonEdit">
+                                <img src="/img/icon_coordinate.png">
+                                获取经纬度
+                            </span>
+                                <span class="model-required" id="label_lat">经度</span>
+                                <input type="text" class="lat-wid" v-model="LonWidEdit" vname="label_lat" validator="notNull">
+                                <span class="model-required" id="label_lon">纬度</span>
+                                <input type="text" class="lon-wid" v-model="LatWidEdit" vname="label_lon" validator="notNull">
+                                <a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank" title="用于获取经纬度">拾取坐标</a>
+
+                            </div>
+                            <div class="map" id="allmapEdit">
+
+                            </div>
+                        </div>
+                        <!-- 机构图片 -->
+                        <div class="model-img">
+                            <span class="model-required org-img-model" id="label_img">机构图片</span>
+                            <!--<span class="upload-img model-btn-right" @click="delImg"><img src="../../img/icon_upload.png">删除图片</span>-->
+
+                            <el-upload
+                                    class="avatar-uploader"
+                                    :action="urlActionEdit"
+                                    :show-file-list="false"
+                                    accept="image/jpg,image/jpeg,image/png"
+                                    :on-success="handleAvatarSuccessEdit"
+                                    name="files"
+                                    :before-upload="beforeAvatarUploadEdit">
+                                <img v-if="imageUrlEdit" :src="imageUrlEdit" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                            <input type="hidden" vname="label_img" v-model="imageUrlEdit" validator="notNull">
+                        </div>
+
+                        <!-- 机构简介 -->
+                        <div class="orgInt model-org-orgInt">
+                            <p class="model-required" id="label_org">机构简介</p>
+                            <textarea maxlength="500" @input="descInputEditNum" class="modal-textarea"
+                                      placeholder="请输入机构简介..." v-model="TextareaEdit" vname="label_org" validator="notNull"></textarea>
+                            <span class="rem-model">{{remnantEdit}}/500</span>
+                        </div>
+                    </div>
+                    </form>
+                    <div class="modal-footer">
+                        <span class="btn-qd" @click="subEdit" id="subEdit">确定修改</span>
+                        <span class="btn-qx" @click="cancel">取消</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg_color_info">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                avatar: '',
+                name: '',
+                signed: 'true',
+                target: '',
+                targetColor: '',
+                ShowHide: 'true',
+
+                //左侧菜单
+                menus: [],
+                menusStatus: [],
+                //头部搜索
+                orgName: '',
+
+                //    修改机构
+                jgcodeEdit: '',
+                remnantEdit: '0',
+                EditOrgId: '',
+                valueEdit: '',
+                valueCityEdit: '',
+                valueCountyEdit: '',
+                optionsEdit: [],   //省
+                optionsCityEdit: [],  //市
+                optionsCountyEdit: [],  //区
+                EditOrgContent: {},
+                CnNameEdit: '',
+                TelPhoneEdit: '',
+                coverageEdit: '',
+                AddressEdit: '',
+                DetailAddressEdit: '',
+                LonWidEdit: '',
+                LatWidEdit: '',
+                TextareaEdit: '',
+                imageUrlEdit: '',
+                fileIdEdit: '',
+                optionsEditName: '',
+                optionsCityEditName: '',
+                optionsCountyEditName: '',
+                initprovName: '',
+                initCityName: '',
+                initCountName: '',
+                urlActionEdit: '',
+
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.EditOrg();
+        },
+        mounted() {
+            this.detailedAddress = this.provinceName + this.optionsCityName + this.optionsCountyName;
+            // 百度地图API功能
+            var map = new BMap.Map("allmap");
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+
+            //  获取机构
+            EditOrg() {
+                this.EditOrgId = $.getOrgId();
+                this.urlActionEdit = health.apiUrl + 'backend/upload?token=' + $.getToken();
+                let url = health.apiUrl + 'backend/org/update?token=' + $.getToken() + '&orgid=' + this.EditOrgId;
+                $.get(url, res => {
+                    if (res.code === 0) {
+                        this.GetProvinceEditInit();      //
+                        this.EditOrgContent = res.content;
+                        this.valueEdit = this.EditOrgContent.province;  //省默认
+                        this.GetCityEditInit();
+                        this.valueCityEdit = this.EditOrgContent.city;
+                        this.GetCountyEditInit();
+                        this.valueCountyEdit = this.EditOrgContent.county;
+                        this.jgcodeEdit = this.EditOrgContent.code;
+                        this.CnNameEdit = this.EditOrgContent.cn_name;
+                        this.TelPhoneEdit = this.EditOrgContent.tel_phone;
+                        this.coverageEdit = this.EditOrgContent.coverage;
+                        this.fileIdEdit = this.EditOrgContent.file_id;
+                        /*this.ProvinceEditId=this.EditOrgContent.province;*/
+                        this.AddressEdit = this.EditOrgContent.street_office;
+                        this.DetailAddressEdit = this.EditOrgContent.address;
+                        this.LonWidEdit = this.EditOrgContent.longitude;
+                        this.LatWidEdit = this.EditOrgContent.latitude;
+                        this.TextareaEdit = this.EditOrgContent.remark;
+                        this.imageUrlEdit = this.EditOrgContent.file_path;
+                        this.getLatLonMap(); //地图
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetStreetOfficeEdit() {
+                //this.DetailAddressEdit = '';
+                //this.DetailAddressEdit = this.initprovName + this.initCityName + this.initCountName + this.AddressEdit;
+            },
+
+            //  初始化 （省城市区县）
+            GetProvinceEditInit() {  //省
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: 0,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsEdit = res.content;
+                        for (let i = 0; i < this.optionsEdit.length; i++) {
+                            if (this.optionsEdit[i].id === this.valueEdit) {
+                                this.initprovName = this.optionsEdit[i].name;
+                            }
+                        }
+                    }
+                })
+            },
+            GetCityEditInit() {  //市
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCityEdit = res.content;
+                        for (let i = 0; i < this.optionsCityEdit.length; i++) {
+                            if (this.optionsCityEdit[i].id === this.valueCityEdit) {
+                                this.initCityName = this.optionsCityEdit[i].name;
+                            }
+                        }
+                    }
+                })
+            },
+
+            GetCountyEditInit() {  //区
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueCityEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCountyEdit = res.content;
+                        for (let i = 0; i < this.optionsCountyEdit.length; i++) {
+                            if (this.optionsCountyEdit[i].id === this.valueCountyEdit) {
+                                this.initCountName = this.optionsCountyEdit[i].name;
+                            }
+                        }
+                    }
+                })
+            },
+
+            getLatLonEdit() {
+                if(this.DetailAddressEdit==''||this.DetailAddressEdit==undefined){
+                    this.DetailAddressEdit = this.initprovName + this.initCityName + this.initCountName + this.AddressEdit;
+                    var flagNoEdit=true;
+                }
+                let map = new BMap.Map("allmapEdit");
+                let localSearch = new BMap.LocalSearch(map);
+                localSearch.setSearchCompleteCallback((searchResult) => {
+                    let poi = searchResult.getPoi(0);
+                    if (poi == undefined) {
+                        this.$message.error('请输入有效的地址或者点击拾取坐标');
+                        return false;
+                    }
+
+                    //更新街道地址及详细地址
+                    if(flagNoEdit){
+                        let poi_address = poi.address ? poi.address : '';
+                        this.DetailAddressEdit = poi_address + poi.title;
+                    }
+                    if (!this.TelPhoneEdit) {
+                        this.TelPhoneEdit = poi.phoneNumber;
+                    }
+
+                    this.LonWidEdit = poi.point.lng;
+                    this.LatWidEdit = poi.point.lat;
+                    //获取经度和纬度，将结果显示在文本框中
+                    map.centerAndZoom(poi.point, 15);
+
+                    //创建标注
+                    map.clearOverlays();//清除其它标注
+                    let point = new BMap.Point(poi.point.lng, poi.point.lat);
+                    let marker = new BMap.Marker(point);  // 创建标注
+                    map.addOverlay(marker);               // 将标注添加到地图中
+                    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                });
+                localSearch.search(this.DetailAddressEdit);
+                map.centerAndZoom(new BMap.Point(), 15);
+                let top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+                let top_left_navigation = new BMap.NavigationControl();
+
+                // map.enableScrollWheelZoom();//启用滚轮
+                map.addControl(top_left_control);
+                map.addControl(top_left_navigation);
+            },
+
+            // 编辑刚进入页面，根据经纬度获取地图   （如果有修改，先根据地址获取经纬度，在根据经纬度获取地图）
+            getLatLonMap(){
+                let map = new BMap.Map("allmapEdit");
+                map.centerAndZoom(new BMap.Point(this.LonWidEdit,this.LatWidEdit),13);
+                map.clearOverlays();//清除其它标注
+                let point = new BMap.Point(this.LonWidEdit,this.LatWidEdit);
+                let marker = new BMap.Marker(point);  // 创建标注
+                map.addOverlay(marker);               // 将标注添加到地图中
+                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                let top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+                let top_left_navigation = new BMap.NavigationControl();
+                map.addControl(top_left_control);
+                map.addControl(top_left_navigation);
+                $('#allmapEdit').css('display', 'block');
+
+            },
+
+            handleAvatarSuccessEdit(res, file) {
+                if (res.code === 0) {
+                    this.imageUrlEdit = URL.createObjectURL(file.raw);
+                    this.fileIdEdit = res.content[0].file_id;
+                }
+            },
+            beforeAvatarUploadEdit(file) {
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isLt2M;
+
+            },
+            // 获取省（修改）
+            GetCountEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: 0
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsEdit = res.content;
+                    }
+                })
+            },
+            GetCityEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueEdit
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCityEdit = res.content;
+                    }
+                })
+            },
+            GetCountyEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueCityEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCountyEdit = res.content;
+                    }
+                })
+            },
+            ChangeoptionsCityEdit(value) {
+                let obj = {};
+                obj = this.optionsCityEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //市名字
+                this.initCityName = obj.name;
+                for (let i = 0; i < this.optionsCityEdit.length; i++) {
+                    if (this.optionsCityEdit[i].id === value) {
+                        this.optionsCityEditName = this.optionsCityEdit[i].name;
+                    }
+                }
+                this.valueCountyEdit = '';
+                this.GetCountyEdit();
+
+            },
+            ChangeoptionsCountyEdit(value) {
+                let obj = {};
+                obj = this.optionsCountyEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //乡村名字
+                this.initCountName = obj.name;
+
+                for (let i = 0; i < this.optionsCountyEdit.length; i++) {
+                    if (this.optionsCountyEdit[i].id === value) {
+                        this.optionsCountyEditName = this.optionsCountyEdit[i].name;
+                    }
+                }
+            },
+            // 省改变（修改）
+            ChangeoptionsEdit(value) {
+                // console.log(value);
+                let obj = {};
+                obj = this.optionsEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //省名字
+                this.initprovName = obj.name;
+                for (let i = 0; i < this.optionsEdit.length; i++) {
+                    if (this.optionsEdit[i].id === value) {
+                        this.optionsEditName = this.optionsEdit[i].name;
+                    }
+                }
+                this.valueCityEdit = '';
+                this.valueCountyEdit = '';
+                this.GetCityEdit();
+            },
+            descInputEditNum() {
+                let txtVal = this.TextareaEdit.length;
+                this.remnantEdit = txtVal;
+            },
+            // 修改机构内容
+            subEdit() {
+                if (validateForm(edit_org)) {
+                    // 修改机构
+                    let url = $.formateUrl('backend/org/update');
+                    $.post(url, {
+                        orgid: this.EditOrgId,
+                        cn_name: this.CnNameEdit,
+                        code: this.jgcodeEdit,
+                        file_id: this.fileIdEdit,
+                        tel_phone: this.TelPhoneEdit,
+                        coverage: this.coverageEdit,
+                        province: this.valueEdit,
+                        city: this.valueCityEdit,
+                        county: this.valueCountyEdit,
+                        street_office: this.AddressEdit,
+                        longitude: this.LonWidEdit,
+                        latitude: this.LatWidEdit,
+                        remark: this.TextareaEdit,
+                        address: this.DetailAddressEdit
+                    }, res => {
+                        if (res.code === 0) {
+                            this.$message('修改成功');
+                            this.EditOrg();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //取消
+            cancel() {
+                this.EditOrg();
+            },
+        },
+    })
+</script>
+</body>
+</html>

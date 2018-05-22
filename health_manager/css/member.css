@@ -1,0 +1,397 @@
+.member-search{
+	padding:0 0 15px 15px;
+}
+.member-search-name,.member-search-ID,.member-search-source,.member-search-state{
+	border:1px solid #666;
+	height:30px;
+	border-radius: 15px;
+	margin:0 5px;
+}
+.member-search-name{
+	width:110px;
+}
+.member-search-ID{
+	width:160px;
+}
+.member-search-source,.member-search-state{
+	width:100px;
+}
+.member-export-btn{
+	width: 80px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #fff;
+    text-align: center;
+    /*margin-right: 10px;*/
+    cursor: pointer;
+}
+.member-export-btn img{
+	vertical-align: text-top;
+	margin-right: 8px;
+}
+.member-table{
+	margin-top:-50px;
+}
+.member-state-su{
+	color:#10b9b9;
+}
+.member-state-fa{
+	color:#ff3300;
+}
+.member-modal-h{
+	color:#10adad;
+	font-weight: 600;
+}
+.member-add-left,.member-add-right{
+	display: inline-block;
+}
+.member-add-left{
+	margin-right: 75px;
+}
+.member-edit-modal-name,.member-edit-modal-phone,.member-edit-modal-dress,.member-edit-modal-email{
+	height:30px;
+	border:1px solid #666;
+	margin-left: 10px;
+	margin-top: 15px;
+	padding: 0 15px;
+}
+.member-edit-modal-name{
+	width:110px;
+	margin:18px 46px;
+}
+.member-edit-modal-date{
+	margin-right: 82px;
+}
+.member-edit-modal-phone,.member-edit-modal-email{
+	width:240px;
+}
+.member-edit-modal-dress{
+	width:380px;
+}
+.com-modal-health{
+	padding-top: 30px;
+	border-top: 1px solid #dcdcdc;
+	margin-top: 30px;
+}
+.com-modal-label-div{
+	margin:15px 0;
+}
+.com-modal-label{
+	display: inline-block;
+	width:110px;
+	height:30px;
+	line-height: 30px;
+	border-radius: 5px;
+	background:#dcdcdc;
+	color:#333;
+	font-size: 12px;
+	text-align: center;
+	cursor:pointer;
+	margin-bottom: 12px;
+	font-weight: normal;
+}
+.com-modal-label:active{
+	background:#10b9b9;
+	color:#fff;
+}
+.com-modal-label-other{
+	width:300px;
+	border:1px solid #666;
+	height:30px;
+	border-radius: 5px;
+}
+.member-modal-health-History,.member-modal-health-Anaphylaxis{
+	width:775px;
+	height:30px;
+	border:1px solid #666;
+	margin-bottom: 15px;
+	margin-left: 15px;
+}
+.member-modal-health-Blood,.member-modal-health-Blood-RH{
+	width:120px;
+	height:30px;
+	border:1px solid #666;
+	margin-left: 29px;
+}
+/*签约录入*/
+.entering-con{
+	margin-top: -130px;
+	text-align: left;
+}
+.entering-state,.entering-ID,.entering-data{
+	width:120px;
+	height:30px;
+	border:1px solid #666;
+}
+.entering-ID{
+	width:180px;
+}
+.entering-upload{
+	width: 140px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #fff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.entering-upload img{
+	vertical-align: text-top;
+	margin-right: 8px;
+}
+.entering-name{
+	margin-left: 0px;
+	width:120px;
+}
+.entering-data{
+	margin: 0 42px 0 8px;
+}
+.entering-Community,.entering-team,.entering-time,.entering-other,.entering-doc,.entering-phone{
+	height:30px;
+	width:300px;
+	border:1px solid #666;
+	margin-top: 15px;
+	margin-left: 10px;
+}
+.entering-time{
+	width:120px;
+	margin-right: 10px;
+}
+.entering-other{
+	width:75px;
+	height:75px;
+	vertical-align: middle;
+}
+.entering-describe{
+	font-size: 12px;
+	color:#666;
+	margin: 13px 0 13px 65px;
+}
+.entering-doc{
+	width:240px;
+}
+.entering-phone{
+	width:390px;
+}
+.entering-right{
+	vertical-align: top;
+	margin-left: 189px;
+}
+.entering-history,.entering-Anaphylaxis{
+	width:1035px;
+	padding: 0 15px;
+}
+.entering-btn{
+	width:1094px;
+    height:40px;
+    line-height: 38px;
+    border:none;
+    border-radius:15px;
+    text-align:center;
+    background: linear-gradient(to left, #3ad3ce 0%,#10adad 100%);
+    cursor:pointer;
+    color:#fff;
+    margin:13px 0 10px;
+}
+.entering-tip{
+	font-size: 14px;
+	color:#ff3300;
+}
+
+.com-search input{
+	border: 1px solid #666666;
+	background-color: #ffffff;
+	height: 30px;
+	padding: 0 10px;
+	margin-top: 15px;
+	width: 100px;
+	border-radius: 15px;
+}
+.com-del-con{
+	height:150px;
+	line-height: 150px;
+	text-align: center;
+}
+.el-input__icon{
+	position: relative;
+	top:20px !important;
+}
+.w-ly{
+	/*margin-right: 5px;*/
+}
+.w-search{
+	/*margin-left: 10px;*/
+	background-color: #10b9b9;
+	border: 1px solid #10b9b9;
+}
+.w-state{
+	margin-left: 5px;
+}
+.surrender{
+	color:#20191a8f;
+}
+.rev-application{
+	color: #EC971F;
+}
+.dismissal{
+	color: #337AB7;
+}
+
+.el-checkbox-group .el-checkbox-button__inner{
+	background: #dcdcdc;
+	/*width: 110px;*/
+	height: 30px;
+}
+.el-checkbox-button__inner{
+	line-height: 5px;
+}
+.el-checkbox-button:first-child {
+	background-color:#10b9b9!important; ;
+}
+.el-checkbox-button{
+	margin-right: 5px;
+	border-radius: 5px;
+
+}
+.el-checkbox-button.is-checked .el-checkbox-button__inner{
+	background-color:#10b9b9!important;
+	border-color:#10b9b9!important;
+}
+.el-checkbox-button__inner:hover{
+	color: #10b9b9;
+}
+.blood-title{
+	margin-right: 25px;
+}
+.el-input--suffix .el-input__inner{
+	height: 30px;
+}
+.blood .el-input__icon{
+	position: relative;
+	top: 6px!important;
+}
+.blood input{
+	border: 1px solid #666;
+}
+#w-com-search-btn{
+	margin-right: 0;
+}
+.Card_id{
+	width: 180px;
+}
+
+.el-input__inner{
+	height: 30px;
+	border-radius: 15px;
+	border: 1px solid #666;
+}
+.el-checkbox-button.is-focus .el-checkbox-button__inner{
+	border-color: #DCDCDC!important;
+}
+
+
+/* 健康报告 */
+
+.model-healthy{
+	background-color: #FAFAFA;
+}
+
+#myModal .el-input__icon{
+	display: none;
+}
+.times {
+	margin-bottom: 30px;
+}
+#myModal .el-input__inner{
+	border-radius: 0;
+}
+
+
+.member-table td:after,.newSigning td:after{
+	content: "|";
+	color: #e5e5e5;
+	position: absolute;
+	right: 0;
+	top:50%;
+	transform: translateY(-50%);
+}
+.member-table td:last-child:after{
+	content:normal;
+}
+
+.table>thead>tr>td{
+	vertical-align: middle;!important;
+}
+.import_header{
+	text-align: right;
+	background-color: #ffffff;
+}
+.import{
+	margin-bottom: 20px;
+	color: #10b9b9;
+	cursor: pointer;
+}
+.import_com{
+	background-color: #fafafa;
+}
+.import_title{
+	font-weight: 600;
+	color: #000000;
+	margin: 20px 25px 0 10px;
+}
+.select_imp{
+	height: 30px;
+	border-radius: 15px;
+	color: #10b9b9;
+	border: 1px solid #10b9b9;
+	background-color: #ffffff;
+	width: 100px;
+	text-align: center;
+	line-height: 30px;
+	cursor: pointer;
+}
+.select_imp:hover{
+	background-color: #10b9b9;
+	color: #ffffff;
+}
+.title_list{
+	background-color: #f2dede;
+	color: #a94442;
+	padding: 10px;
+	border: 1px solid #ebccd1;
+	margin-top: 20px;
+}
+input[type=file]{
+	display: none!important;
+}
+.el-button--primary{
+	background-color: #10b9b9!important;
+	color: #ffffff!important;
+}
+.el-icon-close:before{
+	/*display: none;*/
+}
+.el-icon-document{
+	display: none;
+}
+.select_org{
+	text-align: right;
+	margin: 20px;
+}
+.select_org .el-input__icon{
+	top: 5px!important;
+}
+
+.el-button--success{
+	background-color: #10b9b9!important;
+	border-color: #10B9B8!important;
+}
+.el-button--success:hover{
+	background-color: #999999!important;
+	border-color: #999999!important;
+}

@@ -1,0 +1,488 @@
+.title-doc{
+	font-size:14px;
+	color:#fff;
+	text-align:left;
+	padding: 27px 0 25px 30px;
+	font-weight: 600;
+}
+.doc-search{
+	background: #fff;
+    width: 1140px;
+    height:105px;
+    margin-left: 30px;
+}
+.search-left{
+	max-width: 710px;
+	padding:15px 20px;
+	font-size:14px;
+	color:#666;
+	text-align:left;
+	display:inline-block;
+	float: left;
+}
+.doc-title,.doc-num,.doc-name,.doc-mechanism,.doc-team{
+	border-radius:15px;
+	height:30px;
+	border: 1px solid #666;
+    margin-right: 18px;
+    padding: 0 10px;
+}
+.doc-title{
+	width:140px;
+}
+.doc-num{
+	width:160px;
+}
+.doc-name{
+	width:137px;
+}
+.doc-mechanism{
+	width:300px;
+	margin-top: 15px;
+}
+.doc-team{
+	width:200px;
+	margin-top: 15px;
+}
+.search-right{
+	float:right;
+	padding:37px 0;
+}
+.doc-search-btn{
+	width: 58px;
+    height: 28px;
+    line-height: 26px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.doc-add-btn{
+	width: 110px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.doc-add-btn img{
+	vertical-align: text-top;
+	margin-right: 8px;
+}
+.doc-bg-color{
+	width: 100%;
+    /*min-height: 693px;*/
+    background-color: #F5F5F5;
+}
+.doc-table{
+	position: relative;
+    margin-top: -10px;
+    left: 30px;
+    width: 1140px;
+    /*min-height: 720px;*/
+    background-color: #FFFFFF;
+    z-index: 9;
+    text-align: center;
+    padding:20px;
+    box-shadow: 0 1.1px 2px #DCDCDC;
+	padding-bottom:52px;
+}
+.doc-table th{
+	color:#10b9b9;
+	text-align: center;
+}
+.doc-table td,.doc-table th{
+	border:none !important;
+}
+.doc-poi{
+	cursor: pointer;
+}
+.doc-poi span{
+	margin-right: 7px;
+}
+.doc-table tr:nth-child(even){
+    background:#f8f9fb;
+}
+.doc-page{
+	border-top: 1px solid #eee;
+	padding:20px;
+}
+#doc-add,#doc-edit{
+	font-size:14px;
+}
+.doc-modal-style{
+	width:900px;
+}
+.doc-modal-header{
+	padding:18px 20px;
+	background: linear-gradient(to left, #3ad3ce 0%,#10adad 100%);
+	color:#fff;
+}
+.close, .close:hover {
+    opacity: 1 !important;
+    color: #fff !important;
+    font-size:18px !important;
+}
+.doc-red{
+	font-size: 12px;
+	color:#ff3300;
+	vertical-align: top;
+}
+.doc-add-left,.doc-add-right{
+	display: inline-block;
+	margin:15px 0;
+	vertical-align: middle;
+}
+.doc-add-left{
+	margin-right: 90px;
+}
+.doc-add-Community{
+	width:300px;
+	height:30px;
+	margin-bottom: 15px;
+	border:1px solid #666;
+	margin-left: 15px;
+}
+.doc-add-pic{
+	display: inline-block;
+	width:75px;
+	height:75px;
+	border:1px solid #666;
+	margin-left: 22px;
+	margin-bottom: 15px;
+    vertical-align: top;
+}
+.doc-add-pic-tit img{
+	margin: 10px 10px 10px 20px;
+}
+.doc-add-pic-tit span{
+	margin-left: 13px;
+	font-size: 12px;
+    color: #666;
+}
+.doc-add-notes{
+	vertical-align: bottom;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+    margin-left: 10px;
+	padding-top: 53px;
+}
+.doc-add-num{
+	width:200px;
+	height:30px;
+	margin-bottom: 15px;
+	border:1px solid #666;
+	margin-left: 15px;
+}
+.doc-add-pwd{
+	width:200px;
+	height:30px;
+	border:1px solid #666;
+	/*margin-left: 7px;*/
+}
+.doc-add-name,.doc-add-phone{
+	width:120px;
+	height:30px;
+	margin-bottom: 15px;
+	border:1px solid #666;
+	margin-left: 15px;
+}
+.doc-add-name-e,.doc-add-phone-e{
+	width:120px;
+	height:30px;
+	margin-bottom: 15px;
+	border:1px solid #666;
+	margin-left: 10px;
+}
+.doc-add-ID,.doc-add-role,.doc-add-title{
+	width:160px;
+	height:30px;
+	margin-bottom: 15px;
+	border:1px solid #666;
+	margin-left: 15px;
+}
+.doc-add-role,.doc-add-title{
+	margin-left: 43px;
+}
+.doc-add-title{
+	margin-bottom: 0;
+}
+.doc-modal-body-style{
+	padding:30px;
+}
+.doc-add-sex{
+	margin-left: 15px;
+}
+.doc-add-sex input{
+	margin-left: 5px;
+}
+.doc-modal-add-btn,.doc-modal-add-cancle{
+    width:90px;
+    height:30px;
+    line-height: 28px;
+    border:none;
+    border-radius:13px;
+    text-align:center;
+    border:1px solid #10adad;
+    cursor:pointer;
+}
+.doc-modal-add-btn{
+    background: linear-gradient(to left, #3ad3ce 0%,#10adad 100%);
+    color:#fff;
+    margin-right:20px;
+}
+.doc-modal-add-cancle{
+    border:1px solid #10adad;
+    color:#10adad;
+    background:#fff;
+}
+.doc-modal-add-btn:hover{
+    background: #999;
+    color:#fff;
+    border:1px solid #10adad;
+    margin-right:20px;
+    cursor:pointer;
+}
+.doc-modal-add-cancle:hover{
+    border:1px solid #10adad;
+    color:#10adad;
+    background:#e5e5e5;
+    cursor:pointer;
+}
+.doc-add-adept,.doc-add-introduction{
+	width:760px;
+	height:100px;
+	margin-left: 14px;
+	vertical-align: top;
+	border:1px solid #666;
+}
+.doc-add-adept{
+	margin-left:42px;
+	margin-bottom: 15px;
+}
+.modal-del-style{
+	width:400px;
+	background:#fafafa;
+}
+.del-con{
+	height:150px;
+	line-height: 150px;
+	text-align: center;
+}
+
+/* 分页 */
+.all-nums{
+	float: left;
+}
+.el-pagination{
+	float: right;
+	margin-right: 20px;
+}
+.el-pagination{
+	text-align: right;
+}
+.el-pagination.is-background .el-pager li.active{
+	background-color: #10b9b9 !important;
+	color: #ffffff !important;
+
+}
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+	border:1px solid #e5e5e5 !important;
+	background-color: #FFFFFF !important;
+	border-radius: 4px !important;
+	color: #999999 !important;
+}
+.titleSea{
+	width: 140px;
+	border-radius: 15px;
+	margin-bottom: 15px;
+}
+.titleWidth{
+	width: 300px;
+}
+.doc-search input{
+	border: 1px solid #666666;
+	background-color: #ffffff;
+	height: 30px;
+	padding: 0 10px;
+	border-radius: 15px;
+}
+
+.el-select .el-input .el-select__caret{
+	position: relative;
+	top: 4px;
+}
+.qyst input{
+	height: 30px;
+	/*margin: 0 0 15px 15px;*/
+	border:1px solid #666;
+	width: 160px;
+	margin-bottom: 15px;
+}
+.qysq-label{
+	margin: 0 15px 15px 0;
+}
+.doc-rig{
+	margin-right: 40px;
+}
+.modal-textarea{
+	border: 1px solid #666666;
+	/*margin-left: 12px;*/
+	border-radius: 4px;
+	padding: 5px;
+	width: 760px;
+	height: 55px;
+	background-color: #ffffff;
+	resize:none;
+	vertical-align: text-top;
+}
+.rem-model{
+	position: relative;
+	bottom: 25px;
+	float: right;
+	margin-right: 10px;
+}
+.rem-model-sc{
+	position: relative;
+	bottom: 25px;
+	float: right;
+	margin-right: 10px;
+}
+.doc-red-mar{
+	margin-right: 25px;
+	position: relative;
+}
+.ysjj{
+	margin-top: 15px;
+}
+.text{
+	position: absolute;
+	bottom: 102px;
+	right: 28px;
+}
+/* 头像 */
+.avatar-uploader .el-upload {
+	border: 1px solid #666;
+	border-radius: 6px;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	height: 75px;
+}
+.avatar-uploader .el-upload:hover {
+	border-color: #409EFF;
+}
+.avatar-uploader-icon {
+	font-size: 28px;
+	color: #8c939d;
+	width: 120px;
+	/*height: 75px;*/
+	/*line-height: 75px;*/
+	text-align: center;
+}
+.avatar {
+	width: 120px;
+	height: 75px;
+	display: block;
+}
+.avatar-uploader-icon{
+	position: relative;
+	top:23px;
+}
+input[type=file]{
+	display: none!important;
+}
+.doc-avatar{
+	display: flex;
+	flex-direction:row;
+}
+.ts-title{
+	vertical-align: bottom;
+}
+.el-radio__input.is-checked .el-radio__inner{
+	border-color: #34CEC9;
+	background: #34CEC9;
+}
+.el-radio__input.is-checked+.el-radio__label{
+	color: #34CEC9 ;
+}
+
+#doc-add label{
+	font-weight: normal;
+}
+/* 控制 删除医生是否显示 */
+.hiddenDoc{
+	visibility: hidden;
+}
+.w-right{
+	margin-right: 39px;
+}
+.model-required:after{
+	content: '*';
+	color: #ff3300;
+	font-size: 12px;
+}
+#doc-edit label{
+	font-weight: normal!important;
+}
+
+.gateway{
+	height: 30px;
+	width: 310px;
+	border:1px solid #666;
+	padding: 0 10px;
+}
+.gateway_label{
+	height: 30px;
+}
+.gateway-con{
+	height: 100px;
+	text-align: center;
+	padding-top: 35px;
+}
+
+.doc-table td:after,.newSigning td:after{
+	content: "|";
+	color: #e5e5e5;
+	position: absolute;
+	right: 0;
+	top:50%;
+	transform: translateY(-50%);
+}
+.doc-table td:last-child:after{
+	content:normal;
+}
+.table>thead>tr>td{
+	vertical-align: middle!important;
+}
+
+/*修改个别option距离上边的问题  */
+.m_top{
+	top: 190px !important;
+}
+.m_topjg{
+	top: 178px !important;
+}
+.m_topzc_w{
+	top: 355px !important;
+}
+.m_topzc{
+	top: 313px !important;
+}
+.m_topjs{
+	top: 320px !important;
+}
+
+.m_topzc_w .el-scrollbar,.m_topjs .el-scrollbar {
+	height: 200px!important;
+	overflow-y:hidden !important;
+}
+.m_topzc_w .el-scrollbar__wrap ,.m_topjs .el-scrollbar__wrap {
+	overflow-x: hidden;
+}
+

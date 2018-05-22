@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>标签管理</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/tag.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <!--  <span>其他管理</span>
+                      <span>></span>-->
+                    <span>标签管理</span>
+                </div>
+                <!--头部搜索添加 -->
+                <div class="search">
+                    <span class="add-jg" data-toggle="modal" data-target="#myModal" @click="CreateTag"><img
+                            src="/img/doc-add-btn.png" style="position: relative;top:-2px;">添加标签</span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="bg-color">
+                <div class="org-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>标签编码</th>
+                            <th>标签名称</th>
+                            <th>居民数量</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in TagList.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.code}}</td>
+                            <td style="width: 350px;">{{item.name}}</td>
+                            <td class="org-name">{{item.number}}</td>
+                            <td class="font-color">
+                                <img src="/img/icon_edit.png" data-toggle="modal"
+                                     data-target="#myModaEdit" @click="GetTeamContent(item.tag_id)">
+                                <img src="/img/icon_del.png" data-toggle="modal" data-target="#myModaDel"
+                                     @click="delOrg(item.tag_id)" v-if="item.tag_id != '0'" class="edit_icon">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="TagList.count>0">共{{TagList.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="TagList.count"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="TagList.pages"
+                            :total="TagList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加标签 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel">添加标签</div>
+                </div>
+                <div class="modal-body">
+                    <span class="Prompt">*为必填项</span>
+                    <div class="model-org">
+                        <form id="add_team">
+                            <label id="addteamName" class="add_right model-required">标签编码</label>
+                            <input type="text" placeholder="请输入标签编码" validator="notNull" v-model="addorgCode"
+                                   vname="EditteamName">
+                            <div>
+                                <label id="addteamCode" class="add_right model-required">标签名称</label>
+                                <input type="text" placeholder="请输入标签名称" v-model="addorgName" validator="notNull"
+                                       vname="EditteamCode" vtype="loginName" maxlength="10">
+                            </div>
+                        </form>
+                        <div class="errorText"></div>
+                        <div class="meminfotips"></div>
+                        <div class="error_message"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="SubTag">保存</span>
+                    <span class="btn-qx" data-dismiss="modal" @click="cancel">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 编辑标签 弹出层 -->
+    <div class="modal fade" id="myModaEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelEdit">编辑标签</div>
+                </div>
+                <div class="modal-body">
+                    <span class="Prompt">*为必填项</span>
+                    <div class="model-org">
+                        <form id="Edit_team">
+                            <label id="EditteamName" class="add_right model-required">标签编码</label>
+                            <input type="text" placeholder="请输入标签编码" validator="notNull" v-model="orgCode"
+                                   vname="EditteamName" maxlength="10">
+                            <!--<span>{{orgCode}}</span>-->
+                            <div>
+                                <label id="EditteamCode" class="add_right model-required">标签名称</label>
+                                <input type="text" placeholder="请输入标签团队" v-model="orgName" validator="notNull"
+                                       vname="EditteamCode" maxlength="10">
+                            </div>
+                        </form>
+                        <div class="errorText"></div>
+                        <div class="meminfotips"></div>
+                        <div class="error_message"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="SubTeamEdit">保存</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除标签信息 弹出层 myModaDel-->
+    <div class="modal fade" id="myModaDel" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-dia" role="document">
+            <div class="content-del">
+                <div class="del-con">
+                    确定删除标签信息?
+                </div>
+                <div class="modal-footer" style="background-color: #ffffff">
+                    <span class="btn-qd" data-dismiss="modal" @click="subDel">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                avatar: '',
+                name: '',
+
+                // Organization:[],
+                //标签额列表
+                TagList: {},
+                page: '',
+                // 标签编码
+                orgCode: '',
+                TagObj: {},
+                // 标签名称
+                orgName: '',
+                //    添加
+                addorgCode: '',
+                addorgName: '',
+                //    删除标签
+                delDagId: '',
+                // health_otherTagId:health.otherTagId
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.getTagList();
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            // 创建标签
+            CreateTag() {
+                this.addorgName='';
+                let url = health.apiUrl + 'backend/tag/create';
+                $.get(url, {
+                    token: $.getToken(),
+                }, res => {
+                    if (res.code == 0) {
+                        this.addorgCode = res.content.code;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //创建标签 确定
+            SubTag() {
+                let url = health.apiUrl + 'backend/tag/create?token=' + $.getToken();
+                $.post(url, {
+                    code: this.addorgCode,
+                    name: this.addorgName
+                }, res => {
+                    if (res.code == 0) {
+                        this.addorgName = '';
+                        $('#myModal').modal('hide');
+                        this.$message('创建成功');
+                        this.getTagList();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 获取标签列表
+            getTagList() {
+                let url = health.apiUrl + 'backend/tag';
+                $.get(url, {
+                    token: $.getToken(),
+                    page_size: health.BigPageSize,
+                    page: this.page
+                }, res => {
+                    if (res.code == 0) {
+                        this.TagList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //分页
+            CurrentChange(val) {
+                this.page = val;
+                this.getTagList();
+            },
+            // 点击编辑
+            GetTeamContent(id) {
+                this.TagidEdit = id;
+                let url = health.apiUrl + 'backend/tag/update';
+                $.get(url, {
+                    token: $.getToken(),
+                    tag_id: this.TagidEdit,
+                    name: '',
+                }, res => {
+                    if (res.code == 0) {
+                        this.TagObj = res.content;
+                        this.orgCode = this.TagObj.code;
+                        this.orgName = this.TagObj.name;
+                    }
+                    else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //保存
+            SubTeamEdit() {
+                if (validateForm(Edit_team)) {
+                    let url = health.apiUrl + 'backend/tag/update?token=' + $.getToken();
+                    $.post(url, {
+                        tag_id: this.TagidEdit,
+                        name: this.orgName,
+                    }, res => {
+                        if (res.code == 0) {
+                            $('#myModaEdit').modal('hide');
+                            this.$message('修改成功');
+                            this.getTagList();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            // 点击删除
+            delOrg(id) {
+                this.delDagId = id;
+            },
+            //删除标签
+            subDel() {
+                let url = health.apiUrl + 'backend/tag/delete?token=' + $.getToken();
+                $.post(url, {
+                    tag_id: this.delDagId
+                }, res => {
+                    if (res.code == 0) {
+                        this.$message('删除成功');
+                        this.getTagList();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+
+
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+            cancel() {
+                this.addorgName = '';
+            },
+        },
+    })
+</script>
+
+
+</body>
+</html>

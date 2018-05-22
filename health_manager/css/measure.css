@@ -1,0 +1,175 @@
+.bg-color{
+    width: 100%;
+    /*height: 900px;*/
+    background-color: #F5F5F5;
+}
+.title-org{
+    font-family: SourceHanSansCN-Bold;
+    color: #ffffff;
+    text-align: left;
+    padding: 27px 0 25px 30px;
+    font-weight: 600;
+}
+.select-con{
+    overflow: hidden;
+    font-family: SourceHanSansCN-Regular;
+}
+.search{
+    height: 75px;
+    /*line-height: 110px;*/
+    background-color: #FFFFFF;
+    text-align: left;
+    margin: 0 30px;
+    padding: 15px 0;
+    display: flex;
+    flex-direction: row;
+}
+.search input{
+    border: 1px solid #666666;
+    background-color: #ffffff;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+.search span{
+    margin: 0 10px 0 30px;
+}
+.ResName{
+    width: 120px;
+}
+.project{
+    width: 180px!important;
+}
+.el-select{
+    width: 106px;
+}
+.org{
+    width: 300px;
+}
+.suTeam{
+    width: 210px;
+}
+.search-Btn{
+    margin-top: 45px;
+    position: relative;
+    top: 25px;
+}
+
+.search-btn{
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    border: 1px solid #00cccc;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.search-btn img{
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.search-btn:hover{
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+.org-lists{
+    position: absolute;
+    top: 190px;
+    left: 270px;
+    width: 1140px;
+    /*height: 720px;*/
+    background-color: #FFFFFF;
+    z-index: 9;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.org-lists table{
+    border-bottom: 1px solid #dcdcdc;
+    width: 1100px;
+    margin: 0 0 20px 20px;
+}
+.org-lists th{
+    height: 18px;
+    font-family: SourceHanSansCN-Bold;
+    padding: 20px 0 12px 0;
+    text-align: center;
+    width: 200px;
+    color: #10b9b9;
+}
+.org-lists td{
+    color: #333333;
+    font-family:SourceHanSansCN-Regular;
+    height: 40px;
+    /*line-height: 40px;*/
+    text-align: center;
+    position: relative;
+}
+.org-lists .org-name{
+    width: 200px;
+}
+.org-lists .org-address{
+    width: 420px;
+}
+.org-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+}
+.org-lists td:last-child:after{
+    content:normal;
+}
+.org-lists td:last-child{
+    width: 180px;
+}
+.org-lists .font-color{
+    color: #10b9b9;
+    cursor: pointer;
+}
+.content-th{
+    position: relative;
+}
+.search .el-input__icon{
+    position: relative;
+    top:6px;
+    right: -18px;
+}
+.el-pagination{
+    float: right;
+    margin-right: 20px;
+}
+.el-pagination{
+    text-align: right;
+}
+.el-pagination.is-background .el-pager li.active{
+    background-color: #10b9b9 !important;
+    color: #ffffff !important;
+
+}
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+    border:1px solid #e5e5e5 !important;
+    background-color: #FFFFFF !important;
+    border-radius: 4px !important;
+    color: #999999 !important;
+}
+.all-nums{
+    margin-left: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

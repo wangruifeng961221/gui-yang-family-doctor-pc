@@ -1,0 +1,204 @@
+/*设置body 默认样式*/
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: #f5f5f5 !important;
+}
+
+/*去除input 默认样式*/
+input {
+    border: none;
+    outline: none;
+}
+
+/* input 的placeholder 的设置*/
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+    color: #999999 !important;
+    font-size: 14px;
+    text-align: left;
+}
+
+input:-moz-placeholder, textarea:-moz-placeholder {
+    color: #999999 !important;
+    font-size: 14px;
+    text-align: left;
+}
+
+input::-moz-placeholder, textarea::-moz-placeholder {
+    color: #999999 !important;
+    font-size: 14px;
+    text-align: left;
+}
+
+input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+    color: #999999 !important;
+    font-size: 14px;
+    text-align: left;
+}
+
+span {
+    display: inline-block;
+}
+
+/* 去掉默认样式 */
+body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, dl, dt, dd, ul, ol, li, button, input, textarea, th, td {
+    margin: 0;
+    padding: 0
+}
+
+ul, li {
+    list-style: none;
+}
+
+/* --ie清除--*/
+select::-ms-expand {
+    display: none;
+}
+
+/* --火狐、谷歌清除--*/
+
+/*  option 样式清除*/
+option::-ms-expand {
+    display: none;
+}
+
+option {
+    -moz-appearance: none; /* Firefox */
+    -webkit-appearance: none; /* Safari 和 Chrome */
+    appearance: none;
+}
+
+/* 清除浮动 */
+.clear:after {
+    display: block;
+    height: 0;
+    content: "";
+    clear: both
+}
+
+/* 超出显示... */
+.dot {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* 去掉a 标签的默认样式 */
+a {
+    text-decoration: none !important;
+}
+
+/* 错误信息 */
+.errorText, .meminfotips, .error_message {
+    color: #ff3300;
+    font-size: 12px;
+    z-index: 999 !important;
+}
+
+.alert {
+    margin-bottom: 5px !important;
+}
+
+/* 解决闪烁问题 */
+[v-cloak] {
+    display: none;
+}
+
+/* 红色*号 */
+.model-required:after {
+    content: '*';
+    color: #ff3300;
+    font-size: 12px;
+}
+
+.doc-search-btn:hover, .com-search-btn:hover, .search-btn:hover {
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+
+/* label 不加粗 */
+label {
+    font-weight: normal !important;
+}
+
+/* 模态框 偏移问题 */
+body.modal-open {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+.page-cover {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    background: rgba(0, 0, 0, 0.4);
+    width: 100%; /*宽度设置为100%，这样才能使隐藏背景层覆盖原页面*/
+    height: 100%;
+    filter: alpha(opacity=60); /*设置透明度为60%*/
+    opacity: 0.6; /*非IE浏览器下设置透明度为60%*/
+    z-Index: 9997;
+}
+
+.spinner {
+    margin: 200px auto 0;
+    width: 150px;
+    text-align: center;
+}
+
+.spinner > div {
+    width: 30px;
+    height: 30px;
+    background-color: #10B9b8;
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+    animation: bouncedelay 1.4s infinite ease-in-out;
+    /* Prevent first frame from flickering when animation starts */
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+    0%, 80%, 100% {
+        -webkit-transform: scale(0.0)
+    }
+    40% {
+        -webkit-transform: scale(1.0)
+    }
+}
+
+@keyframes bouncedelay {
+    0%, 80%, 100% {
+        transform: scale(0.0);
+        -webkit-transform: scale(0.0);
+    }
+    40% {
+        transform: scale(1.0);
+        -webkit-transform: scale(1.0);
+    }
+}
+/* 文字左右对齐 */
+.font_left_right{
+    text-align: justify;
+    text-align-last: justify;
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,59 @@
+<div id="app_measured_tabs" v-cloak>
+    <el-tabs v-model="active" @tab-click="changeMeasuredTabs">
+        <el-tab-pane name="first_Ecg" class="Ecg" ref="active_measured_tab"
+                     data-href="/health/user/_details/_measured/_ecg.html">
+            <span slot="label"><img src="/img/icon_Ecg.png"> 心电记录</span>
+        </el-tab-pane>
+        <el-tab-pane name="second_fat" class="Ecg" data-href="/health/user/_details/_measured/_fat.html">
+            <span slot="label"><img src="/img/icon_fat.png"> 脂肪记录</span>
+            脂肪记录
+        </el-tab-pane>
+        <el-tab-pane name="third_pre" class="Ecg" data-href="/health/user/_details/_measured/_pressure.html">
+            <span slot="label"><img src="/img/icon_blood_pressure.png"> 血压记录</span>
+            血压记录
+        </el-tab-pane>
+        <el-tab-pane name="fourth_sugar" class="Ecg" data-href="/health/user/_details/_measured/_sugar.html">
+            <span slot="label"><img src="/img/icon_blood_sugar.png"> 血糖记录</span>
+            血糖记录
+        </el-tab-pane>
+        <el-tab-pane name="fifth_Oxygen" class="Ecg" data-href="/health/user/_details/_measured/_oxygen.html">
+            <span slot="label"><img src="/img/icon_Oxygen.png"> 血氧记录</span>
+            血氧记录
+        </el-tab-pane>
+        <el-tab-pane name="six_Oxygen" class="Ecg">
+            <span slot="label"><img src="/img/icon_weight.png"> 体重记录</span>
+            暂未开放
+        </el-tab-pane>
+        <el-tab-pane name="seven_Oxygen" class="Ecg">
+            <span slot="label"><img src="/img/icon_bloodfat.png"> 血脂记录</span>
+            暂未开放
+        </el-tab-pane>
+        <el-tab-pane name="eighth_Oxygen" class="Ecg">
+            <span slot="label"><img src="/img/icon_urine.png"> 尿液记录</span>
+            暂未开放
+        </el-tab-pane>
+    </el-tabs>
+</div>
+<script type="text/javascript">
+    new Vue({
+        el: "#app_measured_tabs",
+        data() {
+            return {
+                active: 'first_Ecg',
+            }
+        },
+        mounted() {
+            this.changeMeasuredTabs(this.$refs.active_measured_tab);
+        },
+        methods: {
+            changeMeasuredTabs(tab, event) {
+                var target = tab.$el;
+                var templateSrc = target.getAttribute('data-href');
+                if (templateSrc) {
+                    templateSrc = templateSrc + '?r=' + Math.random();
+                    $(target).load(templateSrc); //load
+                }
+            },
+        },
+    });
+</script>

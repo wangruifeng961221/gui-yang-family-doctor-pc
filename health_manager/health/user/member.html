@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>居民管理</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/dy-common.css">
+    <link rel="stylesheet" href="/css/member.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="com-title">
+                    <span>用户管理 > 居民管理</span>
+                </div>
+                <div class="com-search member-search">
+                    居民姓名<input class="member-search-name" type="text" v-model="memName" placeholder="请输入姓名"
+                               style="width: 110px">
+                    证件号码<input class="member-search-ID" type="text" v-model="idCard" placeholder="请输入证件号码"
+                               style="width: 160px">
+                    <span class="w-ly">来源</span><!--<select class="member-search-source"></select>-->
+                    <el-select v-model="value" placeholder="请选择">
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.text"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
+                    <span class="w-ly w-state">签约状态</span><!--<select class="member-search-state"></select>-->
+                    <el-select v-model="valueState" placeholder="请选择">
+                        <el-option
+                                v-for="item in optionsState"
+                                :key="item.value"
+                                :label="item.text"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
+                    <span class="com-search-btn w-search" @click="searchMem" id="w-com-search-btn" style="height: 30px;line-height: 29px;"><img
+                            src="/img/icon_serarch.png"></span>
+                    <span class="member-export-btn" @click="Export"><img src="/img/icon_export.png">导出</span>
+                    <span class="member-export-btn" style="width: 100px;" @click="importMember" data-toggle="modal"
+                          data-target="#member-import"><img src="/img/icon_menber_import.png">居民导入</span>
+                    <span class="com-add-btn" @click="ToMember"><img src="/img/icon_sign.png">签约居民</span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="com-bg-color">
+                <div class="com-table member-table">
+                    <table class="table" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th style="width: 50px">序号</th>
+                            <th style="width: 80px">姓名</th>
+                            <th>联系电话</th>
+                            <th>证件号码</th>
+                            <th>签约机构</th>
+                            <th style="max-width: 240px">签约团队</th>
+                            <th style="width: 80px;" class="dot">来源</th>
+                            <th style="width: 80px">签约状态</th>
+                            <th>申请日期</th>
+                            <th style="width: 75px">操作</th>
+                        </tr>
+                        <tr v-for="(item,index) in TagList.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.mobile}}</td>
+                            <td>{{item.card}}</td>
+                            <td>{{item.org_name}}</td>
+                            <td>{{item.team}}</td>
+                            <td>{{item.from}}</td>
+                            <td><span v-html="item.sign_status"></span></td>
+                            <td><span class="surrender">{{item.sign_date}}</span></td>
+                            <td class="com-poi">
+                                <span class="com-see-btn" @click="ToDetail(item.id)"><img src="/img/icon_see.png" alt=""
+                                                                                          title="查看"></span>
+                                <span class="com-edit-btn" @click="Editmem(item.id)" data-toggle="modal"
+                                      data-target="#member-edit"><img src="/img/icon_edit.png" alt="" title="编辑"></span>
+                            </td>
+                        </tr>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="TagList.count>0">共{{TagList.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="TagList.count"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="TagList.pages"
+                            :total="TagList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑居民资料 -->
+    <div class="modal fade" id="member-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog com-modal-style-big" role="document">
+            <div class="modal-content">
+                <div class="modal-header com-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="com-modal-title">编辑居民资料</div>
+                </div>
+                <div class="modal-body com-modal-body-style">
+                    <div class="errorText"></div>
+                    <div class="member-modal-h">
+                        基本信息
+                        <span class="com-red">*为必填项</span>
+                    </div>
+                    <form id="member_info">
+                    <ul class="member-add-left">
+                        <li>证件号码：<span>{{dataEdit.identity_card}}</span></li>
+                        <li><label style="display: none" id="name">姓名</label>姓&nbsp;&nbsp;&nbsp;名<span class="com-red1">*</span><input style="margin-left: 9px" class="member-edit-modal-name" type="text" v-model="nameEdit" vname="name" validator="notNull">性别：<span>{{dataEdit.gender}}</span>
+                        </li>
+                        <li>出生日期：<span class="member-edit-modal-date">{{dataEdit.birthday}}</span>年龄：<span>{{dataEdit.age}}</span>
+                        </li>
+                    </ul>
+                    <ul class="member-add-right">
+                        <li><label id="phone">联系电话</label><span class="com-red1">*</span><input class="member-edit-modal-phone" type="text" vname="phone" validator="notNull" vtype="mobilePhone"
+                                                                      v-model="phoneEdit"></li>
+                        <li><label id="address_label">联系地址</label><span class="com-red1">*</span><input class="member-edit-modal-dress" type="text" vname="address_label" validator="notNull" maxlength="50"
+                                                                      v-model="addressEdit"></li>
+                        <li><label id="email_label">电子邮箱</label><span class="com-red1"></span><input class="member-edit-modal-email" style="margin-left: 15px" type="text" vname="email_label" validator="Null" vtype="emailNull"
+                                                                      v-model="emailEdit"></li>
+                    </ul>
+                    <div class="com-modal-health">
+                        <div class="member-modal-h">健康资料</div>
+                        <div class="com-modal-label-div">
+                            <el-checkbox-group v-model="checkboxGroup1" @change="ChangeJm" size="medium" :min="1" :max="6">
+                                <el-checkbox-button v-for="city in cities" :label="city.tag_id" :key="city.tag_id"
+                                                    :value="city.tag_id">{{city.name}}
+                                </el-checkbox-button>
+                            </el-checkbox-group>
+
+                            <input type="text" class="com-modal-label-other" id="com-modal-label-other"
+                                   v-show="inputFlag"
+                                   v-model="otherRemark">
+                            <label id="lab_mem_tag" class="hidden">居民标签</label>
+                            <input type="hidden" v-model="checkboxGroup1" vname="lab_mem_tag" validator="notNull" vel-type="select"/>
+                        </div>
+                        <div><label id="health_label">疾病史</label><input class="member-modal-health-History" type="text" vname="health_label" v-model="disease" maxlength="50"></div>
+                        <div><label id="Anaphylaxis_label"></label>过敏史<input class="member-modal-health-Anaphylaxis" type="text" v-model="anaphylaxis" maxlength="50" vname="Anaphylaxis_label"></div>
+                        <div class="blood"><span class="blood-title">血型</span>
+                            <el-select v-model="valueBlood" placeholder="请选择">
+                                <el-option
+                                        v-for="item in optionsBlood"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                            <el-select v-model="valueBloodTwo" placeholder="请选择">
+                                <el-option
+                                        v-for="item in optionsBloodTwo"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <!--<select class="member-modal-health-Blood"></select><select class="member-modal-health-Blood-RH"></select>-->
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="com-modal-add-btn" @click="SubEdit">保存</span>
+                    <span class="com-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--居民导入 member-import-->
+    <div class="modal fade" id="member-import" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog com-modal-style-big" role="document">
+            <div class="modal-content">
+                <div class="modal-header com-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="com-modal-title">居民导入</div>
+                </div>
+                <div class="modal-body com-modal-body-style">
+                    <div class="import_header">
+                        <a class="import" target="_blank" href="/files/template.xls"><img src="">下载导入模板</a>
+                    </div>
+                    <div class="import_com">
+                        <div class="select_org">
+                            <span>机构名称</span>
+                        <el-select v-model="valueOrg" placeholder="请选择机构名称" @change="ChangeOrg">
+                            <el-option
+                                    v-for="item in optionsOrg"
+                                    :key="item.orgid"
+                                    :label="item.cn_name"
+                                    :value="item.orgid">
+                            </el-option>
+                        </el-select>
+                        </div>
+                        <el-upload
+                                class="upload-demo"
+                                ref="upload"
+                                :data="{orgid:valueOrg}"
+                                :action="uploadUrl"
+                                accept=".xls,.xlsx"
+                                :limit="2"
+                                :before-upload="importBeforeUpload"
+                                :on-change="handleChange"
+                                :file-list="fileList"
+                                :on-success="handleSuccess"
+                                :on-error="handleError"
+                                :auto-upload="false">
+                            <el-button slot="trigger" size="small" type="primary">Excel文件上传</el-button>
+                            <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">导入</el-button>
+                        </el-upload>
+                        <div class="title_list">
+                            <ul>
+                                <li>1、请不要修改模板的表头、工作薄内容</li>
+                                <li>2、单次最大导入2000条数据</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="com-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--//居民导出-->
+    <form :action="exportUrl" id="export-form" target="_blank" method="get">
+        <input type="hidden" name="token" :value="$.getToken()">
+        <input type="hidden" name="name" v-model="memName">
+        <input type="hidden" name="card" v-model="idCard">
+        <input type="hidden" name="from" v-model="value">
+        <input type="hidden" name="audit_status" v-model="valueState">
+    </form>
+</div>
+</body>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                //    姓名
+                memName: '',
+                //证件号码
+                idCard: '',
+                //    来源
+                options: [],
+                value: '',
+                //    状态
+                optionsState: [],
+                valueState: '',
+                //    分页
+                TagList: {},
+                page: '',
+                //    标签
+                checkboxGroup1: [],
+                cities: [],
+                //    血型
+                optionsBlood: [{
+                    value: 'A',
+                    label: 'A型'
+                }, {
+                    value: 'B',
+                    label: 'B型'
+                },
+                    {
+                        value: 'AB',
+                        label: 'AB型'
+                    },
+                    {
+                        value: 'O',
+                        label: 'O型'
+                    }],
+                valueBlood: '',
+                // 血型 2
+                optionsBloodTwo: [{
+                    value: 'Rh(+)',
+                    label: 'Rh(+)'
+                }, {
+                    value: 'Rh(-)',
+                    label: 'Rh(-)'
+                }],
+                valueBloodTwo: '',
+                editId: '', //编辑id
+                dataEdit: {},
+                nameEdit: '',  //姓名修改
+                phoneEdit: '',
+                addressEdit: '',
+                emailEdit: '',
+                disease: '',
+                anaphylaxis: '',
+                inputFlag: false,
+                otherRemark: '',  //其他病
+
+                // 居民导入
+                fileList: [{name: '', url: ''}],
+                uploadUrl: $.formateUrl('backend/denizen/import'),
+                exportUrl: $.formateUrl('backend/denizen/export'),
+                optionsOrg: [{
+                    orgid: '',
+                    cn_name: ''
+                }],
+                valueOrg: null
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            //作者菜单
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+
+            this.GetSource();
+            this.GetSignState();
+            this.searchMem();
+        },
+        mounted(){
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //  导入居民
+            importMember(){
+                this.optionsOrg=[];
+                this.valueOrg=null;
+                this.fileList=[{name: '', url: ''}];
+                let url=$.formateUrl('backend/other/get-orgs');
+                $.get(url,res=>{
+                    if(res.code==0){
+                        this.optionsOrg=res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            importBeforeUpload(file){
+                if(!this.valueOrg){
+                    this.$message('请选择一个机构');
+                    return false;
+                }
+
+                if(!this.fileName){
+                    this.$message('请选择一个文件');
+                    return false;
+                }
+
+                $('body').append('<div class="page-cover">' +
+                    '<div class="spinner">\n' +
+                    '  <div class="bounce1"></div>\n' +
+                    '  <div class="bounce2"></div>\n' +
+                    '  <div class="bounce3"></div>\n' +
+                    '</div>' +
+                    '</div>');
+            },
+            handleChange(file, fileList) {
+                this.fileName = file.name;
+            },
+            handleError(err, file, fileList){
+                this.$refs.upload.clearFiles();
+                $('.page-cover').remove();
+            },
+            handleSuccess(res,file,fileList){
+
+                this.$refs.upload.clearFiles();
+                $('.page-cover').remove();
+
+                if(res.code==0){
+                    this.$message('导入成功');
+                    this.searchMem();
+                }else {
+                    this.$message(res.message);
+                }
+            },
+            ChangeOrg(){
+                if(!this.valueOrg){
+                    this.$message('请选择一个机构');
+                    return false;
+                }
+            },
+            submitUpload() {
+                this.$refs.upload.submit();
+            },
+            // 获取来源
+            GetSource() {
+                let url = $.formateUrl('backend/other/member-form');
+                $.get(url, res => {
+                    if(res.code==0){
+                        this.options = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            // 获取签约状态
+            GetSignState() {
+                let url = $.formateUrl('backend/other/audit-status');
+                $.get(url, res => {
+                    if(res.code==0){
+                        this.optionsState = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //  居民列表
+            searchMem() {
+                let url = $.formateUrl('backend/denizen/list');
+                $.get(url, {
+                    page_size: health.BigPageSize,
+                    page: this.page,
+                    name: this.memName,
+                    card: this.idCard,
+                    from: this.value,
+                    audit_status: this.valueState
+                }, res => {
+                    if(res.code==0){
+                        this.TagList = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChange(val) {
+                this.page = val;
+                this.searchMem();
+            },
+            //编辑
+            Editmem(id) {
+                this.dataEdit = '';
+                this.GetAllLabel();
+                this.editId = id;
+                let url = $.formateUrl('backend/denizen/update');
+                $.get(url, {
+                    id: this.editId
+                }, res => {
+                    if(res.code==0){
+                        this.dataEdit = res.content;
+                        this.nameEdit = this.dataEdit.name;
+                        this.phoneEdit = this.dataEdit.mobile;
+                        this.addressEdit = this.dataEdit.address;
+                        this.emailEdit = this.dataEdit.email;
+                        this.disease = this.dataEdit.past_history;
+                        this.anaphylaxis = this.dataEdit.allergy_history;
+                        this.valueBloodTwo = this.dataEdit.rh_blood;
+                        this.valueBlood = this.dataEdit.blood;
+                        this.checkboxGroup1=[];
+                        this.otherRemark='';
+                        this.inputFlag = false;
+                        for (let i = 0; i < this.dataEdit.tags.length; i++) {
+                            this.checkboxGroup1.push(this.dataEdit.tags[i].tag_id);
+                            if (this.dataEdit.tags[i].tag_id == 0) {
+                                this.otherRemark = this.dataEdit.tags[i].tag_name;
+                                this.inputFlag = true;
+                            }
+                        }
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 编辑保存
+            SubEdit() {
+                if(validateForm(member_info)){
+                    if (this.inputFlag) {
+                        if (this.otherRemark == '') {
+                            this.$message('请在其他选项中输入');
+                            return false;
+                        }
+                    }
+                    let arr = [];
+                    for (let i = 0; i < this.checkboxGroup1.length; i++) {
+                        if (this.checkboxGroup1[i] == 0) {
+                            arr.push({
+                                tag_id: this.checkboxGroup1[i],
+                                name: this.otherRemark
+                            })
+                        } else {
+                            arr.push({
+                                tag_id: this.checkboxGroup1[i],
+                                name: ""
+                            })
+                        }
+                    }
+                    let url = $.formateUrl('backend/denizen/update');
+                    $.post(url, {
+                        id: this.editId,
+                        name: this.nameEdit,
+                        mobile: this.phoneEdit,
+                        email: this.emailEdit,
+                        address: this.addressEdit,
+                        past_history: this.disease,
+                        allergy_history: this.anaphylaxis,
+                        blood: this.valueBlood,
+                        rh_blood: this.valueBloodTwo,
+                        tags: arr,
+
+                    }, res => {
+                        if (res.code === 0) {
+                            $('#member-edit').modal('hide');
+                            this.$message('保存成功');
+                            this.searchMem();
+                        }else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //获取系统所有标签
+            GetAllLabel() {
+                let url = $.formateUrl('backend/other/get-tags');
+                $.get(url, res => {
+                    let data = res.content;
+                    this.cities = data;
+                })
+            },
+            // 标签所有选择的
+            ChangeJm(val) {
+                this.checkboxGroup1 = val;
+                var isShow = false;
+                for (let i = 0; i <= this.checkboxGroup1.length; i++) {
+                    if (health.otherTagId == this.checkboxGroup1[i]) {
+                        isShow = true;
+                    }
+                }
+                this.inputFlag = isShow;
+            },
+            // 导出
+            Export() {
+                if (this.memName == '' && this.idCard == '' && this.value == '' && this.valueState == '') {
+                    this.$message('请选择检索条件');
+                } else {
+                    $("#export-form").submit();
+                }
+            },
+            ToDetail(id) {
+
+                let templateHref = '{0}health/user/details.html?id={1}';
+                window.location.href = templateHref.format(health.homeUrl, id);
+            },
+            ToMember() {
+
+                let templateHref = '/health/sign/member.html';
+                window.location.href = templateHref.format(health.homeUrl);
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+
+    });
+    $(".com-edit-btn").click(function () {
+        $("#member-edit").modal('show');
+    });
+
+</script>
+</html>

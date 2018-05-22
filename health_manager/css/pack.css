@@ -1,0 +1,171 @@
+#add_pack .el-select{
+     width: 300px;
+    margin-right: 0;
+}
+#add_pack .el-input__inner{
+    border-radius: 0;
+}
+.pack_org{
+    margin-left: 118px;
+    margin-right: 10px;
+}
+.Service_item{
+    display: flex;
+    flex-direction: row;
+
+}
+.item_table{
+    width: 758px;
+    background-color: #f0f0f0;
+    /*margin-left: 32px;*/
+    text-align: center;
+}
+.item_table .table{
+    width: 718px;
+    margin: 0 0 0 20px;
+}
+.item_table th{
+    text-align: center;
+    color: #10B9B8;
+}
+.item_table td{
+    position: relative;
+}
+.item_table td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+}
+.item_table td:last-child:after{
+    content:normal;
+}
+.item-tr-color{
+    background-color: #FFFFFF;
+}
+.add_item{
+    margin:40px 0  20px 0;
+}
+.add_item .inp_shu{
+    width: 160px;
+    border-radius: 15px;
+    margin-right: 0;
+    border:1px solid #666;
+    padding:0 10px ;
+    height: 30px;
+}
+.Shuttle{
+    margin-left: 10px;
+}
+.clear-up{
+    position: relative;
+    right: 33px;
+    top:0;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    background-color: #999999;
+    border-radius: 50%;
+    font-size: 14px;
+    color: #FFFFFF;
+    text-align: center;
+    cursor: pointer;
+}
+.clearShu{
+    position: relative;
+    left: -30px;
+}
+.search-btn{
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    border: 1px solid #00cccccc;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.search-btn img{
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.search-btn:hover{
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+
+.search-Shu{
+    margin-right: 30px;
+    background-color: #109b9b;
+}
+.clear_OrgName{
+    visibility: hidden;
+}
+.stop{
+    width: 90px;
+    border-radius: 15px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border: 1px solid #10b9b9;
+    color:#10b9b9 ;
+    cursor: pointer;
+}
+.add_header_item{
+    text-align: right;
+    margin-bottom: 20px;
+}
+.item_addTable{
+    margin-left: 76px;
+}
+.item_addTable img{
+    cursor: pointer;
+}
+.sales{
+    margin-right:25px;
+}
+.add_serveritem{
+    width: 125px;
+    line-height: 25px;
+}
+.item_add_hidden{
+    margin: 40px 0 15px 0;
+    text-align: right;
+}
+.table-server {
+    display: flex;
+    flex-direction: row;
+}
+
+.table>tbody>tr>td{
+    vertical-align: middle!important;
+}
+.all-num-model{
+    padding: 20px 0 20px 57px;
+}
+.table>thead>tr>th{
+    border-bottom: 0!important;
+}
+.table>tbody>tr>td{
+    border-top: 0!important;
+}
+.doc-poi img{
+    cursor: pointer;
+}
+
+.org_disable input{
+    height: 30px!important;
+}
+.el-checkbox-group{
+    width: 744px;
+    margin-left: 0!important;
+}
+
+
+
+
+
+
+

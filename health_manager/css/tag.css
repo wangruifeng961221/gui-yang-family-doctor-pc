@@ -1,0 +1,187 @@
+
+.bg-color{
+    width: 100%;
+    /*height: 693px;*/
+    background-color: #F5F5F5;
+}
+.title-org{
+    font-family: SourceHanSansCN-Bold;
+    color: #ffffff;
+    text-align: left;
+    padding: 27px 0 25px 30px;
+    font-weight: 600;
+}
+.search{
+    height: 60px;
+    line-height: 60px;
+    background-color: #FFFFFF;
+    text-align: right;
+    margin: 0 30px;
+}
+.add-jg{
+    width: 110px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.add-jg img{
+    width: 14px;
+    height: 14px;
+    vertical-align: text-bottom;
+    margin-right: 10px;
+}
+.org-lists{
+    position: relative;
+    margin-top: -50px;
+    left: 30px;
+    width: 1140px;
+    /*height: 720px;*/
+    background-color: #FFFFFF;
+    z-index: 9;
+    padding-bottom: 50px;
+    margin-bottom: 20px;
+}
+.org-lists table{
+    border-bottom: 1px solid #dcdcdc;
+    width: 1100px;
+    margin: 0 0 20px 20px;
+}
+.org-lists th{
+    height: 18px;
+    font-family: SourceHanSansCN-Bold;
+    padding: 20px 0 12px 0;
+    text-align: center;
+    color: #10b9b9;
+}
+.org-lists td{
+    color: #333333;
+    font-family:SourceHanSansCN-Regular;
+    height: 40px;
+    /*line-height: 40px;*/
+    text-align: center;
+    position: relative;
+}
+.org-lists .org-name{
+    width: 250px;
+}
+.org-lists .org-address{
+    width: 420px;
+}
+.org-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+}
+.org-lists td:last-child:after{
+    content:normal;
+}
+.org-lists td:last-child{
+    width: 180px;
+}
+.org-lists .font-color{
+    color: #10b9b9;
+    cursor: pointer;
+}
+.font-color img{
+    width: 16px;
+    height: 16px;
+}
+.modal-body{
+    background-color: #FAFAFA;
+    font-family: SourceHanSansCN-Regular;
+}
+.modal-footer span{
+    border-radius: 15px;
+    width: 90px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    border: 1px solid #109b9b;
+    margin-right: 15px;
+}
+.btn-qd{
+    color: #FFFFFF;
+    background-color: #106969;
+}
+.btn-qx{
+    color: #106969;
+    background-color: #ffffff;
+}
+.btn-qd:hover{
+    background-color: #999999;
+}
+.btn-qx:hover{
+    background-color: #e5e5e5;
+}
+.edit_icon{
+    /*margin-right: 20px;*/
+    margin-left: 20px;
+}
+.bg-tr-color{
+    background-color: #F8F9FB;
+}
+.model-required:after{
+    content: '*';
+    color: #ff3300;
+    font-size: 12px;
+}
+.model-org input{
+    border: 1px solid #666666;
+    background-color: #ffffff;
+    height: 30px;
+    padding: 0 10px;
+    margin-top: 15px;
+    width: 495px;
+}
+.all-nums{
+    margin-left: 20px;
+}
+
+/*  删除*/
+.content-del{
+    width: 400px;
+    height: 150px;
+    border-radius: 2px;
+    background-color: #fafafa;
+}
+.del-con{
+    text-align: center;
+    line-height: 150px;
+    color: #333333;
+}
+.modal-dialog{
+    /*width: 400px!important;*/
+}
+.el-pagination{
+    float: right;
+    margin-right: 20px;
+}
+.el-pagination{
+    text-align: right;
+}
+.el-pagination.is-background .el-pager li.active{
+    background-color: #10b9b9 !important;
+    color: #ffffff !important;
+
+}
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+    border:1px solid #e5e5e5 !important;
+    background-color: #FFFFFF !important;
+    border-radius: 4px !important;
+    color: #999999 !important;
+}
+.Prompt{
+    color:#ff3300 ;
+    margin-bottom: 10px;
+}
+#myModal label,#myModaEdit label{
+    font-weight: normal;
+}
+

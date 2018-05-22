@@ -1,0 +1,550 @@
+/*背景颜色*/
+.bg-color{
+    width: 100%;
+    /*height: 693px;*/
+    background-color: #F5F5F5;
+}
+.title-org{
+    font-family: SourceHanSansCN-Bold;
+    color: #ffffff;
+    text-align: left;
+    padding: 27px 0 25px 30px;
+    font-weight: 600;
+}
+.select-con{
+    overflow: hidden;
+    font-family: SourceHanSansCN-Regular;
+}
+.search{
+    height: 60px;
+    line-height: 60px;
+    background-color: #FFFFFF;
+    text-align: right;
+    margin: 0 30px;
+}
+.inp_mec{
+    border:1px solid #999999;
+    border-radius: 15px;
+    height: 30px;
+    width: 210px;
+    padding: 0 35px 0 15px;
+}
+.clear-up{
+    position: relative;
+    right: 33px;
+    top:0;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    background-color: #999999;
+    border-radius: 50%;
+    font-size: 14px;
+    color: #FFFFFF;
+    text-align: center;
+    cursor: pointer;
+}
+.search-btn{
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    border: 1px solid #00cccc;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.search-btn img{
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.search-btn:hover{
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+.clearNo{
+    visibility:hidden;
+}
+.add-jg{
+    width: 110px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.add-jg img{
+    width: 14px;
+    height: 14px;
+    vertical-align: text-bottom;
+    margin-right: 10px;
+}
+.org-lists{
+    position: relative;
+    margin-top: -50px;
+    left: 30px;
+    width: 1140px;
+    /*height: 720px;*/
+    background-color: #FFFFFF;
+    z-index: 9;
+    /*overflow: hidden;*/
+    padding-bottom: 50px;
+    margin-bottom: 20px;
+}
+.org-lists table{
+    border-bottom: 1px solid #dcdcdc;
+    width: 1100px;
+    margin: 0 0 20px 20px;
+}
+.org-lists th{
+    height: 18px;
+    font-family: SourceHanSansCN-Bold;
+    padding: 20px 0 12px 0;
+    text-align: center;
+    width: 110px;
+    color: #10b9b9;
+}
+.org-lists td{
+    color: #333333;
+    font-family:SourceHanSansCN-Regular;
+    height: 40px;
+    /*line-height: 40px;*/
+    text-align: center;
+    position: relative;
+}
+.org-lists .org-name{
+    width: 350px;
+}
+.org-lists .org-address{
+    width: 420px;
+    padding: 0 20px;
+}
+.org-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+}
+.org-lists td:last-child:after{
+    content:normal;
+}
+.org-lists td:last-child{
+    width: 180px;
+}
+.org-lists .font-color{
+    color: #10b9b9;
+    cursor: pointer;
+}
+.font-color img{
+    width: 16px;
+    height: 16px;
+}
+.edit_icon{
+    margin-right: 20px;
+}
+.bg-tr-color{
+    background-color: #F8F9FB;
+}
+
+.all-nums{
+    float: left;
+    position: relative;
+    top: 5px;
+    margin-left: 40px;
+    font-size: 12px;
+    color: #999999;
+    font-family: SourceHanSansCN-Regular;
+}
+.el-pagination{
+    text-align: right;
+}
+.el-pagination.is-background .el-pager li.active{
+    background-color: #10b9b9 !important;
+    color: #ffffff !important;
+
+}
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+    border:1px solid #e5e5e5 !important;
+    background-color: #FFFFFF !important;
+    border-radius: 4px !important;
+    color: #999999 !important;
+}
+.paging{
+    margin: 0 30px 30px 0;
+}
+.second-menu .second-menu a{
+    text-decoration: none !important;
+}
+.orgPaging span{
+    width: 60px;
+}
+/* 添加机构弹出层 */
+.modal-content{
+    width: 900px;
+    left: -150px;
+    top: 93px;
+    background-color: #fafafa
+}
+.modal-header{
+    height: 50px;
+    background-color: #1DB9B8;
+    line-height: 50px;
+    color: #FFFFFF;
+    font-size: 14px;
+}
+h4{
+    font-size: 14px;
+}
+.modal-header .close{
+    color: #FFFFFF;
+    font-size: 16px;
+}
+.modal-body{
+    background-color: #FAFAFA;
+    font-family: SourceHanSansCN-Regular;
+}
+.modal-body p{
+    font-size: 16px;
+    color: #10b9b9;
+    margin-left: 15px;
+}
+.modal-footer{
+    border: none !important;;
+    background-color: #ffffff;
+}
+.modal-footer span{
+    border-radius: 15px;
+    width: 90px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    border: 1px solid #109b9b;
+    margin-right: 15px;
+}
+.btn-qd{
+    color: #FFFFFF;
+    background-color: #106969;
+}
+.btn-qx{
+    color: #106969;
+    background-color: #ffffff;
+}
+.btn-qd:hover{
+    background-color: #999999;
+}
+.btn-qx:hover{
+    background-color: #e5e5e5;
+}
+.model-org{
+    margin: 0 15px;
+}
+.model-org label{
+    margin-right: 8px;
+    color: #333333;
+}
+.model-org input{
+    border: 1px solid #666666;
+    background-color: #ffffff;
+    height: 30px;
+    padding: 0 10px;
+}
+.model-org-name{
+    margin: 15px 8px 0 0;
+    width: 300px;
+}
+.model-required:after{
+    content: '*';
+    color: #ff3300;
+    font-size: 12px;
+}
+.area{
+    width: 50px;
+    margin-right: 10px;
+}
+.seat{
+    width: 177px;
+    margin-right: 8px;
+}
+.resident{
+    width: 70px;
+}
+.el-select .el-input .el-select__caret{
+    line-height: 28px !important;
+}
+.el-icon-arrow-up:before {
+    content: "\e605";
+    color: #666666;
+    font-size: 15px;
+}
+.select-e{
+    margin-top: 15px;
+    width: 180px;
+}
+.select-right{
+    margin-right: 19px;
+}
+.model-address{
+    width: 471px;
+    margin-top: 15px;
+}
+.detail-address{
+    width: 756px;
+    margin-top: 15px;
+}
+/*获取经纬度*/
+.lat-lon-con{
+    margin: 30px 0 0 15px;
+    cursor: pointer;
+}
+.lat-lon{
+    width: 120px;
+    height: 30px;
+    line-height: 30px;
+    color: #FFFFFF;
+    background-color: #32CCC8;
+    border-radius: 15px;
+    text-align: center;
+    margin-right: 25px
+}
+.lat-lon img{
+    width: 16px;
+    height: 16px;
+}
+.lat-wid,.lon-wid{
+    width: 100px;
+    border: 1px solid #666666;
+    background-color: #ffffff;
+    height: 30px;
+}
+.map{
+    margin:10px 0 0 15px;
+    width: 840px;
+    height: 510px;
+    background-color: #3ad3ce;
+    border: 1px solid #666666;
+}
+
+/* 上传图片 */
+.model-img{
+    margin-top: 30px;
+}
+.upload-img{
+    width: 120px;
+    background-color:#3ad3ce ;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #FFFFFF;
+    border-radius: 15px;
+}
+.org-img-model{
+    margin-left: 15px;
+    font-size: 16px;
+    color: #10b9b9;
+}
+.model-btn-right{
+    float: right;
+    margin-right: 15px;
+    cursor: pointer;
+}
+.upload-img img{
+    width: 16px;
+    height: 17px;
+    margin-right: 10px;
+}
+.avatar-uploader{
+    margin-top: 25px;
+}
+.avatar-uploader .el-upload {
+    border: 1px solid #666666;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    margin-left: 15px;
+}
+.avatar-uploader .el-upload:hover {
+    border-color: #666666;
+}
+.avatar-uploader-icon {
+    color: #8c939d;
+    width: 840px;
+    height: 200px;
+    line-height: 178px;
+    text-align: center;
+    position: relative;
+    top: 69px;
+    font-size: 50px;
+}
+.avatar {
+    width: 840px;
+    height: 200px;
+    display: block;
+}
+.el-upload__input{
+    display: none!important;
+}
+
+.el-upload-list--picture .el-upload-list__item.is-success .el-upload-list__item-name{
+    display: none;
+}
+.el-upload-list--picture .el-upload-list__item{
+    width: 840px;
+    height: 200px!important;
+    padding: 0!important;
+}
+.el-upload-list--picture .el-upload-list__item-thumbnail{
+    width: 100%!important;
+    height: 100%!important;
+    left: 80px!important;
+}
+/* 机构简介 */
+.model-org-orgInt{
+    margin: 30px 0 15px 0;
+}
+.orgInt{
+    position: relative;
+}
+.modal-textarea{
+    border: 1px solid #666666;
+    margin-left: 15px;
+    border-radius: 4px;
+    padding: 5px;
+    width: 840px;
+    height: 200px;
+    background-color: #ffffff;
+    resize:none;
+}
+.rem-model{
+    position: absolute;
+    right: 37px;
+    bottom: 10px;
+    font-size: 12px;
+    color: #999999;
+    text-align: right;
+}
+
+/* 错误信息 */
+.errorText,.meminfotips,.error_message{
+    color: #ff3300;
+    font-size: 12px;
+    z-index: 999!important;
+}
+    /* 编辑机构弹出层 */
+#myModaEdit input,#myModaEdit .modal-textarea{
+    font-size: 14px;
+    color: #333333;
+    font-family: SourceHanSansCN-Regular;
+}
+/* 删除机构 */
+.content-del{
+    width: 400px;
+    height: 150px;
+    border-radius: 2px;
+    background-color: #fafafa;
+}
+.del-con{
+    text-align: center;
+    line-height: 150px;
+    color: #333333;
+}
+.modal-dialog{
+    width: 400px!important;
+}
+
+/* 成功跳转 */
+.SJump{
+    width: 400px;
+    height: 200px;
+    line-height: 200px;
+    text-align: center;
+    color: #333333;
+    border-radius: 2px;
+    background-color: #fafafa;
+}
+
+/* 团队列表弹出层 */
+#myModaTeam .modal-content{
+    width: 700px;
+    height: 456px;
+}
+.team-lists table{
+    margin: 0 20px 20px 20px;
+}
+.sear-border{
+    border-bottom: 1px solid #dcdcdc;
+}
+.team-lists th,.team-lists td{
+    height: 40px;
+    width: 253px;
+    text-align: center;
+    line-height: 40px;
+}
+.team-lists th{
+    color:#109b9b ;
+}
+.team-lists td{
+    color: #333333;
+    position: relative;
+}
+.team_bg{
+    background-color: #f8f9fb;
+}
+.team-lists{
+    background-color:#F0F0F0 !important ;
+}
+.team-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+}
+.team-lists td:last-child:after{
+    content:normal;
+}
+.myPaging {
+    margin: 15px 10px 20px 20px!important;
+}
+.myPaging span{
+    border: none!important;
+    border-radius: 2px !important;
+    text-align: center!important;
+    width: 60px !important;
+    margin-right: 0!important;
+}
+.team-all-nums{
+    border: none!important;
+    margin-top: 15px;
+    left: -35px;
+    width: 70px!important;
+}
+/* 医生人数列表 弹窗 */
+.people-model{
+    height: 60px;
+    background-color: #FFFFFF;
+}
+
+/* 头部移动问题 */
+body.modal-open {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+

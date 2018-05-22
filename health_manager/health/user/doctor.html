@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>医生管理</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/doctor.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-doc">
+                    <span>用户管理 > 医生管理</span>
+                </div>
+
+                <div class="doc-search">
+                    <div class="search-left">
+                        <span>职称</span>
+                        <el-select v-model="value" placeholder="请选择" class="titleSea" @click="">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.title"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                        <!--<select class="doc-title"><option value="">助理职业医师</option></select>-->
+                        <span>医生账号</span>
+                        <input type="text" class="doc-num" v-model="docUsername" placeholder="请输入医生账号">
+                        <span>医生姓名</span>
+                        <input type="text" class="doc-name" v-model="docName" placeholder="请输入医生姓名">
+                        <span>所属机构</span>
+                        <el-select v-model="valueOrg" placeholder="请选择" class="titleSea titleWidth" @change="ChangeJg">
+                            <el-option
+                                    v-for="item in optionsOrg"
+                                    :key="item.value"
+                                    :label="item.cn_name"
+                                    :value="item.orgid">
+                            </el-option>
+                        </el-select>
+                        <!--<input type="text" class="doc-mechanism">-->
+                        <span>所属团队</span>
+                        <el-select v-model="valueTeam" placeholder="请选择">
+                            <el-option
+                                    v-for="item in optionsTeam"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <!--<select class="doc-team"></select>-->
+                    </div>
+                    <div class="search-right">
+                        <span class="doc-search-btn" @click="GetDocList"><img src="/img/icon_serarch.png"></span>
+                        <span class="doc-add-btn" @click="addDoc" data-toggle="modal" data-target="#doc-add"><img
+                                src="/img/doc-add-btn.png" style="position: relative; top:3px;">添加医生</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="doc-bg-color">
+                <div class="doc-table">
+                    <table class="table" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th style="width: 55px">序号</th>
+                            <th>医生账号</th>
+                            <th style="width: 94px;">姓名</th>
+                            <th style="width: 55px">性别</th>
+                            <th>联系电话</th>
+                            <th style="width: 100px">职称</th>
+                            <th style="width: 200px">所属机构</th>
+                            <th style="width: 220px">所属团队</th>
+                            <th style="width: 80px">网关号</th>
+                            <!--<th>角色</th>-->
+                            <th style="width: 170px">操作</th>
+                        </tr>
+                        <tr v-for="(item,index) in TagList.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.username}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.gender}}</td>
+                            <td>{{item.mobile}}</td>
+                            <td>{{item.title}}</td>
+                            <td>{{item.org_name}}</td>
+                            <td>{{item.team_name}}</td>
+                            <td>{{item.gateway}}</td>
+                            <!--<td>{{item.type_msg}}</td>-->
+                            <td class="doc-poi">
+                                <span class="doc-edit-btn"><img src="/img/icon_edit.png" title="编辑医生"
+                                                                data-toggle="modal" data-target="#doc-edit"
+                                                                @click="EditDoc(item.user_id)"></span>
+
+                                <span class="doc-resetpassword-btn"><img src="/img/icon_resetpassword.png" title="重置密码"
+                                                                         data-toggle="modal"
+                                                                         data-target="#doc-resetpassword"
+                                                                         @click="resPsd(item.user_id)"></span>
+                                <span><img src="/img/icon_device_gl.png" title="设备管理" data-toggle="modal"
+                                           data-target="#manage" @click="Device(item.user_id)"></span>
+                                <span class="doc-del-btn"><img src="/img/icon_del.png" title="删除医生" data-toggle="modal"
+                                                               data-target="#doc-del"
+                                                               :class="item.type==='2'?'hiddenDoc':''"
+                                                               @click="DelDoc(item.user_id)"></span>
+
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="TagList.count>0">共{{TagList.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="TagList.count"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="TagList.pages"
+                            :total="TagList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加医生弹出层 -->
+    <div class="modal fade" id="doc-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog doc-modal-style" role="document">
+            <div class="modal-content">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">添加医生</div>
+                </div>
+                <div class="modal-body doc-modal-body-style">
+                    <div class="errorText"></div>
+                    <div class="doc-red">*为必填项</div>
+                    <form id="Add_Doc">
+                        <ul class="doc-add-left">
+                            <li><span class="qysq-label model-required" id="lab_org_add">签约机构</span>
+                                <el-select v-model="valueqyst" placeholder="请选择" class="qyst" popper-class="m_top">
+                                    <el-option
+                                            v-for="item in optionsqyst"
+                                            :key="item.value"
+                                            :label="item.cn_name"
+                                            :value="item.orgid">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valueqyst" vname="lab_org_add" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                            <li class="doc-avatar"><span style="margin-right: 19px" class="model-required"
+                                                         id="lab_doc_img_add">医生头像</span>
+                                <el-upload
+                                        class="avatar-uploader teamPic"
+                                        :action="actionUrl"
+                                        accept="image/jpg,image/jpeg,image/png"
+                                        :show-file-list="false"
+                                        :on-success="handleAvatarSuccess"
+                                        name="files"
+                                        :before-upload="beforeAvatarUpload">
+                                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+
+                                <span class="doc-add-notes ts-title">*图片大小不超过300K</span>
+                                <input type="hidden" v-model="imageUrl" vname="lab_doc_img_add" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                            <li><span class="model-required" style="margin-right: 4px">医生账号</span><label id="doc_label"
+                                                                                                         style="display: none">医生账号</label><input
+                                    class="doc-add-num" type="text" vname="doc_label" maxlength="15" validator="notNull"
+                                    v-model="AddAccount" placeholder="字母数字下划线[5-15]" vtype="loginName"></li>
+                            <li><label id="psd-label" class="model-required" style="margin-right: 12px">账号密码</label>
+                                <input class="doc-add-pwd" type="password" maxlength="20"
+                                       vname="psd-label"
+                                       placeholder="请输入账号密码"
+                                       validator="notNull"
+                                       loginName
+                                       v-model="AddPsd">
+                            </li>
+                        </ul>
+                        <ul class="doc-add-right">
+                            <li><label class="model-required" id="lab_name_add">医生姓名</label>
+                                <input class="doc-add-name-e"
+                                       type="text"
+                                       validator="notNull"
+                                       vname="lab_name_add"
+                                       placeholder="请输入医生姓名"
+                                       v-model="AddDocName">
+                            </li>
+                            <li><label id="phone_label" class="model-required">手机号码</label>
+                                <input class="doc-add-phone-e" v-model="AddPhone" placeholder="请输入手机号码"
+                                        vname="phone_label"
+                                        vtype="tel"
+                                        maxlength="11"
+                                        validator="notNull"
+                                        type="text"></li>
+                            <li><label id="card_label" class="model-required">身份证号</label><input
+                                    class="doc-add-ID" type="text" vname="card_label" validator="notNull" maxlength="18"
+                                    v-model="AddCard" placeholder="请输入身份证号" vtype="IDNo"><span
+                                    class="doc-add-sex">性别
+                         <el-radio v-model="radio" label="1">男</el-radio>
+  <el-radio v-model="radio" label="2">女</el-radio></span></li>
+                            <li><span class="model-required" id="lab_role_add" style="margin-right: 8px">
+                                <span class="font_left_right" style="width: 56px;">角色</span>
+                            </span>
+                                <el-select v-model="valuejs" placeholder="请选择" class="qyst" popper-class="m_topzc">
+                                    <el-option
+                                            v-for="item in optionsjs"
+                                            :key="item.value"
+                                            :label="item.text"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valuejs" vname="lab_role_add" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                            <li><span class="model-required" id="lab_title_add" style="margin-right: 8px">
+                                <span class="font_left_right" style="width: 56px;">职称</span>
+                            </span>
+                                <el-select v-model="valuezc" placeholder="请选择" class="qyst" popper-class="m_topzc_w">
+                                    <el-option
+                                            v-for="item in optionszc"
+                                            :key="item.value"
+                                            :label="item.title"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valuezc" vname="lab_title_add" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                        </ul>
+
+                        <div><span class="model-required" style="margin-right: 12px">
+                            <span class="font_left_right" style="width: 53px">摘要</span>
+                        </span>
+                            <label style="display: none" id="good_label">摘要</label>
+                            <textarea maxlength="100" @input="descInputSc" class="modal-textarea" v-model="descSc"
+                                      placeholder="请输入医生擅长内容..." validator="notNull" vname="good_label"></textarea>
+                            <span class="rem-model-sc text">{{remnantSc}}/100</span>
+                        </div>
+                        <div class="ysjj"><span class="model-required">医生简介</span>
+                            <label id="doctor_label" style="display: none">医生简介</label>
+                            <textarea maxlength="100"
+                                      style="margin-left: 9px"
+                                      @input="descInput"
+                                      class="modal-textarea"
+                                      v-model="desc" vname="doctor_label"
+                                      placeholder="请输入医生简介..."
+                                      validator="notNull"></textarea>
+                            <span class="rem-model">{{remnant}}/100</span></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="SubAdd">确定添加</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- 编辑医生弹出层 -->
+    <div class="modal fade" id="doc-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog doc-modal-style" role="document">
+            <div class="modal-content">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">编辑医生</div>
+                </div>
+                <div class="modal-body doc-modal-body-style">
+                    <div class="errorText"></div>
+                    <div class="doc-red">*为必填项</div>
+                    <form id="Edit_Doc">
+                        <ul class="doc-add-left">
+                            <li><span class="qysq-label model-required" id="lab_org_edit">签约机构</span>
+                                <el-select v-model="valueqystEdit" placeholder="请选择" class="qyst" popper-class="m_topjg">
+                                    <el-option
+                                            v-for="item in optionsqystEdit"
+                                            :key="item.value"
+                                            :label="item.cn_name"
+                                            :value="item.orgid">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valueqystEdit" vname="lab_org_edit" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                            <li class="doc-avatar" style="margin-bottom: 15px"><span id="lab_img_edit"
+                                                                                     style="margin-right: 19px"
+                                                                                     class="model-required">医生头像</span>
+                                <el-upload
+                                        class="avatar-uploader teamPic"
+                                        :action="actionUrlEdit"
+                                        accept="image/jpg,image/jpeg,image/png"
+                                        :show-file-list="false"
+                                        :on-success="handleAvatarSuccessEdit"
+                                        name="files"
+                                        :before-upload="beforeAvatarUploadEdit">
+                                    <img v-if="imageUrlEdit" :src="imageUrlEdit" class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                                <input type="hidden" v-model="imageUrlEdit" vname="lab_img_edit" validator="notNull"
+                                       vel-type="select"/>
+                                <span class="doc-add-notes ts-title">*图片大小不超过300K</span></li>
+                            <li><span class="model-required" style="margin-right: 12px" id="lab_role_edit">
+                               <span class="font_left_right" style="width: 53px">角色</span>
+                            </span>
+                                <el-select v-model="valuejsEdit" placeholder="请选择" class="qyst" popper-class="m_topjs">
+                                    <el-option
+                                            v-for="item in optionsjsEdit"
+                                            :key="item.value"
+                                            :label="item.text"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valuejsEdit" vname="lab_role_edit" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                            <!--<li><label id="docEdit_label" style="margin-right: 3px">医生账号</label><span
+                                    class="model-required"></span><input
+                                    class="doc-add-num" type="text" vname="docEdit_label" maxlength="20"
+                                    v-model="AddAccountEdit" placeholder="请输入医生账号" vtype="loginName"></li>
+
+                            <li><label id="psdEdit-label" class="model-required" style="margin-right: 12px">账号密码</label>
+                                <input class="doc-add-pwd" type="password" maxlength="20"
+                                       vname="psdEdit-label"
+                                       placeholder="请输入账号密码"
+                                       validator="notNull"
+                                       loginName
+                                       v-model="AddPsdEdit">
+                            </li>-->
+                        </ul>
+                        <ul class="doc-add-right">
+                            <li><span class="model-required" id="lab_docName_edit">医生姓名</span><input
+                                    class="doc-add-name" type="text"
+                                    placeholder="请输入医生姓名" validator="notNull" vname="lab_docName_edit"
+                                    v-model="AddDocNameEdit">
+                            </li>
+                            <li><label id="phoneEdit_label" class="model-required">手机号码</label><input
+                                    class="doc-add-phone" v-model="AddPhoneEdit" placeholder="请输入手机号码"
+                                    vname="phoneEdit_label" vtype="tel"
+                                    validator="notNull"
+                                    type="text"></li>
+                            <li><label id="cardEdit_label" class="model-required">身份证号</label><input
+                                    class="doc-add-ID" type="text" vname="cardEdit_label" placeholder="请输入身份证号"
+                                    validator="notNull"
+                                    v-model="AddCardEdit" vtype="IDNo"><span
+                                    class="doc-add-sex">性别
+                         <el-radio v-model="radioEdit" label="1">男</el-radio>
+  <el-radio v-model="radioEdit" label="2">女</el-radio></span></li>
+
+                            <li><span class="model-required" id="lab_title_edit" style="margin-right: 12px">
+                                <span class="font_left_right" style="width: 53px;">职称</span>
+                            </span>
+                                <el-select v-model="valuezcEdit" placeholder="请选择" class="qyst" popper-class="m_topjs">
+                                    <el-option
+                                            v-for="item in optionszcEdit"
+                                            :key="item.value"
+                                            :label="item.title"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+                                <input type="hidden" v-model="valuezcEdit" vname="lab_title_edit" validator="notNull"
+                                       vel-type="select"/>
+                            </li>
+                        </ul>
+
+
+                        <div><span class="model-required" style="margin-right: 12px">
+                            <span class="font_left_right" style="width: 53px">摘要</span>
+                        </span>
+                            <label id="good_label_e" style="display: none">摘要</label>
+                            <textarea maxlength="100" @input="descInputScEdit" class="modal-textarea"
+                                      v-model="descScEdit" vname="good_label_e"
+                                      placeholder="请输入医生擅长内容..." validator="notNull"></textarea>
+                            <span class="rem-model-sc text">{{remnantScEdit}}/100</span>
+                        </div>
+                        <div class="ysjj"><span class="model-required">医生简介</span>
+                            <label id="doctor_label_e" style="display: none"></label>
+                            <textarea maxlength="100"
+                                      style="margin-left: 9px"
+                                      vname="doctor_label_e"
+                                      @input="descInputEdit"
+                                      class="modal-textarea"
+                                      v-model="descEdit"
+                                      placeholder="请输入医生简介..."
+                                      validator="notNull"></textarea>
+                            <span class="rem-model">{{remnantEdit}}/100</span></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="subEdit">确定</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 删除医生 弹出层 myModaDel-->
+    <div class="modal fade" id="doc-del" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="del-con">
+                    确定删除医生信息?
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="subDel">确定</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 重置密码 弹出层 myModaDel-->
+    <div class="modal fade" id="doc-resetpassword" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="del-con">
+                    确定将密码重置为“123456”？
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="resSetPsd">确定</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设备管理 -->
+    <div class="modal fade" id="manage" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">设备管理</div>
+                </div>
+                <div class="gateway-con">
+                    <form id="gateway"></form>
+                    <label id="v-gateway" class="gateway_label">网关号:</label>
+                    <input type="text" v-model="gateway" class="gateway" placeholder="请输入网关号" vname="v-gateway"
+                           vtype="gatewayNull">
+                    <div class="errorText"></div>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="SubGateway">确定</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                //     职称
+                options: [],
+                value: '',
+                //医生账号
+                docUsername: '',
+                //医生姓名
+                docName: '',
+                // 机构
+                valueOrg: '',
+                optionsOrg: [],
+                //    团队
+                optionsTeam: [],
+                valueTeam: '',
+                //    分页
+                TagList: {},
+                page: '',
+                //     添加医生
+                // 签约社团
+                optionsqyst: [],
+                valueqyst: '',
+                // 头像
+                imageUrl: '',
+                actionUrl: '',
+                //    角色
+                optionsjs: [],
+                valuejs: '',
+                //    职称
+                optionszc: [],
+                valuezc: '',
+                //    医生简介 多行
+                desc: '',
+                remnant: '0',
+                //    擅长
+                descSc: '',
+                remnantSc: '0',
+                //     性别
+                radio: '1',
+                AddDocName: '',
+                AddPhone: '',
+                AddCard: '',
+                AddAccount: '',
+                AddPsd: '',
+                //    删除
+                delId: '',
+                //    重置密码
+                resId: '',
+                //    编辑
+                EditId: '',
+                valueqystEdit: '',  //签约机构
+                optionsqystEdit: [],
+                fileIdSubEdit: '', //图片
+                imageUrlEdit: '',
+                actionUrlEdit: '',
+                AddAccountEdit: '', //医生账号
+                AddPsdEdit: '',  //密码
+                AddDocNameEdit: '',   //医生姓名
+                AddPhoneEdit: '',   //手机号码
+                AddCardEdit: '',   //身份证号
+                radioEdit: '',  //性别
+                optionsjsEdit: [],  //角色
+                valuejsEdit: '',
+                valuezcEdit: '',   //职称
+                optionszcEdit: [],
+                descScEdit: '', //擅长
+                remnantScEdit: '0',
+                descEdit: '',   //简介
+                remnantEdit: '0',
+                //    网关号
+                gateway: '',
+                gateway_id: ''
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+
+            this.GetDoctorTitle();
+            this.GetOrgList();
+            this.GetDocList();
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            // 获取职称列表
+            GetDoctorTitle() {
+                let url = health.apiUrl + 'backend/other/get-doctor-title';
+                $.get(url, {
+                    token: $.getToken(),
+                }, res => {
+                    if (res.code == 0) {
+                        this.options = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+
+                })
+            },
+            // 分页
+            CurrentChange(value) {
+                this.page = value;
+                this.GetDocList();
+            },
+            // 获取系统机构列表
+            GetOrgList() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsOrg = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            ChangeJg() {
+                this.GetTeamList();
+            },
+            // 获取团队
+            GetTeamList() {
+                let url = health.apiUrl + 'backend/other/team';
+                if (!this.valueOrg) {
+                    this.optionsTeam = [];
+                    // this.valueTeam = '全部团队';
+                    return false;
+                }
+                $.get(url, {
+                    token: $.getToken(),
+                    orgid: this.valueOrg
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsTeam = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 获取医生列表
+            GetDocList() {
+                let url = health.apiUrl + 'backend/doctor';
+                $.get(url, {
+                    token: $.getToken(),
+                    page_size: health.BigPageSize,
+                    page: this.page,
+                    title: this.value,
+                    username: this.docUsername,
+                    name: this.docName,
+                    orgid: this.valueOrg,
+                    team_id: this.valueTeam,
+                }, res => {
+                    if (res.code == 0) {
+                        this.TagList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            // 添加医生
+            addDoc() {
+                // 清空值
+                this.AddDocName = '';
+                this.AddAccount = '';
+                this.AddPsd = '';
+                this.radio = '1';
+                this.imageUrl = '';
+                this.docUsername = '';
+
+                this.AddPhone = '';
+                this.valuezc = '';
+                this.AddCard = '';
+                this.valuejs = '';
+                this.valueqyst = '';
+                this.descSc = '';
+                this.desc = '';
+                this.remnantSc = 0;
+                this.remnant = 0;
+                this.actionUrl = health.apiUrl + 'backend/upload?token=' + $.getToken();
+                this.getAddOrgList();
+                this.GetDocRole();
+                this.GetDocTitle();
+            },
+            getAddOrgList() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsqyst = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 获取医生角色
+            GetDocRole() {
+                let url = health.apiUrl + 'backend/other/get-roles';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsjs = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 获取职称
+            GetDocTitle() {
+                let url = health.apiUrl + 'backend/other/get-doctor-title';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionszc = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //医生简介多行
+            descInput() {
+                let txtVal = this.desc.length;
+                this.remnant = txtVal;
+            },
+            descInputSc() {
+                let txtVal = this.descSc.length;
+                this.remnantSc = txtVal;
+            },
+            // 头像
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+                this.fileIdSub = res.content[0].file_id;
+            },
+            beforeAvatarUpload(file) {
+                const isLt2M = file.size / 1024 / 1024 < 0.3;
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 300K!');
+                }
+                return isLt2M;
+            },
+            //确定添加
+            SubAdd() {
+                if (validateForm(Add_Doc)) {
+                    let url = health.apiUrl + 'backend/doctor/create?token=' + $.getToken();
+                    $.post(url, {
+                        name: this.AddDocName,
+                        username: this.AddAccount,
+                        password_hash: this.AddPsd,
+                        gender: this.radio,
+                        file_id: this.fileIdSub,
+                        mobile: this.AddPhone,
+                        title: this.valuezc,
+                        identity_card: this.AddCard,
+                        type: this.valuejs,
+                        orgid: this.valueqyst,
+                        specialty: this.descSc,
+                        resume: this.desc
+                    }, res => {
+                        if (res.code === 0) {
+                            $('#doc-add').modal('hide');
+                            this.$message('添加成功');
+                            this.AddDocName = '';
+                            this.AddAccount = '';
+                            this.AddPsd = '';
+                            this.radio = '1';
+                            this.imageUrl = '';
+                            this.docUsername = '';
+
+                            this.AddPhone = '';
+                            this.valuezc = '';
+                            this.AddCard = '';
+                            this.valuejs = '';
+                            this.valueqyst = '';
+                            this.descSc = '';
+                            this.desc = '';
+                            this.GetDocList();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+
+            },
+
+
+            // 编辑 医生
+            GetDocRoleEdit() {
+                let url = health.apiUrl + 'backend/other/get-roles';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsjsEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+
+                })
+            },
+            GetDocTitleEdit() {
+                let url = health.apiUrl + 'backend/other/get-doctor-title';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionszcEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetOrgListEdit() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.optionsqystEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            EditDoc(id) {
+                this.GetDocRoleEdit();
+                this.GetDocTitleEdit();
+                this.GetOrgListEdit();
+                this.descInputSc();
+                this.actionUrlEdit = health.apiUrl + 'backend/upload?token=' + $.getToken();
+                this.EditId = id;
+                let url = health.apiUrl + 'backend/doctor/update?token=' + $.getToken();
+                $.get(url, {
+                    user_id: this.EditId
+                }, res => {
+                    if (res.code == 0) {
+                        let data = res.content;
+                        this.imageUrlEdit = data.file_path;
+                        this.radioEdit = data.gender.toString();
+                        this.AddCardEdit = data.identity_card;
+                        this.AddPhoneEdit = data.mobile;
+                        this.AddDocNameEdit = data.name;
+                        this.valueqystEdit = data.orgid;
+                        this.AddPsdEdit = '';
+                        this.descEdit = data.resume;
+                        this.descScEdit = data.specialty;
+                        this.valuezcEdit = data.title;
+                        this.valuejsEdit = data.type;
+                        this.AddAccountEdit = data.username;
+                        this.descInputScEdit();
+                        this.descInputEdit();
+                    } else {
+                        this.$message(res.message);
+                    }
+                });
+
+            },
+            // 编辑确定
+            descInputScEdit() {
+                let txtVal = this.descScEdit.length;
+                this.remnantScEdit = txtVal;
+            },
+            descInputEdit() {
+                let txtVal = this.descEdit.length;
+                this.remnantEdit = txtVal;
+            },
+            subEdit() {
+                if (validateForm(Edit_Doc)) {
+                    let url = health.apiUrl + 'backend/doctor/update?token=' + $.getToken();
+                    $.post(url, {
+                        user_id: this.EditId,
+                        name: this.AddDocNameEdit,
+                        username: this.AddAccountEdit,
+                        password_hash: this.AddPsdEdit,
+                        gender: this.radioEdit,
+                        file_id: this.fileIdSub,
+                        mobile: this.AddPhoneEdit,
+                        title: this.valuezcEdit,
+                        identity_card: this.AddCardEdit,
+                        type: this.valuejsEdit,
+                        orgid: this.valueqystEdit,
+                        specialty: this.descScEdit,
+                        resume: this.descEdit
+                    }, res => {
+                        if (res.code === 0) {
+                            $('#doc-edit').modal('hide');
+                            this.$message('修改成功');
+                            this.GetDocList();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            handleAvatarSuccessEdit(res, file) {
+                this.imageUrlEdit = URL.createObjectURL(file.raw);
+                this.fileIdSub = res.content[0].file_id;
+            },
+            beforeAvatarUploadEdit(file) {
+                const isLt2M = file.size / 1024 / 1024 < 0.3;
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 300K!');
+                }
+                return isLt2M;
+            },
+
+            // 删除医生
+            DelDoc(id) {
+                this.delId = id;
+            },
+            subDel() {
+                let url = health.apiUrl + 'backend/doctor/resign?token=' + $.getToken();
+                $.post(url, {
+                    user_id: this.delId
+                }, res => {
+                    if (res.code === 0) {
+                        $('#doc-del').modal('hide');
+                        this.$message('删除成功');
+                        this.GetDocList();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 重置密码
+            resPsd(id) {
+                this.resId = id;
+            },
+            resSetPsd() {
+                let url = health.apiUrl + '/backend/user/rest-password?token=' + $.getToken();
+                $.post(url, {
+                    user_id: this.resId
+                }, res => {
+                    if (res.code === 0) {
+                        $('#doc-resetpassword').modal('hide');
+                        this.$message('重置成功');
+                        this.GetDocList();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            // 设备管理
+            Device(id) {
+                this.gateway_id = id;
+                let url = $.formateUrl('backend/doctor/device');
+                let params = {
+                    user_id: this.gateway_id
+                };
+                $.get(url, params, res => {
+                    if (res.code == 0) {
+                        this.gateway = res.content.gateway;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 设备管理确定
+            SubGateway() {
+                if (validateForm(gateway)) {
+                    let url = $.formateUrl('backend/doctor/device');
+                    let params = {
+                        user_id: this.gateway_id,
+                        gateway: this.gateway
+                    };
+                    $.post(url, params, (res) => {
+                        if (res.code == 0) {
+                            $('#manage').modal('hide');
+                            if (this.gateway) {
+                                this.$message('网关添加成功');
+                            } else {
+                                this.$message('网关删除成功');
+                            }
+                            this.GetDocList();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    });
+</script>
+</html>

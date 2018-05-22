@@ -1,0 +1,447 @@
+<div id="app_report_tabs" v-cloak>
+    <div class="ecg_search ecg_search_report">
+        <span style="float: left" class="report_medical ">体检报告记录</span>
+        <span class="date">选择日期</span>
+        <el-date-picker
+                v-model="value"
+                type="daterange"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                value-format="yyyy-MM-dd"
+                @change="change"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions">
+        </el-date-picker>
+        <span class="search-btn" @click="search"><img src="/img/icon_serarch.png"></span>
+        <span class="add-jg" data-toggle="modal" style="margin-top: 5px" @click="caseShow('')"><img
+                src="/img/doc-add-btn.png" >新建报告</span>
+    </div>
+    <div class="table_ecg">
+        <div class="org-lists">
+            <table cellspacing="0">
+                <thead>
+                <tr style="border-top:1px solid #f5f5f5">
+                    <th>序号</th>
+                    <th>报告标题</th>
+                    <th>创建人</th>
+                    <th>上传时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(item,index) in Organization.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                    <td>{{item.serial}}</td>
+                    <td style="color: #10b9b9;cursor: pointer" data-toggle="modal" data-target="#seeModal"
+                        @click="See(item.case_id)">{{item.title}}</td>
+                    <td>{{item.create_user}}</td>
+                    <td>{{item.created_at}}</td>
+                    <td>
+                        <img src="/img/icon_edit.png" title="编辑" @click="caseShow(item.case_id)">
+                        <img src="/img/icon_del.png" title="删除" data-toggle="modal" data-target="#delModalReport" @click="del(item.case_id)">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 分页 -->
+            <span class="all-nums" v-if="Organization.count>0">共{{Organization.count}}条</span>
+            <span class="all-nums" v-else>暂无数据</span>
+            <el-pagination
+                    v-if="Organization.count>0"
+                    @current-change="CurrentChange"
+                    class="paging orgPaging"
+                    background
+                    prev-text="上一页"
+                    next-text="下一页"
+                    layout="prev, pager, next"
+                    :page-size="health.SmallPageSize"
+                    :page-count="Organization.pages"
+                    :total="Organization.count">
+            </el-pagination>
+        </div>
+    </div>
+
+    <!-- 新建 编辑报告 -->
+    <div class="modal fade" id="ModalPresen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel"></div>
+                </div>
+                <div class="modal-body">
+                    <span class="Prompt">*为必填项</span>
+                    <form id="newCase">
+                        <label id="case_label" class="model-required">报告标题</label>
+                        <input type="text" vname="case_label" placeholder="请输入报告标题" validator="notNull" class="input_case" v-model="caseData.title" maxlength="100"><br>
+                        <label id="caseCon_label" class="model-required">报告内容</label>
+                        <textarea cols="30" rows="10" class="caseText" placeholder="请输入报告内容..." v-model="caseData.content"></textarea>
+                        <div class="uploading">
+                            <span class="model-required" id="file_width">上传文件</span>
+                            <div style="width: 500px">
+                            <el-upload
+                                    ref="upload"
+                                    :action="actionUrl"
+                                    list-type="picture-card"
+                                    limit="5"
+                                    name="files"
+                                    :file-list="list"
+                                    accept="image/jpg,image/jpeg,image/png,application/pdf"
+                                    :on-success="handleAvatarSuccess"
+                                    :on-remove="handleRemove"
+                                    :on-exceed="exceedMaxFile">
+                                <i class="el-icon-plus"></i>
+                            </el-upload>
+                            <el-dialog :visible.sync="dialogVisible">
+                                <img width="100%" :src="dialogImageUrl">
+                            </el-dialog>
+                            </div>
+                        </div>
+                        <span class="title-prompt">*支持.jpg,.jpeg,.png,.pdf格式</span>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="subSave">保存</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 删除 delModal-->
+    <div class="modal fade" id="delModalReport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document" style="width: 400px">
+            <div class="modal-content">
+                <div class="modal-body del_model">
+                    确定删除体检报告？
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="SubDel">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 查看 -->
+    <div class="modal fade" id="seeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel2">报告详情</div>
+                </div>
+                <div class="modal-body">
+                    <label class="">报告标题：</label>
+                    <span>{{caseDataSee.title}}</span><br>
+                    <label class="">报告内容：</label>
+                    <span style="word-break: break-all;width: 590px;vertical-align: text-top">{{caseDataSee.content}}</span>
+                    <div class="uploading">
+                        <span class="upload" style="width: 100px">查看文件：</span>
+                        <ul class="el-upload-list el-upload-list--picture-card">
+                            <li tabindex="0" class="el-upload-list__item is-success"
+                                v-for="(file,index) in denizen.files">
+                                <span v-if="file.file_ext!='pdf'">
+                                <img :src="file.file_path" alt="" class="el-upload-list__item-thumbnail" style="width: 146px;height: 146px">
+                                <span class="el-upload-list__item-actions" @click="picturePreview(file)">
+                            <span class="el-upload-list__item-preview">
+                                <i class="el-icon-zoom-in"></i>
+                            </span>
+                        </span>
+                                </span>
+                                <span v-if="file.file_ext=='pdf'">
+                                    <img :src="defined.pdfDefault" alt="" class="el-upload-list__item-thumbnail" style="width: 146px;height: 146px">
+                                    <a :href="health.apiUrl+'preview/pdf?id='+file.file_id+'&token='+$.getToken()" target="_blank">
+                                        <span class="el-upload-list__item-actions">
+                                            <span class="el-upload-list__item-preview">
+                                                <i class="el-icon-zoom-in"></i>
+                                            </span>
+                                        </span>
+                                    </a>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrlSee">
+    </el-dialog>
+
+</div>
+<script type="text/javascript">
+    new Vue({
+        el: "#app_report_tabs",
+        data() {
+            return {
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                },
+                value: '',
+                Organization: {},
+                dialogImageUrl: '',
+                dataTime:{},
+                user_id: '', //居民id
+                pageVal: '',  //第几页
+                caseId: '',  //病例id
+                caseData: {
+                    title: '',
+                    content: '',
+                },
+                actionUrl: health.apiUrl + 'backend/upload?token=' + $.getToken(), //url action
+                fileId: '',
+                fileIdArr: [],
+                list: [],
+                // 查看
+                dialogImageUrlSee: '',
+                dialogVisible: false,
+                caseDataSee: {},
+                denizen: {}
+            }
+        },
+        mounted() {
+        },
+        created(){
+            this.GetCaseList();
+        },
+        methods: {
+            change(val) {
+                this.dataTime.start_time=val[0];
+                this.dataTime.end_time=val[1];
+            },
+            //  报告列表
+            GetCaseList() {
+                this.user_id = $.getQueryString('id');
+                let url = $.formateUrl('backend/case/list');
+                let params = {
+                    page_size: health.SmallPageSize,
+                    page: this.pageVal,
+                    mem_id: this.user_id,
+                    category: defined.PhysicalExamination,
+                    start_time:this.dataTime.start_time,
+                    end_time: this.dataTime.end_time
+                };
+                $.get(url, params, (res) => {
+                    if (res.code == 0) {
+                        this.Organization = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChange(val) {
+                this.pageVal = val;
+                this.GetCaseList();
+            },
+
+            caseShow(caseId) {
+                var modal = $('#ModalPresen');
+                var title = caseId ? "编辑报告" : "新建报告";
+                modal.find('.modal-title').text(title);
+                this.fileIdArr = [];
+                this.caseData = {};
+                this.dialogImageUrl = '';
+                this.$refs.upload.clearFiles();  //清空图片
+                this.caseId='';
+                if (caseId) {   //编辑
+                    $('#file_width').width(76);
+                    this.caseId = caseId;
+                    let url = $.formateUrl('backend/case/update');
+                    let params = {
+                        case_id: caseId,
+                    };
+                    $.get(url, params, res => {
+                        if (res.code == 0) {
+                            this.list = [];
+                            Vue.set(this.caseData, 'title', res.content.title);
+                            Vue.set(this.caseData, 'content', res.content.content);
+                            for (let i = 0; i < res.content.files.length; i++) {
+                                var url =res.content.files[i].file_ext=='pdf' ? defined.pdfDefault:res.content.files[i].file_path;
+                                this.list.push({
+                                    name: res.content.files[i].file_name,
+                                    url: url,
+                                    fileId: res.content.files[i].file_id
+                                });
+                                this.fileIdArr.push(res.content.files[i].file_id)
+                            }
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                } else {  //新建
+                    $('#file_width').width(78);
+                }
+                modal.modal('show');
+            },
+
+            subSave() {
+                if (!this.caseId) {   //创建
+                    let url = $.formateUrl('backend/case/create');
+                    let params = {
+                        mem_id: this.user_id,
+                        type: defined.PhysicalExamination,
+                        title: this.caseData.title,
+                        content: this.caseData.content,
+                        files: this.fileIdArr
+                    };
+                    $.post(url, params, res => {
+                        if (res.code == 0) {
+                            $('#ModalPresen').modal('hide');
+                            this.$message('创建成功');
+                            this.GetCaseList();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                } else {     //修改
+                    let url = $.formateUrl('backend/case/update');
+                    let params = {
+                        case_id: this.caseId,
+                        type: defined.PhysicalExamination,
+                        title: this.caseData.title,
+                        content: this.caseData.content,
+                        files: this.fileIdArr
+                    };
+                    $.post(url, params, res => {
+                        if (res.code == 0) {
+                            $('#ModalPresen').modal('hide');
+                            this.$message('保存成功');
+                            this.GetCaseList();
+                        }
+                    })
+                }
+            },
+            // 删除
+            del(id) {
+                this.caseId = id;
+            },
+            // 确定删除
+            SubDel() {
+                let url = $.formateUrl('backend/case/delete');
+                let params = {
+                    case_id: this.caseId
+                };
+                $.post(url, params, (res) => {
+                    if (res.code == 0) {
+                        $('#delModalReport').modal('hide');
+                        this.GetCaseList();
+                        this.$message('删除成功');
+                    } else {
+                        this.$message(res.message);
+                    }
+
+                })
+            },
+            handleAvatarSuccess(res, file) {
+                if (res.code === 0) {
+                    // this.imageUrl = URL.createObjectURL(file.raw);
+                    // this.fileId = res.content[0].file_id;
+                    // this.fileIdArr.push(this.fileId);
+                    if(file.name.substr(file.name.length-4)=='.pdf'){
+                        file.url=defined.pdfDefault;
+                        this.imageUrl = URL.createObjectURL(file.raw);
+                        this.fileId = res.content[0].file_id;
+                        this.fileIdArr.push(this.fileId);
+                    }else {
+                        this.imageUrl = URL.createObjectURL(file.raw);
+                        this.fileId = res.content[0].file_id;
+                        this.fileIdArr.push(this.fileId);
+                    }
+
+                }
+            },
+            //  删除
+            handleRemove(file, fileList) {
+                let url = $.formateUrl('backend/upload/delete');
+                let params = {
+                    file_id: file.fileId
+                };
+                $.post(url, params, res => {
+                    if (res.code == 0) {
+                    }
+                })
+            },
+            exceedMaxFile(){
+                this.$message.error('附件最多上传5个!');
+            },
+            //搜索
+            search(){
+                this.GetCaseList();
+            },
+
+            // 查看
+            See(id) {
+                let url = $.formateUrl('backend/case/update');
+                let params = {
+                    case_id: id,
+                };
+                $.get(url, params, res => {
+                    if (res.code == 0) {
+                        Vue.set(this.caseDataSee, 'title', res.content.title);
+                        Vue.set(this.caseDataSee, 'content', res.content.content);
+                        this.denizen = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            picturePreview(file) {
+                this.dialogImageUrlSee = file.file_path;
+                this.dialogVisible = true;
+            }
+        },
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

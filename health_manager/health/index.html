@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>工作台</title>
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/index.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/echarts.min.js"></script>
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{this.name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <div class="menu">
+
+        </div>
+        <div class="continue">
+            <div class="select-con">
+                <!-- 下拉框 -->
+                <div class="select-block">
+                    <div class="sel-con" v-show="orgShowFlag">
+                        <span class="sel-mechanism">选择机构</span>
+                        <el-select v-model="value" class="select-e" @change="GetCountNum" placeholder="全部机构" popper-class="m_topzc_w">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.code"
+                                    :label="item.cn_name"
+                                    :value="item.orgid"
+                            >
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <!-- 六小块 -->
+                    <ul class="lists" id="lists">
+                        <li class="list">
+                            <img src="/img/icon_tj_zrs.png">
+                            <span class="num">{{CountNum.areaTotalNumber}}</span>
+                            <span class="describe">辖区总人数</span>
+                        </li>
+                        <li class="list">
+                            <img src="/img/icon_tj_jgsl.png">
+                            <span class="num">{{CountNum.orgNumber}}</span>
+                            <span class="describe">机构数量</span>
+                        </li>
+                        <li class="list">
+                            <img src="/img/icon_tj_tdsl.png">
+                            <span class="num">{{CountNum.teamNumber}}</span>
+                            <span class="describe">团队数量</span>
+                        </li>
+                        <li class="list">
+                            <img src="/img/icon_tj_yssl.png">
+                            <span class="num">{{CountNum.doctorNumber}}</span>
+                            <span class="describe">医生数量</span>
+                        </li>
+                        <li class="list">
+                            <img src="/img/icon_tj_qyjm.png">
+                            <span class="num">{{CountNum.signNumber}}</span>
+                            <span class="describe">签约居民</span>
+                        </li>
+                        <li class="list list-none">
+                            <img src="/img/icon_tj_qyl.png">
+                            <span class="num">{{CountNum.rate}}%</span>
+                            <span class="describe">签约率</span>
+                        </li>
+
+                    </ul>
+                    <div class="bg-color bg-color2">
+                        <!-- 机构签约量 -->
+                        <div class="outfit-all" id="outfit-all">
+                            <div class="outfit">
+                                <span>机构签约量</span>
+                                <div>
+                                    选择截止日期
+                                    <el-date-picker
+                                            :picker-options="pickerBeginDateBefore"
+                                            :default-value="timeDefaultShow"
+                                            format="yyyy 年 MM 月 dd 日"
+                                            value-format="yyyy-MM-dd"
+                                            v-model="ValueTime"
+                                            @change="change"
+                                            type="date"
+                                            clearable=false
+                                            default-value
+                                            placeholder="">
+                                    </el-date-picker>
+                                </div>
+                            </div>
+                            <!--echarts-->
+                            <div class="echarts" ref="detailChart">
+
+                            </div>
+                        </div>
+                        <!-- 居民特征 -->
+                        <div class="resident-all" id="resident-all">
+                            <div class="resident">
+                                <p class="resident-p">居民特征</p>
+                            </div>
+                            <ul class="lists-resident">
+                                <li class="list-resident" v-for="item in ResidentList">
+                                    <div class="resident-info">
+                                        <span class="illness">{{item.name}}</span>
+                                        <div>
+
+                                            <span>{{item.sign_number}}</span>/
+                                            <span>{{item.number}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="all-frame">
+                                        <span class="allFrameBg" :style="'width:'+item.sign_rate+'%'"></span>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <span class="all-nums" v-if="ResidentData.count>0">共{{ResidentData.count}}条</span>
+                            <span class="all-nums" id="all-nums" v-else>暂无数据</span>
+                            <el-pagination
+                                    v-if="ResidentData.count>0"
+                                    @current-change="CurrentChange"
+                                    class="paging"
+                                    background
+                                    prev-text="上一页"
+                                    next-text="下一页"
+                                    :page-size="health.indexPageSize"
+                                    :page-count="ResidentData.pages"
+                                    layout="prev, pager, next"
+                                    :total="ResidentData.count">
+                            </el-pagination>
+
+                        </div>
+
+                        <!-- 签约报表 -->
+                        <div class="signing">
+                            <div class="signing-info">
+                                <p class="signing-p">签约报表</p>
+                            </div>
+                            <table cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th style="width: 300px"></th>
+                                    <th>今日</th>
+                                    <th>昨日</th>
+                                    <th>本周</th>
+                                    <th>上周</th>
+                                    <th>本月</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="(item,index) in SignList" :class="(index+1)%2===0?'':'bg-tr-color'">
+                                    <td style="width: 300px;padding: 0 5px">{{item.name}}</td>
+                                    <td>{{item.today}}</td>
+                                    <td>{{item.yesterday}}</td>
+                                    <td>{{item.week}}</td>
+                                    <td>{{item.last_week}}</td>
+                                    <td>{{item.month}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <span class="all-nums" v-if="SignData.count>0">共{{SignData.count}}条</span>
+                            <span class="all-nums" v-else>暂无数据</span>
+                            <el-pagination
+                                    v-if="SignData.count>0"
+                                    @current-change="CurrentChangeSign"
+                                    class="paging"
+                                    background
+                                    prev-text="上一页"
+                                    next-text="下一页"
+                                    layout="prev, pager, next"
+                                    :page-count="SignData.pages"
+                                    :page-size="6"
+                                    :total="SignData.count">
+                            </el-pagination>
+                        </div>
+
+                        <!-- 最新签约列表 -->
+                        <div class="newSigning" id="newSigning">
+                            <div class="newSigning-info">
+                                <p class="newSigning-p">最新签约列表</p>
+                            </div>
+                            <table cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>居民编号</th>
+                                    <th>证件号</th>
+                                    <th style="width: 100px">姓名</th>
+                                    <th style="width: 40px;">性别</th>
+                                    <th style="width: 40px;">年龄</th>
+                                    <th>签约社区医院</th>
+                                    <th>签约团队</th>
+                                    <th>签约日期</th>
+                                    <!--<th>签约状态</th>-->
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="(item,index) in NewSignListData.data"
+                                    :class="(index+1)%2===0?'':'bg-tr-color'">
+                                    <td>{{item.number}}</td>
+                                    <td>{{item.identity_card}}</td>
+                                    <td style="width: 100px">{{item.name}}</td>
+                                    <td style="width: 40px;">{{item.gender}}</td>
+                                    <td style="width: 40px;">{{item.age}}</td>
+                                    <td>{{item.org_name}}</td>
+                                    <td>{{item.team_name}}</td>
+                                    <td>{{item.sign_time}}</td>
+                                    <!--<td :class="signed=='true'?'have_signed':''">已签约</td>-->
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <span class="newSigning-nums all-nums" v-if="NewSignListData.count>0">共{{NewSignListData.count}}条</span>
+                            <span class="newSigning-nums all-nums" v-else>暂无数据</span>
+                            <el-pagination
+                                    v-if="NewSignListData.count>0"
+                                    @current-change="CurrentChangeNew"
+                                    class="paging"
+                                    background
+                                    prev-text="上一页"
+                                    next-text="下一页"
+                                    layout="prev, pager, next"
+                                    :page-size="health.BigPageSize"
+                                    :page-count="NewSignListData.pages"
+                                    :total="NewSignListData.count">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+                orgShowFlag: '',
+                //菜单
+                menus: [],
+                menusStatus: [],
+                options: [/*{   //头部搜索
+                    value: '0',
+                    label: '全部机构'
+                }*/],
+                value: '',
+                //六小块
+                CountNum: {},
+                // 居民特征
+                ResidentList: [],
+                ResidentData: {},
+                PageSizeRes: '',
+                // 签约报表
+                PageSizesign: [],
+                SignList: [],
+                SignData: {},
+                // 最新签约列表
+                NewSignListData: {},
+                PageSizeNew: [],
+                //是否签约
+                signed: 'true',
+                //日期控件
+                ValueTime: '',
+                pickerBeginDateBefore: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now();
+                    }
+                },
+                timeDefaultShow: '',
+                //图表
+                charts: '',
+                chartOption: {
+                    grid: {
+                        x: 50,
+                        y: 45,
+                        x2: 5,
+                        y2: 80,
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: [],
+                        name: '日期',
+                        color: '#10b9b9',
+                        axisLabel: {
+                            show: true,
+                            textStyle: {
+                                color: '#999999',
+                                fontSize: '14'
+                            }
+                        },
+                        nameTextStyle: {
+                            color: '#109b9b'
+                        }
+                    },
+
+                    yAxis: {
+                        type: 'value',
+                        name: '人数',
+                        axisLabel: {
+                            show: true,
+                            textStyle: {
+                                color: '#999999',
+                                fontSize: '14'
+                            }
+                        },
+                        nameTextStyle: {
+                            color: '#109b9b'
+                        }
+                    },
+                    categoryAxis: {
+                        nameLocation: 'end',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#10b9b9',
+                            }
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        // borderColor:'#10b9b9',
+                        itemGap: 152,
+                        itemWidth: 990,
+                        itemHeight: 261
+
+                    },
+                    series: [{
+                        data: [],
+                        type: 'line',
+                        symbolSize: 10,
+                        smooth: true,
+                        color: ['#10b9b9']
+                    }]
+                },
+
+                // 左侧菜单
+                target: '',
+                targetColor: '',
+                ShowHide: 'true',
+            }
+        },
+        created() {
+            //创建方法
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.GetMechanism();
+            this.GetCountNum();
+            this.GetResident();
+            this.GetSignList();
+            this.GetNewSignList();
+            this.timeDefaultShow = new Date();
+            this.timeDefaultShow.setMonth(new Date().getMonth() - 1);
+            this.ValueTime = $.getNowFormatDate();
+
+        },
+        mounted() {
+            this.GetCountNum();
+            //echarts  图表
+            this.GetEcharts();
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //  获取系统机构列表
+            GetMechanism() {
+                let url = $.formateUrl('backend/other/get-orgs');
+                $.get(url, res => {
+                    if (res.code === 0) {
+                        this.options = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 统计数
+            GetCountNum() {
+                this.GetEcharts();
+                let url = $.formateUrl('backend/home');
+                $.get(url, {
+                    org_id: this.value
+                }, res => {
+                    if (res.code === 0) {
+                        this.orgShowFlag = res.content.orgShow;
+                        this.CountNum = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            // 居民特征
+            GetResident() {
+                let url = $.formateUrl('backend/home/features');
+                $.get(url, {
+                    // org_id: this.value,
+                    page: this.PageSizeRes,
+                    page_size: health.indexPageSize
+                }, res => {
+                    if (res.code === 0) {
+                        this.ResidentData = res.content;
+                        this.ResidentList = res.content.data;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 签约报表
+            GetSignList() {
+                let url = $.formateUrl('backend/home/report');
+                $.get(url, {
+                    // org_id: this.value,
+                    page: this.PageSizesign,
+                    page_size: '6'
+                }, res => {
+                    if (res.code === 0) {
+                        this.SignList = res.content.data;
+                        this.SignData = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 最新签约列表
+            GetNewSignList() {
+                let url = $.formateUrl('backend/home/new-sign');
+                $.get(url, {
+                    // org_id: this.value,
+                    page: this.PageSizeNew,
+                    page_size: health.BigPageSize
+                }, res => {
+                    if (res.code === 0) {
+                        this.NewSignListData = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //  签约机构量Echarts
+            GetEcharts() {
+                let url = $.formateUrl('backend/home/org-sign');
+                $.get(url, {
+                    org_id: this.value,
+                    date: this.ValueTime
+                }, res => {
+                    if (res.code === 0) {
+                        this.chartOption.xAxis.data = res.content.date;
+                        this.chartOption.series[0].data = res.content.count;
+                        this.charts = echarts.init(this.$refs.detailChart);
+                        this.charts.resize();
+                        this.charts.setOption(this.chartOption);
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            change() {
+                this.GetEcharts();
+                this.time = this.ValueTime;
+                this.GetEcharts();
+            },
+            CurrentChange(val) {
+                this.PageSizeRes = val;
+                this.GetResident();
+            },
+            CurrentChangeSign(val) {
+                this.PageSizesign = val;
+                this.GetSignList();
+            },
+            CurrentChangeNew(val) {
+                this.PageSizeNew = val;
+                this.GetNewSignList();
+            },
+            //    退出
+            SignOut() {
+                $.SignOut();
+            }
+        },
+    })
+</script>
+</body>
+</html>

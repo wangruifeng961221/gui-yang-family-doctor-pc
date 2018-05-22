@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/user_info.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>其他管理</span>
+                    <span>></span>
+                    <span>个人信息</span>
+                </div>
+                <!--内容 -->
+                <div class="my_info">
+                    <div class="errorText" style="margin-right: 20px"></div>
+                    <div class="header_con">
+                        <div>
+                            <span class="span_con">医生头像</span>
+                            <img :src="models.avatar" class="header_pic"><br>
+                            <span class="span_con">医生账号：</span>
+                            <span>{{models.username}}</span>
+                        </div>
+                        <div class="header_right">
+                            <span>医生姓名：</span>
+                            <span>{{models.name}} | {{models.identity_card}}</span><br>
+                            <span>手机号码：</span>
+                            <span>{{models.mobile}}</span>
+                            <span class="phone_Edit" data-toggle="modal"
+                                  data-target="#phoneModal">修改手机号码</span>
+                        </div>
+                        <span class="edit_info" @click="setEditFlag(true)" v-if="editFlag ? false : true"><img
+                                src="/img/icon_edit.png">&nbsp;&nbsp;编辑</span>
+
+                        <span class="edit_info" @click="save()" v-if="editFlag"><img src="/img/icon_save.png">&nbsp;&nbsp;保存</span>
+
+                    </div>
+                    <div class="edit_con">
+                        <form id="my_info">
+                            <span style="margin-top: 30px" class="model-required" id="label_zc">职称</span>
+                            <el-select v-model="models.title" v-bind:disabled="editFlag ? false : true "
+                                       placeholder="请选择">
+
+                                <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.title"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                            <input type="hidden" v-model="models.title" vname="label_zc" validator="notNull"
+                                   vel-type="select">
+                            <br>
+                            <span class="model-required" id="label_good">擅长</span>
+                            <textarea maxlength="100" rows="10" vname="label_good" validator="notNull"
+                                      placeholder="请输入内容..." :class="editFlag ? 'adept' : 'adept hidden_edit'"
+                                      @input="descInput" v-model="models.specialty"
+                                      v-bind:readonly="editFlag ? false : true "></textarea>
+                            <span :class="editFlag ? 'Prompt_myInfo' : 'Prompt_myInfo hidden_adept'">{{remnant}}/100</span>
+                            <span class="model-required" id="label_title">医生简介</span>
+
+                            <textarea maxlength="100" rows="10" placeholder="请输入内容..."
+                                      :class="editFlag ? 'adept' : 'adept hidden_edit'" @input="descInputdoc"
+                                      v-model="models.resume" v-bind:readonly="editFlag ? false : true "
+                                      vname="label_title" validator="notNull"></textarea>
+                            <span :class="editFlag ? 'Prompt_myInfo' : 'Prompt_myInfo hidden_adept'">{{remnantDoctor}}/100</span>
+                        </form>
+                    </div>
+
+                    <div class="org_bottom">
+                        <span>所属机构：</span>
+                        <span style="width: 1000px">{{models.org_name}}</span><br>
+                        <span>角色：</span>
+                        <span style="width: 1000px">{{models.type_msg}}</span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="bg_color">
+
+            </div>
+        </div>
+    </div>
+    <!-- 修改手机号码 -->
+    <div class="modal fade" id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">修改手机号码</div>
+                </div>
+                <div class="gateway-con">
+                    <div class="errorText" style="margin-right: 30px"></div>
+                    <form id="phoneEdit">
+                        <span id="old_phone">原手机号码</span>
+                        <input type="text" placeholder="请输入原手机号码" name="mobile" vname="old_phone" validator="notNull" vtype="mobilePhone"><br>
+                        <span id="new_phone">新手机号码</span>
+                        <input type="text" placeholder="请输入新手机号码" name="newMobile" v-model="newPhone" vname="new_phone" validator="notNull" vtype="mobilePhone"><br>
+                        <span style="width: 70px" id="code">验证码</span>
+                        <input type="text" class="code" name="verify_code" placeholder="请输入验证码" vname="code" validator="notNull">
+                        <span class="get_code" v-if="codeFlag" @click="getCode">获取验证码</span>
+                        <span class="time" v-if="!codeFlag">{{code}}秒</span>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="modifyMobile">提交</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                options: [{
+                    value: '选项1',
+                    label: '黄金糕'
+                }],
+                newPhone: '',
+                remnantDoctor: 0,
+                remnant: "",
+                //    验证码
+                code: '',
+                codeFlag: true,
+
+                editFlag: false,
+                models: {}
+
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;            //作者菜单
+
+            this.initInfo();
+            this.getDocTitle();
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+
+            //获取用户信息
+            initInfo() {
+                let url = health.apiUrl + 'backend/user/update';
+                $.get(url, {token: $.getToken()}, res => {
+                    if (res.code != 0) {
+                        this.$message(res.message);
+                    } else {
+                        this.models = res.content;
+                    }
+                })
+            },
+            //保存信息
+            save() {
+                if (validateForm(my_info)) {
+                    let url = health.apiUrl + 'backend/user/update?token=' + $.getToken();
+                    $.post(url, this.models, res => {
+                        if (res.code != 0) {
+                            this.$message(res.message);
+                        } else {
+                            this.$message('保存成功');
+                            this.setEditFlag(false);
+                            $('.errorText').empty();
+                        }
+                    })
+                }
+            },
+            //修改手机号
+            modifyMobile() {
+                if(validateForm(phoneEdit)){
+                    let url = health.apiUrl + 'backend/user/modify-mobile?token=' + $.getToken();
+                    var formData = $('#phoneEdit').serialize();
+                    $.post(url, formData, res => {
+                        if (res.code != 0) {
+                            this.$message(res.message);
+                        } else {
+                            this.initInfo();
+                            this.$message('保存成功');
+                            $('.errorText').empty();
+                            $("#phoneModal").modal('hide')
+                        }
+                    })
+                }
+            },
+            // 获取职称
+            getDocTitle() {
+                let url = health.apiUrl + 'backend/other/get-doctor-title';
+                $.get(url, {token: $.getToken()}, res => {
+                    if (res.code == 0) {
+                        this.options = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //设置编辑
+            setEditFlag(val) {
+                this.editFlag = val;
+            },
+            // 擅长
+            descInput() {
+                let txtVal = this.models.specialty.length;
+                this.remnant = txtVal;
+            },
+            descInputdoc() {
+                let txtVal = this.models.resume.length;
+                this.remnantDoctor = txtVal;
+            },
+            // 获取验证码
+            getCode() {
+                if (this.newPhone) {
+                    let url = health.apiUrl + 'backend/mobile-captcha/send?token=' + $.getToken();
+                    $.post(url, {receiver: this.newPhone}, res => {
+                        this.$message(res.message);
+                        if (res.code == 0) {
+                            this.codeFlag = false;
+                            var sec = 60;
+                            for (let i = 0; i <= 60; i++) {
+                                window.setTimeout(() => {
+                                    if (sec != 0) {
+                                        this.code = sec;
+                                        sec--;
+                                    } else {
+                                        sec = 60;//如果倒计时结束就让  获取验证码显示出来
+                                        this.codeFlag = true
+                                    }
+                                }, i * 1000)
+                            }
+                        }
+                    })
+
+
+                } else {
+                    $('.errorText').text('请输入新手机号码')
+                }
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    })
+</script>
+</body>
+</html>

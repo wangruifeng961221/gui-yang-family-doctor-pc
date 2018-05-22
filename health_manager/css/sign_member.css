@@ -1,0 +1,68 @@
+.Card_id{
+    width: 120px;
+}
+.el-input__icon{
+    position: relative;
+    top: 5px!important;
+}
+.el-input__inner{
+    border-radius: 0;
+}
+.member-edit-modal-phone{
+    width: 180px;
+}
+.el-icon-date{
+    position: relative;
+    left: 184px;
+    top: -3px!important;
+    color:#8EDEDE ;
+}
+.blood .el-select{
+    width: 120px;
+    margin-left: 5px;
+}
+.blood-title{
+    margin-right:3px;
+}
+.sign_info{
+    width: 300px;
+    margin: 0 0 15px 15px;
+}
+.time .el-date-editor.el-input{
+    width: 180px;
+    margin: 0 0 15px 15px;
+}
+.time .el-icon-date{
+    position: relative;
+    left: 145px;
+    top: -3px!important;
+    color:#8EDEDE ;
+}
+.doc-res{
+    margin-top: 7px;
+    margin-bottom: 15px;
+}
+input[type=file]{
+    display: none;
+}
+.title-img{
+    margin-left: 0
+}
+.el-upload--picture-card{
+    border:1px solid #666;
+    margin-left: 5px;
+}
+.other{
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+
+
+
+
+
+
+

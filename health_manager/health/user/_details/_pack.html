@@ -1,0 +1,251 @@
+<div id="app_pack_tabs" v-cloak>
+    <!-- 无数据 -->
+    <div class="pack_no" v-if="packList.length<=0">
+        <img src="/img/photoNodata.png"><br>
+        <span class="pack_title_no">暂未绑定服务包</span><br>
+        <span class="binding_no" data-toggle="modal" data-target="#ModalPack" @click="bindingPack">立即绑定</span>
+    </div>
+
+    <div class="table_ecg" v-else>
+        <div class="binding_pack">
+            <span class="add-jg pack_jg" data-toggle="modal" data-target="#ModalPack" @click="bindingPack">
+            <img src="/img/icon_binding.png">绑定服务包</span>
+        </div>
+        <div v-for="(item,index) in packList">
+            <div>
+                <span class="ecg_title pack_title" @click="changeFlag(index)"
+                      style="cursor: pointer">{{item.name}}</span><br>
+                <span class="apply_pack dot" style="display:inline-flex;">适用人群:{{item.tags}} </span>
+                <span class="untie" @click="untie(item.pack_id)">解绑</span>
+            </div>
+            <div class="org-lists">
+                <table cellspacing="0" v-show="Status[index] == 0">
+                    <thead>
+                    <tr style="border-top:1px solid #f5f5f5">
+                        <th>序号</th>
+                        <!--<th>服务项编码</th>-->
+                        <th>服务项名称</th>
+                        <th>服务次数</th>
+                        <th>执行频次</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(itemT,index) in item.pack_items" :class="(index+1)%2===0?'':'bg-tr-color'">
+                        <td>{{index+1}}</td>
+                        <!--<td>{{itemT.code}}</td>-->
+                        <td>{{itemT.name}}</td>
+                        <td>{{itemT.times}}</td>
+                        <td v-if="itemT.quantify">{{itemT.frequency}}/{{itemT.unit}}</td>
+                        <td v-else>无限</td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 绑定服务包 -->
+    <div class="modal fade" id="ModalPack" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel">绑定服务包</div>
+                </div>
+                <div class="modal-body" style="background-color: #fafafa">
+                    <div class="org-lists" style="width: 700px;">
+                        <div class="pack_con">
+                            <span>服务包名称</span> <input type="text" v-model="searchVal" placeholder="请输入服务包名称"
+                                                      class="inputPack">
+                            <span class="search-btn" @click="search"><img src="/img/icon_serarch.png"></span>
+                        </div>
+                        <table cellspacing="0" style="width: 630px">
+                            <thead>
+                            <tr>
+                                <th style="width: 30px"></th>
+                                <th style="width: 30px">序号</th>
+                                <!--<th>服务包编码</th>-->
+                                <th style="width: 130px;">服务包名称</th>
+                                <th>适用人群</th>
+                                <th>销售价(元)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(item,index) in Organization.data" :class="(index+1)%2==0?'':'tr-color'">
+                                <td><input type="checkbox" name="checkBox" :id="item.pack_id"
+                                           :value="item.pack_id" @click="handleBox(item.pack_id,$event)"
+                                           class="checkBox"></td>
+                                <td>{{item.serial}}</td>
+                                <!--<td>{{item.code}}</td>-->
+                                <td style="padding: 0 5px">{{item.name}}</td>
+                                <td style="padding: 0 5px">{{item.tags}}</td>
+                                <td>{{item.sale_price}}</td>
+                            </tbody>
+                        </table>
+                        <span class="all-nums" v-if="Organization.count>0">共{{Organization.count}}条</span>
+                        <span class="all-nums" v-else>暂无数据</span>
+                        <el-pagination
+                                v-if="Organization.count>0"
+                                @current-change="CurrentChange"
+                                class="paging orgPaging"
+                                background
+                                prev-text="上一页"
+                                next-text="下一页"
+                                layout="prev, pager, next"
+                                :page-size="health.SmallPageSize"
+                                :page-count="Organization.pages"
+                                :total="Organization.count">
+                        </el-pagination>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="bindingPackSub">确定绑定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<script type="text/javascript">
+    new Vue({
+        el: "#app_pack_tabs",
+        data() {
+            return {
+                user_id: '',
+                Status: [],
+                packList: [],
+                AllPeople: [],  //所有选中的id
+                Organization: {},
+                pageValue: '',
+                searchVal: '', //搜索的值
+            }
+        },
+        created() {
+            this.packList.forEach(item => {
+                this.Status.push(1);
+            });
+            this.GetPackList();
+        },
+        methods: {
+            //  点击隐藏和显示
+            changeFlag(index) {
+                let tmp;
+                if(this.Status[index] !== undefined) {
+                    tmp = this.Status[index]
+                }
+                this.Status = [];
+                this.packList.forEach(item => {
+                    this.Status.push(1);
+                });
+                let status = 0;
+                if(tmp !== undefined) {
+                    status = tmp ? 0 : 1;
+                }
+
+                this.$set(this.Status, index, status)
+            },
+            //    获取服务包列表
+            GetPackList() {
+                let url = $.formateUrl('backend/denizen/pack');
+                let params = {
+                    id: $.getQueryString('id')
+                };
+                $.get(url, params, res => {
+                    if (res.code == 0) {
+                        this.packList = res.content;
+                    }
+                })
+            },
+            CurrentChange(val) {
+                $("input[name='checkBox']").prop("checked", false);
+                this.AllPeople = [];
+                this.pageValue = val;
+                this.GetModalPack();
+            },
+
+            bindingPack() {
+                this.searchVal='';
+                this.GetModalPack();
+            },
+            // 解绑
+            untie(id){
+                let url = $.formateUrl('backend/denizen/untie-pack');
+                let params={
+                    id:$.getQueryString('id'),
+                    pack_id:id
+                };
+                $.post(url,params,res=>{
+                    if(res.code==0){
+                        this.$message('解绑成功');
+                        this.GetPackList();
+                        this.Status=[];
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //    弹框获取服务包列表
+            GetModalPack() {
+                this.AllPeople = [];
+                $("input[name='checkBox']").prop("checked", false);
+                let url = $.formateUrl('backend/denizen/pack-list');
+                let params = {
+                    page_size: health.SmallPageSize,
+                    page: this.pageValue,
+                    name: this.searchVal,
+                    id: $.getQueryString('id')
+                };
+                $.get(url, params, res => {
+                    if (res.code == 0) {
+                        this.Organization = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //搜索
+            search() {
+                this.GetModalPack();
+            },
+
+            handleBox(id, event) {   //单点按钮
+                let flag = event.target.checked;
+                if (flag) {
+                    this.AllPeople.push(id);
+                } else {
+                    $.each(this.AllPeople, (index, value) => {
+                        id == value ? this.AllPeople.splice(index, 1) : '';
+                    })
+                }
+            },
+
+            //    绑定服务包
+            bindingPackSub() {
+                if (this.AllPeople == '') {
+                    this.$message('请至少选择一个服务包');
+                    return false;
+                }
+                let url = $.formateUrl('backend/denizen/bind-pack');
+                let params = {
+                    id: $.getQueryString('id'),
+                    pack_ids: this.AllPeople
+                };
+                $.post(url, params, res => {
+                    if (res.code == 0) {
+                        $('#ModalPack').modal('hide');
+                        this.$message('绑定成功');
+                        this.GetPackList();
+                        this.GetModalPack();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+        },
+    });
+</script>

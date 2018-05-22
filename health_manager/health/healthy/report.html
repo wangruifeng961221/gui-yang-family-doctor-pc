@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>居民管理</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/dy-common.css">
+    <link rel="stylesheet" href="/css/member.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="com-title">
+                    <span>健康数据 > 健康报告</span>
+                </div>
+                <div class="com-search member-search" style="text-align: right; padding-right: 30px;">
+                    居民姓名<input class="member-search-name" type="text" v-model="memName" placeholder="请输入姓名"
+                               style="width: 110px">
+                    证件号码<input class="member-search-ID" type="text" v-model="idCard" placeholder="请输入证件号码"
+                               style="width: 160px">
+                    <!-- <span class="w-ly">来源</span>
+                     <el-select v-model="value" placeholder="请选择">
+                         <el-option
+                                 v-for="item in options"
+                                 :key="item.value"
+                                 :label="item.text"
+                                 :value="item.id">
+                         </el-option>
+                     </el-select>-->
+                    <span class="w-ly w-state">签约状态</span>
+                    <el-select v-model="valueState" placeholder="请选择">
+                        <el-option
+                                v-for="item in optionsState"
+                                :key="item.value"
+                                :label="item.text"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
+                    <span class="com-search-btn w-search" @click="searchMem" id="w-com-search-btn"><img
+                            src="/img/icon_serarch.png"></span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="com-bg-color">
+                <div class="com-table member-table">
+                    <table class="table" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th width="50px">姓名</th>
+                            <th>联系电话</th>
+                            <th>证件号码</th>
+                            <th>签约机构</th>
+                            <th style="width: 160px;">签约团队</th>
+                            <!--<th>来源</th>-->
+                            <th>签约状态</th>
+                            <th>签约日期</th>
+                            <th>生成健康报告</th>
+                        </tr>
+                        <tr v-for="(item,index) in TagList.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.mobile}}</td>
+                            <td>{{item.card}}</td>
+                            <td>{{item.org_name}}</td>
+                            <td>{{item.team}}</td>
+                            <!--<td>{{item.from}}</td>-->
+                            <td><span v-html="item.sign_status"></span></td>
+                            <td><span class="surrender">{{item.sign_date}}</span></td>
+                            <td class="com-poi">
+                                <span><img src="/img/icon_check.png" title="生成健康报告"
+                                           @click="displayReport(item.id)"></span>
+                            </td>
+                        </tr>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="TagList.count>0">共{{TagList.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="TagList.count"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="TagList.pages"
+                            :total="TagList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 生成健康报告 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog com-modal-style-big" role="document" style="width: 700px">
+            <div class="modal-content">
+                <div class="modal-header com-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="com-modal-title">生成健康报告</div>
+                </div>
+                <div class="modal-body com-modal-body-style model-healthy">
+                    <form id="report_form" action="http://health.api.vipicare.com/report/health" method="get"
+                          target="_blank">
+                        <input type="hidden" name="id" v-model="reportFormModel.user_id">
+                        <input type="hidden" name="token" v-model="reportFormModel.token">
+                        <input type="hidden" name="start_time" v-model="reportFormModel.start_time">
+                        <input type="hidden" name="end_time" v-model="reportFormModel.end_time">
+                        <span class="model-required times">开始日期</span>
+                        <el-date-picker
+                                v-model="reportFormModel.start_time"
+                                type="date"
+                                value-format="yyyy-MM-dd"
+                                placeholder="请选择开始日期"
+                                :picker-options="pickerOptionsStart">
+                        </el-date-picker>
+                        <br>
+                        <span class="model-required times">结束日期</span>
+                        <el-date-picker
+                                v-model="reportFormModel.end_time"
+                                type="date"
+                                value-format="yyyy-MM-dd"
+                                placeholder="请选择结束日期"
+                                :picker-options="pickerOptionsEnd">
+                        </el-date-picker>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="com-modal-add-btn" @click="openReport()">生成</span>
+                    <span class="com-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                //    姓名
+                memName: '',
+                //证件号码
+                idCard: '',
+                //    来源
+                options: [],
+                value: '',
+                //    状态
+                optionsState: [],
+                valueState: '',
+                //    分页
+                TagList: {},
+                page: '',
+                // 健康报告
+                pickerOptionsStart: {
+                    disabledDate: (time) => {
+                        let date = new Date();
+                        date.setFullYear(date.getFullYear() - 1);
+                        return time.getTime() >= Date.now() ||
+                            time.getTime() <= date.getTime();
+                    }
+                },
+                pickerOptionsEnd: {
+                    disabledDate: (time) => {
+                        return time.getTime() >= Date.now() ||
+                            time.getTime() <= new Date(this.reportFormModel.start_time).getTime();
+
+                    }
+                },
+                reportFormModel: {},
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            //作者菜单
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            //this.GetSource();
+            this.GetSignState();
+            this.searchMem();
+        },
+        mounted(){
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+
+            // 获取来源
+            GetSource() {
+                let url = $.formateUrl('backend/other/member-form');
+                $.get(url, res => {
+                    if(res.code==0){
+                        this.options = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            // 获取签约状态
+            GetSignState() {
+                let url = $.formateUrl('backend/other/audit-status');
+                $.get(url, res => {
+                    if(res.code==0){
+                        this.optionsState = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //  居民列表
+            searchMem() {
+                let url = $.formateUrl('backend/denizen/list');
+                $.get(url, {
+                    page_size: health.BigPageSize,
+                    page: this.page,
+                    name: this.memName,
+                    card: this.idCard,
+                    from: this.value,
+                    audit_status: this.valueState
+                }, res => {
+                    if(res.code==0){
+                        this.TagList = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChange(val) {
+                this.page = val;
+                this.searchMem();
+            },
+            //报告时间选择弹窗
+            displayReport(id) {
+                let date = new Date();
+                date.setMonth(date.getMonth() - 6);
+                let start_date = date.format('yyyy-MM-dd');
+                let end_date = new Date();
+                end_date = end_date.format('yyyy-MM-dd');
+
+                Vue.set(this, 'reportFormModel', {
+                    user_id: id,
+                    token: $.getToken(),
+                    start_time: start_date,
+                    end_time: end_date
+                });
+
+                $('#myModal').modal('show');
+            },
+            //生成报告
+            openReport() {
+                let form = document.getElementById('report_form');
+                form.submit();
+                $('#myModal').modal('hide');
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+
+    });
+
+    /**
+     * modal关闭回调
+     * 重置开始结束日期
+     * @author beytagh
+     */
+    $('#myModal').on('hide.bs.modal', function (e) {
+        let date = new Date();
+        date.setMonth(date.getMonth() - 6);
+        let start_date = date.format('yyyy-MM-dd');
+        let end_date = new Date();
+        end_date = end_date.format('yyyy-MM-dd');
+
+        Vue.set(vm, 'reportFormModel', {start_time: start_date, end_time: end_date});
+    })
+
+</script>
+</html>

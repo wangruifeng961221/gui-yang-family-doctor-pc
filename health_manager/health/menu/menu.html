@@ -1,0 +1,110 @@
+<div id="menu-left" v-cloak>
+
+    <ul v-if="menus.length>0">
+
+        <a v-for="(menu,index) in menus" :href="menu.items?'javascript:void(0)':menu.url+'.html'" :key="index"
+           @click="ChangeMenu(index)">
+            <li class="list-menu" @click="ChangeBg($event)"
+                :class="menu.url==currentUrlObj.menu_parent_url?'menu-bg-list':''">
+                <img :src="menu.img"><span>{{menu.label}}</span>
+                <ul class="second-menu second-menu-lists" v-show="menusStatus[index] === 0"
+                    v-if="menus[index].items" :class="menu.url==currentUrlObj.menu_parent_url?'bgTagColor':''">
+                    <li class="second-menu second-menu-list" @click="ChangColor($event,itemSecond.url)"
+                        v-for="(itemSecond,secondIndex) in menu.items"
+                        :key="secondIndex"
+                        :class="itemSecond.url==currentUrlObj.menu_child_url?'fontColor':''">
+                        {{itemSecond.label}}
+                    </li>
+                </ul>
+            </li>
+        </a>
+
+    </ul>
+
+    <div class="menu_info">
+        <span class="line"></span>
+        <div class="info">
+            <span style="display: block">版本信息&nbsp;&nbsp;3.0VER</span>
+            <span>{{host}}</span>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    new Vue({
+            el: "#menu-left",
+            data() {
+                return {
+                    target: '',
+                    targetColor: '',
+                    ShowHide: 'true',
+                    //左侧菜单
+                    menus: [],
+                    menusStatus: [],
+                    currentUrlObj: {},
+                    host: '',
+
+                }
+            },
+            beforeCreate() {
+                let menus = health.getMenus();
+                let routs = health.getRouts();
+                if (menus === null || routs === null) {
+                    let url = $.formateUrl('backend/user/authorize');
+                    $.ajax({
+                        type: "get",
+                        url: url,
+                        async: false,
+                        success: function (res) {
+                            window.sessionStorage.setItem('menus', JSON.stringify(res.content.menus));
+                            window.sessionStorage.setItem('routs', JSON.stringify(res.content.routs));
+                        }
+                    });
+                }
+            },
+            mounted() {
+                this.host = document.domain;
+                this.menus = health.getMenus();
+                this.menus.forEach(item => {
+                    this.menusStatus.push(1);
+                });
+                this.getUrl();
+                let ind = window.sessionStorage.getItem('MenusFlag');
+                this.$set(this.menusStatus, ind, 0);
+            },
+            methods: {
+                getUrl() {
+                    var pathName = window.location.pathname;
+                    pathName = pathName.replace('.html', '');
+                    var arr_path = pathName.split('/');
+                    this.currentUrlObj.menu_parent_url = '/' + arr_path[1] + '/' + arr_path[2];
+                    this.currentUrlObj.menu_child_url = pathName;
+                },
+                ChangeMenu(index) {
+                    const status = this.menusStatus[index] ? 0 : 1;
+                    this.$set(this.menusStatus, index, status);
+                    window.sessionStorage.setItem('MenusFlag', index);
+                },
+                // 点击背景颜色变
+                ChangeBg(ev) {
+                    let event = ev || ev.target;
+                    this.target = event.currentTarget;
+                    $(".menu-bg-list").removeClass("menu-bg-list");
+                    $("#second-menu-bglist").removeAttr("id");
+                    this.target.setAttribute("class", "menu-bg-list");
+                },
+                // 点击二级菜单，字体颜色变
+                ChangColor(ev, url) {
+                    let event = ev || ev.target;
+                    this.targetColor = event.currentTarget;
+                    $(".menu-bg-list").removeClass("menu-bg-list");
+                    $("#second-menu-bglist").removeAttr("id");
+                    this.targetColor.setAttribute("id", "second-menu-bglist");
+                    window.location.href = health.subString(health.homeUrl, health.homeUrl.length - 1) + url + '.html';
+                },
+            }
+
+        }
+    )
+</script>

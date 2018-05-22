@@ -1,0 +1,602 @@
+.title-doc {
+    font-size: 14px;
+    color: #fff;
+    text-align: left;
+    padding: 27px 0 25px 30px;
+    font-weight: 600;
+}
+
+.doc-search {
+    background: #fff;
+    width: 1140px;
+    height: 110px;
+    margin-left: 30px;
+}
+
+.search-left {
+    width: 100%;
+    padding: 20px 30px;
+    font-size: 14px;
+    color: #666;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+}
+
+/* 头部 */
+.search-left img {
+    height: 70px;
+    width: 70px;
+}
+
+.name {
+    font-family: SourceHanSansCN-Bold;
+    font-size: 16px;
+    color: #333333;
+}
+
+.info_details {
+    margin-left: 30px;
+}
+
+.Gender {
+    margin: 0 20px 0 30px;
+}
+
+.title {
+    font-family: SourceHanSansCN-Regular;
+    color: #10b9b9;
+    margin-right: 40px;
+    max-width: 477px;
+
+}
+
+.state {
+    font-family: SourceHanSansCN-Bold;
+    font-size: 16px;
+    color: #00cc66;
+}
+
+.info_name {
+    margin-bottom: 8px;
+}
+
+.Sign_team {
+    font-family: SourceHanSansCN-Bold;
+    font-size: 12px;
+    color: #333333;
+    margin-bottom: 8px;
+}
+
+.right_header {
+    margin-left: auto;
+
+}
+
+.Surrender {
+    width: 100px;
+    height: 30px;
+    border-radius: 15px;
+    border: 1px solid #10b9b9;
+    color: #10b9b9;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.Print {
+    width: 140px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #10b9b9;
+    color: #FFFFFF;
+    text-align: center;
+    line-height: 30px;
+    margin-top: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.Print img {
+    width: 17px;
+    height: 17px;
+    margin-right: 2px;
+}
+
+/*选项卡 */
+.doc-bg-color {
+    background-color: #F5F5F5;
+    /*height: 1057px;*/
+    /*height: 677px;*/
+}
+
+.doc-table {
+    background-color: #ffffff;
+    margin: 0 30px;
+    position: relative;
+    top: -5px;
+    /*height: 100%;*/
+}
+
+/* 选项卡*/
+.el-tabs__item.is-active {
+    color: #10b9b9 !important;
+}
+
+.el-tabs__item:hover {
+    color: #10b9b9 !important;
+}
+
+.el-tabs__active-bar {
+    background-color: #10b9b9;
+    height: 4px;
+}
+
+.el-tabs__header {
+    /*margin: 0 0 30px!important;*/
+}
+
+.el-tabs__item {
+    font-size: 16px !important;
+    width: 228px;
+    text-align: center;
+}
+
+.el-tabs__item {
+    color: #666666;
+}
+
+.title_info {
+    margin-bottom: 30px;
+}
+
+.info_my {
+    margin: 0 30px;
+    border-bottom: 1px Solid #dcdcdc;
+}
+
+.info_my p, .health_my p {
+    color: #10b9b9;
+    margin-top: 30px;
+}
+
+.info_my span {
+    width: 40%;
+}
+
+.lists_info li {
+    margin-bottom: 30px;
+}
+
+.health_my .first_tag span {
+    max-width: 428px;
+    width: 30%;
+    vertical-align: text-top;
+    word-break:break-all;
+    margin-right: 10px;
+}
+
+.health_my {
+    margin: 0 30px;
+}
+
+.doc-modal-header {
+    padding: 18px 20px;
+    background: linear-gradient(to left, #3ad3ce 0%, #10adad 100%);
+    color: #fff;
+}
+
+.gateway-con {
+    /*height: 287px;*/
+    padding: 30px 0 0 30px;
+    background-color: #F0F0F0;
+}
+
+.doc-modal-add-btn, .doc-modal-add-cancle {
+    width: 90px;
+    height: 30px;
+    line-height: 28px;
+    border: none;
+    border-radius: 13px;
+    text-align: center;
+    border: 1px solid #10adad;
+    cursor: pointer;
+}
+
+.modal-footer {
+    background-color: #ffffff;
+}
+
+.doc-modal-add-btn {
+    background: linear-gradient(to left, #3ad3ce 0%, #10adad 100%);
+    color: #fff;
+    margin-right: 20px;
+}
+
+.doc-modal-add-btn:hover {
+    background: #999;
+    color: #fff;
+    border: 1px solid #10adad;
+    /*margin-right: 20px;*/
+    cursor: pointer;
+}
+
+.modal-textarea {
+    border: 1px solid #666666;
+    border-radius: 4px;
+    padding: 5px;
+    width: 340px;
+    height: 100px;
+    background-color: #ffffff;
+    resize: none;
+    margin-bottom: 30px;
+}
+
+.modal-dialog {
+    width: 700px;
+    /*height: 287px;*/
+}
+
+.gateway_label {
+    margin-bottom: 16px !important;
+}
+
+/*  */
+.sign_audit {
+    background-color: #10b9b9;
+    color: #ffffff;
+}
+
+.reject {
+    background-color: #FFFFFF;
+    border: 1px solid #10b9b9;
+    color: #10b9b9;
+}
+
+.Ecg {
+    width: 142px;
+    /*height: 110px;*/
+    padding-top: 16px;
+}
+
+#tab-first_Ecg, #tab-second_fat, #tab-third_pre, #tab-fourth_sugar, #tab-fifth_Oxygen, #tab-six_Oxygen, #tab-seven_Oxygen, #tab-eighth_Oxygen {
+    width: 142px;
+    height: 110px;
+    padding-top: 16px;
+}
+
+#tab-first_Ecg span, #tab-second_fat span, #tab-third_pre span, #tab-fourth_sugar span, #tab-fifth_Oxygen span, #tab-six_Oxygen span, #tab-seven_Oxygen span, #tab-eighth_Oxygen span {
+    display: flex;
+    flex-direction: column;
+}
+
+#tab-first_Ecg span img, #tab-second_fat img, #tab-third_pre span img, #tab-fourth_sugar span img, #tab-fifth_Oxygen span img, #tab-six_Oxygen span img, #tab-seven_Oxygen span img, #tab-eighth_Oxygen span img {
+    width: 43px;
+    height: 43px;
+    margin: 0 auto;
+}
+
+.el-tabs__header {
+    margin: 0 !important;
+}
+
+.el-tabs__nav-scroll {
+    display: flex;
+    flex-direction: row;
+}
+
+/* 心电记录 */
+.ecg_search {
+    /*height: 244px;*/
+    background-color: #ffffff;
+    width: 1140px;
+    text-align: right;
+    box-shadow: 0 1.1px 2px #DCDCDC;
+    position: relative;
+    margin-top: 20px;
+    padding-bottom: 30px;
+}
+
+.date {
+    margin-right: 10px;
+}
+
+.el-tabs__content {
+    /*height: 180px;*/
+    padding-bottom: 10px;
+}
+
+.el-range-input {
+    /*padding-left: 20px!important;*/
+}
+
+.search-btn {
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    border: 1px solid #00cccccc;
+    cursor: pointer;
+    margin: 0 30px;
+}
+
+.search-btn img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+.search-btn:hover {
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+
+.bg_color_ecg {
+    height: 30px;
+    width: 1140px;
+    background-color: #f5f5f5;
+}
+
+.Chart {
+    height: 360px;
+    background-color: #ffffff;
+    width: 1140px;
+}
+
+.org-lists {
+    width: 1140px;
+}
+
+.org-lists table {
+    border-bottom: 1px solid #dcdcdc;
+    width: 1100px;
+    margin: 0 0 20px 20px;
+}
+
+.org-lists th {
+    height: 18px;
+    font-family: SourceHanSansCN-Bold;
+    padding: 20px 0 12px 0;
+    text-align: center;
+    color: #10b9b9;
+}
+
+.org-lists td {
+    color: #333333;
+    font-family: SourceHanSansCN-Regular;
+    height: 40px;
+    /*line-height: 40px;*/
+    text-align: center;
+    position: relative;
+}
+
+.org-lists td:after {
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+}
+
+.org-lists td:last-child:after {
+    content: normal;
+}
+
+.org-lists td:last-child {
+    width: 180px;
+}
+
+.org-lists .font-color {
+    color: #10b9b9;
+    cursor: pointer;
+}
+
+.bg-tr-color {
+    background-color: #f8f9fb;
+}
+
+.ecg_title {
+    font-family: SourceHanSansCN-Regular;
+    font-size: 16px;
+    color: #10b9b9;
+    margin: 20px;
+}
+
+.print {
+    float: right;
+    margin-right: 88px;
+    margin-top: 20px;
+}
+
+.table_ecg {
+    width: 1140px;
+}
+
+.add-jg{
+    width: 110px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+    /*float: right;*/
+    margin-top: 16px;
+}
+.binding_pack{
+    display: flex;
+    justify-content:flex-end;
+}
+.untie{
+    width: 50px;
+    height: 30px;
+    background-color: #10b9b9;
+    border-radius: 5px;
+    color: #ffffff;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+
+}
+.add-jg img{
+    width: 14px;
+    height: 14px;
+    vertical-align: text-bottom;
+    margin-right: 10px;
+}
+
+
+.modal-content{
+    /*width: 700px;*/
+}
+.Prompt{
+    font-size: 12px;
+    color: #ff3300;
+}
+.modal-footer{
+    border: none !important;;
+    background-color: #ffffff;
+}
+.modal-footer span{
+    border-radius: 15px;
+    width: 90px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    border: 1px solid #109b9b;
+    margin-right: 15px;
+}
+.btn-qd{
+    color: #FFFFFF;
+    background-color: #106969;
+}
+.btn-qx{
+    color: #106969;
+    background-color: #ffffff;
+}
+.btn-qd:hover{
+    background-color: #999999;
+}
+.btn-qx:hover{
+    background-color: #e5e5e5;
+}
+
+.caseText{
+    resize:none;
+    vertical-align: text-top;
+    width: 570px;
+    height: 180px;
+    margin: 0 0 15px 10px;
+    border: 1px solid #666;
+    padding: 0 10px;
+}
+input[type=file]{
+    display: none;!important;
+}
+.el-upload--picture-card{
+    border: 1px solid #666;
+}
+.uploading{
+    display: flex;
+    flex-direction: row;
+}
+.input_case{
+    height: 30px;
+    width: 570px;
+    margin-left: 10px;
+    border: 1px solid #666;
+    padding: 0 10px;
+    margin-bottom: 15px;
+}
+.upload{
+    margin-right: 15px;
+}
+.title-prompt{
+    margin:13px 0 0 75px;
+    font-size: 12px;
+    color: #666;
+}
+.del_model{
+    height: 150px;
+    line-height: 150px;
+    text-align: center;
+    background-color: #fafafa;
+}
+.report_medical{
+    font-size: 16px;
+    color: #10b9b9;
+    margin: 8px 0 0 20px;
+
+}
+.ecg_search_report{
+    margin-top: 35px;
+}
+.pack_title{
+    margin-bottom: 5px;
+}
+.pack_jg{
+    margin-top: 28px;
+}
+.apply_pack{
+    margin: 0 0 20px 20px;
+    width: 1000px;
+}
+.pack_no{
+    padding: 200px 0;
+    height: 200px;
+    width: 156px;
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 200px;
+}
+.pack_no img{
+    margin-bottom: 60px;
+    width: 156px;
+    height: 102px;
+}
+.pack_title_no{
+    color: #333333;
+}
+.binding_no{
+    color: #10b9b9;
+    font-size: 18px;
+    cursor: pointer;
+}
+.tr-color{
+    background-color: #ffffff;
+}
+.el-icon-zoom-in{
+    display: none!important;
+}
+.modal-header{
+    background-color: #10b9b9;
+    color: #fff;
+}
+.inputPack{
+    width: 200px;
+    height: 30px;
+    border: 1px solid #666;
+    padding: 0 10px;
+    margin-left: 20px;
+}
+.pack_con{
+    text-align: right;
+    margin-right: 10px;
+}
+.modal-body{
+    padding-bottom: 50px;
+}
+.el-date-editor .el-range-separator{
+    padding: 0!important;
+}
+.uploading div{
+    /*width: 500px;*/
+}
+

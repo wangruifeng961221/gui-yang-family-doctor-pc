@@ -1,0 +1,74 @@
+.title-org{
+     font-family: SourceHanSansCN-Bold;
+     color: #ffffff;
+     text-align: left;
+     padding: 27px 0 25px 30px;
+     font-weight: 600;
+ }
+.bg_color{
+    background-color: #f5f5f5;
+    /*height: 693px;*/
+}
+.modify{
+    background-color: #FFFFFF;
+    text-align: center;
+    margin: 0 30px;
+    padding: 50px 0;
+    box-shadow:0 1.1px 2px #DCDCDC;
+
+}
+.modify span{
+    text-align: left;
+    width: 100px;
+}
+.modify input{
+    height: 30px;
+    border: 1px solid #333333;
+    margin: 0 0 15px 15px;
+    padding: 0 10px;
+    width: 255px;
+}
+.sub_psd{
+    background-color: #f5f5f5;
+    width: 380px;
+    margin: 0 auto;
+    height: 50px;
+    line-height: 50px;
+    text-align: right;
+}
+.sub, .cancel{
+    width: 200px;
+    text-align: center !important;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 15px;
+    background-color: #10b9b9;
+    color: #ffffff;
+    cursor: pointer;
+}
+.cancel{
+    background-color: #FFFFFF;
+    color: #10b9b9;
+    border: 1px solid #10b9b9;
+    margin: 0 10px 0 20px;
+}
+
+.width_default{
+    text-align:justify!important;
+    width: 75px!important;
+    vertical-align: text-top;
+}
+
+
+.errorText span{
+    width: 20px!important;
+
+}
+
+
+
+
+
+
+
+

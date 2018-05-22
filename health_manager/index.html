@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>跳转中</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+<body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var token = $.cookie(health.cookie_key);
+        if (token == undefined || token == false) {
+            location.href = '/health/login.html';
+        } else {
+            let url = $.formateUrl('backend/user/info');
+            $.get(url, function (res) {
+                if (res.code == 0) {
+                    let currentInfo = [];
+                    currentInfo.push({
+                        avatar: res.content.user.avatar,
+                        name: res.content.user.name,
+                    });
+
+                    $.cookie(health.cookie_orgid_key, res.content.user.orgid, {path: '/'});
+                    $.cookie(health.cookie_user_key, JSON.stringify(currentInfo), {path: '/'});
+
+                    let returnUrl = $.getQueryString('returnUrl');
+                    if (returnUrl) {
+                        location.href = returnUrl;
+                    } else {
+                        location.href = '/health/index.html';
+                    }
+
+                } else {
+                    $.destroy();
+                    location.href = '/health/login.html';
+                }
+
+            });
+        }
+    });
+</script>
+</body>
+</html>

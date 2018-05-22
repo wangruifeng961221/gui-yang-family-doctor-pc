@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>团队管理</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/team.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <!--  <span>用户管理</span>
+                      <span>></span>-->
+                    <span>团队管理</span>
+                </div>
+                <!-- 头部搜索 -->
+                <div class="search">
+                    <span class="org-Name">机构名称</span>
+                    <input type="text" class="inp_mec org-Name" placeholder="请输入机构名称" v-model="organization">
+                    <span class="clear-up clear-Name" :class="organization===''?'clear_OrgName':''"
+                          @click="clearOrgName">×</span>
+                    <span class="org-Name">团队名称</span>
+                    <input type="text" class="inp_mec" v-model="orgName" placeholder="请输入团队名称">
+                    <span class="clear-up" @click="clear" :class="orgName===''?'clearNo':''">×</span>
+                    <span class="search-btn" @click="SearchBtn"><img src="/img/icon_serarch.png"></span>
+                    <span class="add-jg" data-toggle="modal" @click="showTeamSaveModal('')"><img
+                            src="/img/doc-add-btn.png" style="position: relative;top:3px">添加团队</span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="bg-color">
+                <div class="org-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>团队编码</th>
+                            <th>所属机构</th>
+                            <th>团队名称</th>
+                            <th>团队负责人</th>
+                            <th>医生人数</th>
+                            <th>签约居民数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in Organization.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.code}}</td>
+                            <td class="org-name">{{item.orgname}}</td>
+                            <td class="org-address">{{item.teamname}}</td>
+                            <td style="width: 220px">{{item.leader}}</td>
+                            <td class="font-color" data-toggle="modal" data-target="#myModaPeople"
+                                @click="GetDoctorList(item.team_id)">{{item.doctor_count}}
+                            </td>
+                            <td class="font-color" data-toggle="modal" data-target="#myModaDelResident"
+                                @click="GetOrgList(item.team_id)" style="width: 165px">{{item.sign_count}}
+                            </td>
+                            <td class="font-color">
+                                <img src="/img/icon_edit.png" class="edit_icon" data-toggle="modal"
+                                     title="编辑" @click="showTeamSaveModal(item.team_id)">
+                                <img src="/img/icon_del.png" data-toggle="modal" title="删除" data-target="#myModaDel"
+                                     @click="delOrg(item.team_id)">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="Organization.count>0">共{{Organization.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="Organization.count>0"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="Organization.pages"
+                            :total="Organization.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加团队弹出层 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel">添加团队</div>
+                </div>
+                <div class="modal-body">
+                    <div class="errorText"></div>
+                    <span class="Prompt">*为必填项</span>
+                    <form id="Add_team">
+                    <div class="model-org">
+                        <span class="add_right model-required" id="org_label">所属机构</span>
+                        <el-select v-model="models.orgid" placeholder="请选择" @change="changeDoctorList" :disabled="isDisabled" class="teamDisable">
+                            <el-option
+                                    v-for="item in orgList"
+                                    :key="item.value"
+                                    :label="item.cn_name"
+                                    :value="item.orgid">
+                            </el-option>
+                        </el-select>
+                        <input type="hidden" vname="org_label" validator="notNull" v-model="models.orgid" vel-type="select">
+
+                        <div id="team">
+                            <label id="teamName" class="add_right model-required">团队名称</label>
+                            <input type="text" placeholder="请输入团队名称..." validator="notNull" v-model="models.name"
+                                   vname="teamName">
+                            <div>
+                                <label id="teamCode" class="add_right model-required">团队编码</label>
+                                <input type="text" placeholder="请输入团队编码" v-model="models.code" validator="notNull"
+                                       vname="teamCode" vtype="loginName" maxlength="10">
+                            </div>
+                        </div>
+                        <!-- 团队图片 -->
+                        <div class="pic_team">
+                            <span class="pic-title">团队图片</span>
+                            <el-upload
+                                    class="avatar-uploader teamPic"
+                                    accept="image/jpg,image/jpeg,image/png"
+                                    :action="actionUrl"
+                                    :on-success="handleAvatarSuccess"
+                                    name="files"
+                                    :before-upload="beforeAvatarUpload">
+                                <img v-if="models.file_path" :src="models.file_path" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                            <span class="pic-Prompt">*&nbsp;图片大小不超过300K,支持jpg,jpeg,png格式</span>
+
+                        </div>
+                        <div style="position: relative;top: -30px;">
+                            <label class="model-required team-r" id="team_title_label">团队简介</label>
+                            <textarea maxlength="200" @input="descInput" class="modal-textarea"
+                                      v-model="models.description"
+                                      vname="team_title_label"
+                                      placeholder="请输入团队简介..."
+                                      validator="notNull"></textarea>
+                            <span class="rem-model">{{remnant}}/200</span>
+                        </div>
+
+                        <!-- 穿梭框 -->
+                        <div class="big-Shuttle">
+                            <div class="left-Shu">
+                                <span class="title-sel">选择成员</span>
+                                <input type="text" placeholder="输入查找关键字" class="inp_shu" v-model="doctorKeywords">
+                                <span class="clear-up clearShu" :class="doctorKeywords===''?'clear_OrgName':''"
+                                      @click="clearShu">×</span>
+                                <span class="search-btn search-Shu" @click="getDoctorListSearch"><img
+                                        src="/img/icon_serarch.png"></span>
+                                <ul class="listsShu">
+                                    <li class="listShu" v-for="(item,index) in doctorList">
+                                        <div class="selectPic">
+                                            <img src="/img/icon_selectBlock.png"
+                                                 v-if="!$.isInArray(selectDoctors,item.id)"
+                                                 @click="selectDoctor(item.id)">
+                                            <img src="/img/icon_selectedBlock.png"
+                                                 v-if="$.isInArray(selectDoctors,item.id)"
+                                                 @click="selectDoctor(item.id,'del')">
+                                        </div>
+                                        <img :src="item.file_path" class="HeadPic">
+                                        <div>
+                                            <span>{{item.name}}</span>
+                                            <div class="sexShu">
+                                                <span>{{item.gender}}&nbsp;&nbsp;</span>
+                                                <span>{{item.title}}</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="contentShu">
+                                <div class="addPeo" @click="moveToRight">
+                                    <img src="/img/icon_arr_right.png">
+                                    <span>添加</span>
+                                </div>
+                                <div @click="deleteRight">
+                                    <img src="/img/icon_arr_left.png">
+                                    <span>删除</span>
+                                </div>
+                            </div>
+                            <div class="rightShu">
+                                <span class="title-sel selectPeoShu">已选成员</span>
+                                <span class="peoShu">负责人</span>
+                                <span v-if="isDisabled"  title="重置" class="glyphicon glyphicon-refresh reset" @click="reset"></span>
+                                <ul class="listsSelectPeo">
+                                    <li class="listSelectShu" v-for="(item,index) in teamDoctors">
+                                        <div class="selectPic">
+                                            <img src="/img/icon_selectBlock.png"
+                                                 v-if="!$.isInArray(deleteDoctors,item.id)"
+                                                 @click="deleteDoctor(item.id)">
+                                            <img src="/img/icon_selectedBlock.png"
+                                                 v-if="$.isInArray(deleteDoctors,item.id)"
+                                                 @click="deleteDoctor(item.id,'del')">
+                                        </div>
+                                        <img :src="item.file_path" class="HeadPic">
+                                        <div class="ShuInfo">
+                                            <span>{{item.name}}</span>
+                                            <div class="sexShu">
+                                                <span>{{item.gender}}&nbsp;&nbsp;</span>
+                                                <span>{{item.job}}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <img :src="leaderId == item.id ? '/img/icon_selectedpeo.png' : '/img/icon_selectPeo.png'"
+                                                 @click="setLeader(item.id)"
+                                                 :data-leader="item.is_leader" class="ext_checkbox ext_checkbox_add">
+                                        </div>
+
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="saveTeam">保存</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除团队信息 弹出层 myModaDel-->
+    <div class="modal fade" id="myModaDel" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-dia" role="document">
+            <div class="content-del">
+                <div class="del-con">
+                    确定删除团队信息?
+                </div>
+                <div class="modal-footer">
+                    <span class="btn-qd" data-dismiss="modal" @click="subDel">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 医生列表 弹窗 myModaPeople -->
+    <div class="modal fade" id="myModaPeople" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelPeople">医生列表</div>
+                </div>
+                <div class="team_search sear-border">
+                    <div class="search">
+                        <input type="text" class="inp_mec" v-model="teamNameOrgDoc" placeholder="请输入医生姓名">
+                        <span class="clear-up" @click="itemClear" :class="teamName===''?'clearNo':''">×</span>
+                        <span class="search-btn" @click="SearchDocList"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+                <div class="modal-body team-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>医生账号</th>
+                            <th>医生姓名</th>
+                            <th>性别</th>
+                            <th>职称</th>
+                            <th>联系方式</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in DoctorList.data" :class="(index+1)%2===0?'':'team_bg'">
+                            <td>{{item.serial}}</td>
+                            <td class="org-name">{{item.username}}</td>
+                            <td class="org-address">{{item.name}}</td>
+                            <td class="org-address">{{item.gender}}</td>
+                            <td class="org-address">{{item.title}}</td>
+                            <td class="org-address">{{item.mobile}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <span class="all-nums team-all-nums" v-if="DoctorList.count>0">共{{DoctorList.count}}条</span>
+                    <span class="all-nums team-all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="DoctorList.count>0"
+                            @current-change="CurrentChangeDoctor"
+                            class="paging myPaging"
+                            background
+                            :page-size="health.SmallPageSize"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-count="DoctorList.pages"
+                            :total="DoctorList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 签约居民列表 弹窗 myModaDelResident -->
+    <div class="modal fade" id="myModaDelResident" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelRes">签约居民列表</div>
+                </div>
+                <div class="team_search sear-border">
+                    <div class="search">
+                        <input type="text" class="inp_mec" v-model="teamNameOrg" placeholder="请输入居民姓名">
+                        <span class="clear-up" @click="itemClear" :class="teamName===''?'clearNo':''">×</span>
+                        <span class="search-btn" @click="SearchOrgList"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+                <div class="modal-body team-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>居民姓名</th>
+                            <th>性别</th>
+                            <th>证件号码</th>
+                            <th>联系方式</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in OrgList.data" :class="(index+1)%2===0?'':'team_bg'">
+                            <td>{{item.serial}}</td>
+                            <td class="org-name">{{item.name}}</td>
+                            <td class="org-address">{{item.gender}}</td>
+                            <td class="org-address">{{item.card}}</td>
+                            <td class="org-address">{{item.mobile}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+
+                    <span class="all-nums team-all-nums" v-if="OrgList.count>0">共{{OrgList.count}}条</span>
+                    <span class="all-nums team-all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="OrgList.count>0"
+                            @current-change="CurrentChangeOrgDoctor"
+                            class="paging myPaging"
+                            background
+                            :page-size="health.SmallPageSize"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-count="OrgList.pages"
+                            :total="OrgList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                //头部搜索
+                orgName: '',
+                // 多行文本框
+                remnant: '0',
+                desc: '',
+
+                //机构列表
+                Organization: {},
+                OrganizationPage: '',
+                // 图片
+                imageUrl: '',
+                actionUrl: health.apiUrl + 'backend/upload?token=' + $.getToken(),
+                // 头部快速删除
+                teamName: '',
+                organization: '',
+                // 医生列表
+                DoctorListPage: '',
+                DoctorList: {},
+                teamNameOrgDoc: '',
+                teamId: '',
+                // 居民列表
+                OrgList: {},
+                teamNameOrg: '',
+                OrgListPage: '',
+                orgid: '',
+                //    删除机构
+                DelOrgId: '',
+                menusStatus: [],
+
+                /******团队医生选择****/
+                orgList: [],
+                models: {},
+                //医生列表
+                doctorList: [],
+                selectDoctors: [],
+                //团队医生列表
+                teamDoctors: [],
+                teamDoctorIds: [],
+                deleteDoctors: [],
+                //团队负责人ID
+                leaderId: "",
+                doctorKeywords: "",
+                team_id: "",
+
+                isDisabled:'',
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.GetOrganization();
+            this.getOrgList();
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            //-------------------------------------------------------------------------------------
+            //显示Modal
+            showTeamSaveModal(teamId) {
+                this.team_id = teamId;
+                var modal = $("#myModal");
+                var title = teamId ? "编辑团队" : "添加团队";
+                modal.find('.modal-title').text(title);
+
+                this.selectDoctors = [];
+                this.deleteDoctors = [];
+                this.teamDoctorIds = [];
+                this.models = {};
+                if (teamId) {
+                    this.isDisabled=true;
+                    let url = $.formateUrl('backend/team/update');
+                    $.get(url, {
+                        team_id: teamId
+                    }, res => {
+                        this.models = res.content.team;
+                        this.doctorList = res.content.doctors;
+                        var teamDoctors = [];
+                        res.content.team_doctors.forEach(item => {
+                            if (item.is_leader == 1) this.leaderId = item.id;
+                            teamDoctors.push(item);
+                            this.teamDoctorIds.push(item.id);
+                        });
+                        this.teamDoctors = teamDoctors;
+                        this.descInput();
+                    })
+                } else {
+                    this.isDisabled=false;
+                    this.remnant=0;
+                    let url = $.formateUrl('backend/team/create');
+                    $.get(url, res => {
+                        if (res.code === 0) {
+                            this.models = res.content;
+                            this.doctorList = [];
+                            this.teamDoctors = [];
+                            this.teamDoctorIds = [];
+                        } else {
+                            this.$message(res.message);
+                        }
+                    });
+                }
+                modal.modal('show');
+            },
+            saveTeam() {
+                if (!validateForm(Add_team)) return false;
+                var operation = this.team_id ? "update" : "create";
+                let url = $.formateUrl('backend/team/' + operation);
+
+                var doctors = [];
+                var flag = false;
+                $.each(this.teamDoctors, (k, d) => {
+                    let stateEdit = d.id == this.leaderId ? 1 : 0;
+                    doctors.push({doctor_id: d.id, is_leader: stateEdit});
+                    if (stateEdit == 1) flag = true;
+                });
+
+                if (this.teamDoctors.length <= 0) {
+                    this.$message('请选择一个医生');
+                    return false;
+                }
+
+                if (!flag) {
+                    this.$message('请选择一个负责人');
+                    return false;
+                }
+
+                this.models.doctors = doctors;
+                $.post(url, this.models, res => {
+                    if (res.code === 0) {
+                        this.GetOrganization();
+                        $("#myModal").modal('hide');
+                        this.models = {};
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            changeDoctorList(){
+                Vue.set(this, 'leaderId', "");
+                Vue.set(this, 'teamDoctors', []);
+                Vue.set(this, 'teamDoctorIds', []);
+                Vue.set(this, 'deleteDoctors', []);
+                this.doctorKeywords='';
+                this.getDoctorList();
+            },
+            //  搜索获取医生列表
+            getDoctorListSearch(){
+                if(this.doctorKeywords==''){
+                    this.$message.error('请先选择所属机构');
+                    return false;
+                }
+                let url = health.apiUrl + 'backend/team/get-doctors';
+                $.get(url, {
+                    token: $.getToken(),
+                    orgid: this.models.orgid,
+                    keywords: this.doctorKeywords
+                }, res => {
+                    if (res.code == 0) {
+                        this.selectDoctors = [];
+                        this.doctorList = res.content;
+
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取待选择医生列表
+            getDoctorList() {
+                if(this.models.orgid==''){
+                    this.$message.error('请先选择一个机构');
+                    return false;
+                }
+                let url = health.apiUrl + 'backend/team/get-doctors';
+                $.get(url, {
+                    token: $.getToken(),
+                    orgid: this.models.orgid,
+                    keywords: this.doctorKeywords
+                }, res => {
+                    if (res.code == 0) {
+                        this.selectDoctors = [];
+                        this.doctorList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //待选择医生列表 选中/取消
+            selectDoctor(doctorId, operation) {
+                if (operation === 'del') {
+                    this.selectDoctors.splice(this.selectDoctors.indexOf(doctorId), 1);
+                } else {
+                    this.selectDoctors.push(doctorId);
+                }
+            },
+            //已选择医生列表 选中/取消
+            deleteDoctor(doctorId, operation) {
+                if (operation === 'del') {
+                    this.deleteDoctors.splice(this.deleteDoctors.indexOf(doctorId), 1);
+                } else {
+                    this.deleteDoctors.push(doctorId);
+                }
+            },
+            //移动已选中的医生
+            moveToRight() {
+                this.doctorList.forEach(item => {
+                    if ($.isInArray(this.selectDoctors, item.id)) {
+                        if ($.isInArray(this.teamDoctorIds, item.id)) {
+                            this.$message(`您已选择了${item.name},请勿重复选择！`);
+                        } else {
+                            this.teamDoctors.push(item);
+                            this.teamDoctorIds.push(item.id);
+                        }
+                    }
+                });
+                this.selectDoctors = [];
+            },
+            //删除已选中的医生
+            deleteRight() {
+                if (this.deleteDoctors.length <= 0) {
+                    this.$message('请选择一个医生');
+                    return false;
+                }
+                //移动已选中的医生
+                var doctors = [];
+                this.teamDoctors.forEach(item => {
+                    if (!$.isInArray(this.deleteDoctors, item.id)) {
+                        doctors.push(item);
+                    } else {
+                        this.teamDoctorIds.splice(this.teamDoctorIds.indexOf(item.id), 1);
+                    }
+                });
+                this.teamDoctors = doctors;
+
+                //选中负责人
+                if (!$.isInArray(this.teamDoctorIds, this.leaderId) && this.teamDoctors.length >= 1) {
+                    Vue.set(this, 'leaderId', String(this.teamDoctors[0].id));
+                }
+                //清空需删除的Ids
+                this.deleteDoctors = [];
+            },
+            //设置负责人
+            setLeader(leaderId) {     //负责人
+                Vue.set(this, 'leaderId', leaderId);
+            },
+            //获取机构列表
+            getOrgList() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken(),
+                }, res => {
+                    if (res.code === 0) {
+                        this.orgList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            clearShu() {
+                Vue.set(this, 'doctorKeywords', '');
+            },
+            // 多行文本框
+            descInput() {
+                let txtVal = this.models.description.length;
+                this.remnant = txtVal;
+            },
+            handleAvatarSuccess(res, file) {
+                if (res.code == 0) {
+                    Vue.set(this.models, 'file_path', URL.createObjectURL(file.raw));
+                    Vue.set(this.models, 'file_id', res.content[0].file_id);
+                }
+            },
+            beforeAvatarUpload(file) {
+                var allowSize = 307200;
+                if (file.size > allowSize) {
+                    this.$message.error('图片大小不能超过 300K!');
+                    return !allowSize;
+                }
+            },
+            // 重置
+            reset(){
+                let url = $.formateUrl('backend/team/update');
+                $.get(url, {
+                    team_id: this.team_id
+                }, res => {
+                    var teamDoctors = [];
+                    this.selectDoctors = [];
+                    this.deleteDoctors = [];
+                    this.teamDoctorIds = [];
+                    res.content.team_doctors.forEach(item => {
+                        if (item.is_leader == 1) this.leaderId = item.id;
+                        teamDoctors.push(item);
+                        this.teamDoctorIds.push(item.id);
+                    });
+                    this.teamDoctors = teamDoctors;
+                })
+            },
+            //-------------------------------------------------------------------------------------
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //  获取团队列表
+            GetOrganization() {
+                let url = health.apiUrl + 'backend/team/list';
+                $.get(url, {
+                    token: $.getToken(),
+                    page_size: health.BigPageSize,
+                    page: this.OrganizationPage,
+                    orgname: this.organization,
+                    teamname: this.orgName,
+                }, res => {
+                    if (res.code === 0) {
+                        this.Organization = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChange(val) {
+                this.OrganizationPage = val;
+                this.GetOrganization();
+            },
+            // 获取医生列表
+            GetDoctorList(id) {
+                this.teamId = id;
+                let url = health.apiUrl + 'backend/team/doctor';
+                $.get(url, {
+                    token: $.getToken(),
+                    team_id: id,
+                    page_size: health.SmallPageSize,
+                    page: this.DoctorListPage,
+                    keywords: this.teamNameOrgDoc
+                }, res => {
+                    if (res.code === 0) {
+                        this.DoctorList = res.content;
+                    }
+                })
+            },
+            //  搜医生
+            SearchDocList() {
+                this.GetDoctorList(this.teamId);
+            },
+            CurrentChangeDoctor(val) {
+                this.DoctorListPage = val;
+                this.GetDoctorList(this.teamId);
+            },
+            //获取签约居民列表
+            GetOrgList(id) {
+                let url = health.apiUrl + 'backend/team/member';
+                this.orgid = id;
+                $.get(url, {
+                    token: $.getToken(),
+                    team_id: this.orgid,
+                    page_size: health.SmallPageSize,
+                    page: this.OrgListPage,
+                    keywords: this.teamNameOrg
+                }, res => {
+                    if (res.code === 0) {
+                        this.OrgList = res.content;
+                    }
+                })
+            },
+            CurrentChangeOrgDoctor(val) {
+                this.OrgListPage = val;
+                this.GetOrgList(this.orgid)
+            },
+            SearchOrgList() {
+                this.GetOrgList(this.orgid);
+            },
+            // 清除查询的值
+            clear() {
+                this.orgName = '';
+            },
+            clearOrgName() {
+                this.organization = '';
+            },
+            //  团队搜索按钮
+            SearchBtn() {
+                this.GetOrganization();
+            },
+            //成功之后的消息提示(在添加成功之后或者修改成功之后执行)
+            open() {
+                this.$message('添加成功');
+            },
+            //   删除机构
+            delOrg(id) {
+                this.DelOrgId = id;
+            },
+            subDel() {
+                let url = health.apiUrl + 'backend/team/delete?token=' + $.getToken();
+                $.post(url, {
+                    team_id: this.DelOrgId
+                }, res => {
+                    if (res.code === 0) {
+                        this.$message('删除成功');
+                        this.GetOrganization();
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 团队列表快速删除
+            itemClear() {
+                this.teamName = '';
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    })
+</script>
+</body>
+
+
+</html>

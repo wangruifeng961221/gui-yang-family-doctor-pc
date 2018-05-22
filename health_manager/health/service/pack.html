@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>服务包</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/item.css">
+    <link rel="stylesheet" href="/css/pack.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/dy-common.css">
+</head>
+<body>
+
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu" >
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="com-title">
+                    <span>服务包 > 服务包管理</span>
+                </div>
+                <div class="com-search apply-search com-w-search">
+                    <div class="">
+                        <span class="people label_right">适用人群</span>
+                        <el-select v-model="value" placeholder="请选择" class="org_m">
+                            <el-option
+                                    v-for="item in tags"
+                                    :key="item.tag_id"
+                                    :label="item.name"
+                                    :value="item.tag_id">
+                            </el-option>
+                        </el-select>
+                        <span class="label_right">服务包编码</span>
+                        <input type="text" class="inp_server inp_item" placeholder="请输入编码" v-model="serverCode">
+                        <span class="label_right">服务包名称</span>
+                        <input type="text" class="inp_server" placeholder="请输入名称" v-model="serverName">
+                    </div>
+                    <div class="search-right">
+                        <span class="com-search-btn" @click="search"><img src="/img/icon_serarch.png"></span>
+                        <span class="add-jg" data-toggle="modal" @click="showSaveModal('')"><img
+                                src="/img/doc-add-btn.png" style="position: relative;top: -2px;">添加服务包</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="com-bg-color">
+                <div class="com-table com-w-table">
+                    <table class="table" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>服务包编码</th>
+                            <th>服务包名称</th>
+                            <th style="width: 200px">适用人群</th>
+                            <th>参考价(元)</th>
+                            <th>销售价(元)</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in signList.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.code}}</td>
+                            <td data-toggle="modal"
+                                data-target="#details" style="color: #10b9b9;cursor:pointer" @click="detailsPack(item.pack_id)">
+                                {{item.name}}
+                            </td>
+                            <td>{{item.tags}}</td>
+                            <td>{{item.suggested_price}}</td>
+                            <td>{{item.sale_price}}</td>
+                            <td>{{item.status_msg}}</td>
+                            <td class="doc-poi" style="text-align: center">
+                                <img src="/img/icon_edit.png" alt="" title="编辑"
+                                     data-toggle="modal"
+                                     data-target=""
+                                     @click="showSaveModal(item.pack_id)">
+                                <img src="/img/icon_enable.png" title="启用" v-if="item.status!=defined.statusYes"
+                                     @click="shelves(item.pack_id)" data-toggle="modal"
+                                     data-target="#enable">
+                                <img src="/img/icon_disable.png" title="停用" v-if="item.status!=defined.statusNo"
+                                     data-toggle="modal"
+                                     data-target="#stop_item"
+                                     @click="lowerShelf(item.pack_id)">
+                                <img src="/img/icon_del.png" alt="" title="删除"
+                                     @click="delPack(item.pack_id)" data-toggle="modal"
+                                     data-target="#delItem">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="signList.count>0">共{{signList.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="signList.count>0"
+                            @current-change="CurrentChangeList"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="signList.pages"
+                            :total="signList.count">
+                    </el-pagination>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加服务包 -->
+    <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel">添加服务包</div>
+                </div>
+                <div class="errorText"></div>
+                <div class="modal-body">
+                    <span class="Prompt">*为必填项</span>
+                    <div class="model-org">
+                        <form id="add_pack">
+                        <label id="num_label" class="model-required">服务包编号</label>
+                        <input type="text" vname="num_label" validator="notNull" class="item_int"
+                               placeholder="请输入服务项编号" v-model="models.code"><br/>
+
+                        <label class="model-required" id="name_label">服务包名称</label>
+                        <input type="text" vname="name_label" placeholder="请输入服务项名称" class="item_int"
+                               v-model="models.name" validator="notNull">
+                        <span class="pack_org model-required" id="label_org">所属机构</span>
+                        <el-select v-model="models.orgid" placeholder="请选择" :disabled ='isDisabled' class="org_disable" @change="changeItemList">
+                            <el-option
+                                    v-for="item in orgs"
+                                    :key="item.orgid"
+                                    :label="item.cn_name"
+                                    :value="item.orgid">
+                            </el-option>
+                        </el-select>
+                            <input type="hidden" vname="label_org" v-model="models.orgid" validator="notNull" vel-type="select">
+                        <div class="all_textarea">
+                            <span class="con_title_item"><span class="font_title">简&nbsp;&nbsp;&nbsp;&nbsp; 介</span><span class="model-required title_required_icon"></span>
+                            </span>
+                            <label id="cont_label" style="display: none">简介</label>
+                            <textarea maxlength="100" @input="descInput" v-model="models.description"
+                                      class="modal-textarea"
+                                      vname="cont_label"
+                                      validator="notNull"
+                                      style="margin-left: 15px"
+                                      placeholder="请输入简介..."></textarea>
+                            <span class="rem-model">{{remnant}}/100</span>
+                        </div>
+                        <div class="item_people">
+                            <span class="model-required" style="width: 92px">适用人群</span>
+                            <el-checkbox-group v-model="selectTags" @change="tagClick" size="medium" :min="1" :max="6">
+                                <el-checkbox-button v-for="item in tags" :label="item.tag_id" :key="item.tag_id"
+                                                    :value="item.tag_id">{{item.name}}
+                                </el-checkbox-button>
+                            </el-checkbox-group>
+                        </div>
+                        <div>
+                            <div class="Service_item">
+                                <span class="model-required">服务项</span>
+                                <div class="item_table">
+                                    <table class="table" cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>服务项</th>
+                                            <th>服务次数</th>
+                                            <th>执行频次</th>
+                                            <th>参考价(元/年)</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(item,index) in items" :class="(index+1)%2===0?'':'item-tr-color'">
+                                            <td>{{item.name}}</td>
+                                            <td>{{item.times}}</td>
+                                            <td>{{item.frequency}}</td>
+                                            <td>{{item.price}}</td>
+                                            <td>
+                                                <img src="/img/icon_del.png" title="删除" @click="deleteItem(item,index)">
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="item_add_hidden" @click="AddItem" v-show="flag_item">
+                            <span class="stop add_serveritem"><span style="font-size: 20px">＋</span>添加服务项</span>
+                        </div>
+                        <div class="add_item" v-show="!flag_item">
+                            <div class="add_header_item">
+                                <input type="text" placeholder="输入服务项名称" class="inp_shu" v-model="itemSearch">
+                                <span class="clear-up clearShu" :class="item===''?'clear_OrgName':''"
+                                      @click="">×</span>
+                                <span class="search-btn search-Shu" @click="getItemList"><img
+                                        src="/img/icon_serarch.png"></span>
+                                <span class="stop" @click="AddItem">
+                                        <img src="/img/arrowhead.png">
+                                        收起
+                                    </span>
+                            </div>
+                            <div class="item_table item_addTable">
+                                <table class="table" cellspacing="0">
+                                    <thead>
+                                    <tr>
+                                        <th>添加</th>
+                                        <th>服务项编号</th>
+                                        <th>服务项名称</th>
+                                        <th>服务次数</th>
+                                        <th>执行频次</th>
+                                        <th>参考价(元/年)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="(item,index) in itemList.data"
+                                        :class="(index+1)%2===0?'':'item-tr-color'">
+                                        <td><img src="/img/icon_add_selected_item.png" @click="addItem(item,index)"
+                                                 v-if="!inArray(itemIds,item.item_id)">
+                                            <img src="/img/icon_add_item.png" @click="addItem(item,index)" v-if="inArray(itemIds,item.item_id)">
+                                        </td>
+                                        <td>{{item.code}}</td>
+                                        <td>{{item.name}}</td>
+                                        <td>{{item.times}}</td>
+                                        <td>{{item.frequency}}</td>
+                                        <td>{{item.price}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <!-- 分页 -->
+                            <div class="all-num-model">
+                            <span class="all-nums" v-if="itemList.count>0">共{{itemList.count}}条</span>
+                            <span class="all-nums all-num-model" v-else style="padding: 0">暂无数据</span>
+                            <el-pagination
+                                    v-if="itemList.count>0"
+                                    @current-change="CurrentChangeItemList"
+                                    class="paging orgPaging"
+                                    background
+                                    prev-text="上一页"
+                                    next-text="下一页"
+                                    layout="prev, pager, next"
+                                    :page-size="health.indexPageSize"
+                                    :page-count="itemList.pages"
+                                    :total="itemList.count">
+                            </el-pagination>
+                            </div>
+                        </div>
+
+                        <span style="margin-right: 26px">参考价:</span>
+                        <span>{{suggestedPrice}}元/年</span></br>
+                        <label id="Sale_label" class="model-required sales">销售价</label>
+                        <input type="text" placeholder="请输入销售价" class="inp_server money_inp" style="margin-top: 15px"
+                               v-model="models.sale_price" validator="notNull" vname="Sale_label" vtype="currency" maxlength="6"><span>元</span>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="save">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 服务包详情 -->
+    <div class="modal fade" id="details" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title">服务包详情</div>
+                </div>
+                <div class="modal-body">
+                    <div class="model-org">
+                        <ul>
+                            <li><span>状态:</span><span>{{models.status}}</span></li>
+                            <li><span>服务包编号:</span><span>{{models.code}}</span></li>
+                            <li><span>服务包名称:</span><span>{{models.name}}</span><span
+                                    style="margin:0 10px 0 300px">所属机构:</span><span>{{models.org_name}}</span></li>
+                            <li><span>服务包描述:</span><span>{{models.description}}</span></li>
+                            <li><span>适用人群:</span><span>{{models.tag_msg}}次/年</span></li>
+                            <li class="table-server"><span>服务项:</span>
+                                <div class="item_table">
+                                    <table class="table" cellspacing="0" style="margin-right: 20px">
+                                        <thead>
+                                        <tr>
+                                            <th>服务项</th>
+                                            <th>服务次数</th>
+                                            <th>执行频次</th>
+                                            <th>参考价(元/年)</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(item,index) in models.items"
+                                            :class="(index+1)%2===0?'':'item-tr-color'">
+                                            <td>{{item.name}}</td>
+                                            <td>{{item.times}}</td>
+                                            <td>{{item.frequency}}</td>
+                                            <td>{{item.price}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                            <li><span>参考价:</span><span>{{models.suggested_price}}元/年</span></li>
+                            <li><span>销售价:</span><span>{{models.sale_price}}元/年</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--删除 -->
+    <div class="modal fade" id="delItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="model-org">
+                        确定删除服务包？
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" data-dismiss="modal" @click="SubDelPack">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上架 -->
+    <div class="modal fade" id="enable" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="model-org">
+                        确定启用服务包？
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" data-dismiss="modal" @click="shelvesSub">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 下架 -->
+    <div class="modal fade" id="stop_item" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="model-org">
+                        确定停用服务包？
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" data-dismiss="modal" @click="SubLowerShelf">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                value: '',
+                // 服务包名称
+                serverName: '',
+                // 服务包编码
+                serverCode: '',
+                // 下架
+                packId: '',
+                // 上架
+                shelvesId: '',
+                // 删除
+                delId: '',
+                // 分页
+                pageVal: '',
+                orgs: [],
+                // 服务包列表
+                signList: {},
+                // 多行
+                remnant: '0',
+
+                checkbox: [],
+                //    关键字
+                item: '',
+                //    服务项切换
+                flag_item: false,
+                // 适用人群
+                selectTags: [],
+                tags: [],
+                //    详情
+                models: {},
+                suggestedPrice: 0,
+                //选中服务项相关
+                items: [],
+                itemIds: [],
+                itemPrice: 0,
+
+                //服务项列表相关
+                itemPage: 1,
+                itemSearch: "",
+                itemList: {},
+
+                isDisabled:''
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;            //作者菜单
+
+            this.getOrgList();
+            this.GetTagsList();
+            this.GetServerList();
+        },
+        mounted(){
+            this.initMenu();
+        },
+        methods: {
+              // 菜单
+              initMenu(){
+                  var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                  $('.menu').load(templateSrc); //load
+             },
+            showSaveModal(pack_id) {
+                this.itemSearch='';
+                this.itemPage = 1;
+                this.pack_id = pack_id;
+                this.suggestedPrice = 0;
+                var modal = $("#saveModal");
+                var title = pack_id ? "编辑服务包" : "添加服务包";
+                modal.find('.modal-title').text(title);
+
+                if (pack_id) {
+                    this.isDisabled=true;
+                    let url = health.apiUrl + 'backend/service/pack-update';
+                    $.get(url, {token: $.getToken(), pack_id: pack_id}, res => {
+                        if (res.code === 0) {
+                            this.models = res.content;
+                            this.items = res.content.items;
+                            Vue.set(this, 'items', res.content.items);
+                            this.itemIds = [];
+                            this.items.forEach(item => {
+                                this.itemIds.push(item.item_id);
+                                this.suggestedPrice += parseInt(item.price);
+                            });
+                            this.selectTags = res.content.tags;
+                            this.descInput();
+                        } else {
+                            this.$message(res.message);
+                        }
+                        this.getItemList();
+                    });
+                } else {
+                    this.isDisabled=false;
+                    let url = health.apiUrl + 'backend/service/pack-create';
+                    $.get(url, {token: $.getToken()}, res => {
+                        if (res.code === 0) {
+                            this.models = res.content;
+                            this.items = [];
+                            this.selectTags = [];
+                            this.itemIds = [];
+                            this.remnant = 0;
+                            this.itemList = [];
+                        } else {
+                            this.$message(res.message);
+                        }
+                    });
+                }
+
+
+                modal.modal('show');
+            },
+            save() {
+                if(validateForm(add_pack)){
+                    var operation = this.pack_id ? "update" : "create";
+                    let url = health.apiUrl + 'backend/service/pack-' + operation + '?token=' + $.getToken();
+
+                    this.models.tags = this.selectTags;
+                    this.models.items = this.itemIds;
+                    this.models.suggested_price = this.suggestedPrice;
+
+                    $.post(url, this.models, res => {
+                        if (res.code === 0) {
+                            this.GetServerList();
+                            $("#saveModal").modal('hide');
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            changeItemList(){
+                Vue.set(this, 'items', []);
+                Vue.set(this, 'itemIds', []);
+                Vue.set(this, 'suggestedPrice', 0);
+
+                this.getItemList();
+            },
+            //增加选中服务项
+            addItem(item) {
+                  if(this.inArray(this.itemIds,item.item_id)){
+                      this.$message('您已选择了该服务项');
+                  }else{
+                      this.suggestedPrice = (Number(this.suggestedPrice) + Number(item.price));
+                      this.items.push(item);
+                      this.itemIds.push(item.item_id);
+                  }
+            },
+            //删除选中服务项
+            deleteItem(item, index) {
+                this.suggestedPrice = (Number(this.suggestedPrice) - Number(item.price));
+                this.items.splice(index, 1);
+                this.itemIds.splice(this.itemIds.indexOf(item.item_id), 1);
+            },
+            //检测服务项是否被选中
+            inArray(arr, val) {
+                return $.inArray(val, arr) >= 0 ? true : false;
+            },
+            //  切换服务项
+            AddItem() {
+                this.flag_item = !this.flag_item;
+            },
+            // 获取使用人群
+            GetTagsList() {
+                let url = $.formateUrl('backend/other/get-tags');
+                $.get(url, res => {
+                    if(res.code==0){
+                        this.tags = res.content;
+                        this.tags.unshift({
+                            name:'全部',
+                            tag_id:''
+                        })
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //标签点击事件
+            tagClick(val) {
+                this.selectTags = val;
+            },
+            // 分页
+            CurrentChangeList(val) {
+                this.pageVal = val;
+                this.GetServerList();
+            },
+            // 分页
+            CurrentChangeItemList(val) {
+                this.itemPage = val;
+                this.getItemList();
+            },
+            // 获取服务包列表
+            GetServerList() {
+                let url = $.formateUrl('backend/service/pack');
+                let params = {
+                    page_size: health.BigPageSize,
+                    page: this.pageVal,
+                    name: this.serverName,
+                    code: this.serverCode,
+                    tag_id: this.value
+                };
+                $.get(url, params, res => {
+                    if (res.code === 0) {
+                        this.signList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 获取系统机构列表
+            getOrgList() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code === 0) {
+                        this.orgs = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+
+                })
+            },
+            // 获取服务项列表
+            getItemList() {
+                let url = $.formateUrl('backend/service/item');
+                let params = {
+                    page_size: health.indexPageSize,
+                    page: this.itemPage,
+                    name: this.itemSearch,
+                    status:defined.statusYes,
+                    orgid:this.models.orgid
+                };
+                $.get(url, params, (res) => {
+                    if (res.code === 0) {
+                        this.itemList = res.content;
+
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 下架
+            lowerShelf(id) {
+                this.packId = id;
+            },
+            // 下架确定
+            SubLowerShelf() {
+                let url = $.formateUrl('backend/service/pack-status');
+                let params = {
+                    pack_id: this.packId,
+                    status: defined.statusNo
+                };
+                $.post(url, params, (res) => {
+                    if (res.code == 0) {
+                        this.GetServerList();
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 删除服务包
+            delPack(id) {
+                this.delId = id;
+            },
+            SubDelPack() {
+                let url = $.formateUrl('backend/service/pack-delete');
+                let params = {
+                    pack_id: this.delId,
+                };
+                $.post(url, params, (res) => {
+                    if (res.code == 0) {
+                        this.GetServerList();
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 上架
+            shelves(id) {
+                this.shelvesId = id;
+            },
+            shelvesSub() {
+                let url = $.formateUrl('backend/service/pack-status');
+                let params = {
+                    pack_id: this.shelvesId,
+                    status: defined.statusYes
+                };
+                $.post(url, params, (res) => {
+                    if (res.code == 0) {
+                        this.GetServerList();
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 搜索
+            search() {
+                this.GetServerList();
+            },
+            // 服务包详情
+            detailsPack(id) {
+                let url = $.formateUrl('backend/service/pack-view');
+                let params = {
+                    pack_id: id
+                };
+                $.post(url, params, (res) => {
+                    if(res.code==0){
+                        this.models = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 多行文本框
+            descInput() {
+                let txtVal = this.models.description.length;
+                this.remnant = txtVal;
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    });
+</script>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>修改密码</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/modify-pwd.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>其他管理</span>
+                    <span>></span>
+                    <span>修改密码</span>
+                </div>
+                <!--修改密码 -->
+                <div class="modify">
+                    <div class="errorText" style="text-align: left"></div>
+                    <form id="modify_psd">
+                        <span class="width_default">原密码<span></span></span><i class="model-required"></i>
+                        <input placeholder="请输入原密码" v-model="oldPsd" type="password"><br>
+                        <label id="new_psd" style="display: none">新密码</label>
+                        <label class="width_default">新密码<span></span></label><i class="model-required"></i>
+                        <input placeholder="请输入新密码" v-model="newPsd" type="password" vname="new_psd" validator="notNull"><br>
+                        <label class="width_default">确认密码<span></span></label><i class="model-required"></i>
+                        <label id="sub_psd" style="display: none">确认密码</label>
+                        <input placeholder="请输入确认密码" v-model="subNewPsd" type="password" vname="sub_psd"
+                               validator="notNull">
+                    </form>
+                    <div class="sub_psd">
+                        <span class="sub" @click="Sub">提交</span>
+                        <span class="cancel" @click="Cancel">取消</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg_color">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+                signed: 'true',
+                target: '',
+                targetColor: '',
+                ShowHide: 'true',
+                //左侧菜单
+                menus: [],
+                menusStatus: [],
+
+                oldPsd: '',
+                newPsd: '',
+                subNewPsd: ''
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;            //作者菜单
+
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+
+            Sub() {
+                    let url = $.formateUrl('backend/user/modify-password');
+                    let params = {
+                        password: this.oldPsd,
+                        newPassword: this.newPsd,
+                        confirmPassword: this.subNewPsd
+                    };
+                    $.post(url, params, res => {
+                        if (res.code == 0) {
+                            this.$message('修改成功');
+                            $.destroy();
+                            window.location.href = health.homeUrl + 'health/login.html';
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+            },
+            Cancel() {
+                this.oldPsd = '';
+                this.newPsd = '';
+                this.subNewPsd = '';
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    })
+</script>
+
+
+</body>
+</html>

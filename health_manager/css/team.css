@@ -1,0 +1,640 @@
+/*背景颜色 公共*/
+.bg-color{
+    width: 100%;
+    /*height: 693px;*/
+    background-color: #F5F5F5;
+}
+.title-org{
+    font-family: SourceHanSansCN-Bold;
+    color: #ffffff;
+    text-align: left;
+    padding: 27px 0 25px 30px;
+    font-weight: 600;
+}
+.select-con{
+    overflow: hidden;
+    font-family: SourceHanSansCN-Regular;
+}
+.search{
+    height: 60px;
+    line-height: 60px;
+    background-color: #FFFFFF;
+    text-align: right;
+    margin: 0 30px;
+}
+.inp_mec{
+    border:1px solid #999999;
+    border-radius: 15px;
+    height: 30px;
+    width: 210px;
+    padding: 0 35px 0 15px;
+}
+.clear-up{
+    position: relative;
+    right: 33px;
+    top:0;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    background-color: #999999;
+    border-radius: 50%;
+    font-size: 14px;
+    color: #FFFFFF;
+    text-align: center;
+    cursor: pointer;
+}
+.search-btn{
+    width: 58px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 15px;
+    background-color: #2DC8C4;
+    border: 1px solid #00cccccc;
+    cursor: pointer;
+    margin-right: 20px;
+}
+.search-btn img{
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.search-btn:hover{
+    background-color: #999999;
+    border: 1px solid #00cccccc;
+}
+.clearNo{
+    visibility:hidden;
+}
+.add-jg{
+    width: 110px;
+    height: 30px;
+    line-height: 30px;
+    background-color: #1EBAB8;
+    border-radius: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.add-jg img{
+    width: 14px;
+    height: 14px;
+    vertical-align: text-top;
+    margin-right: 10px;
+}
+.org-lists{
+    position: relative;
+    margin-top: -50px;
+    left: 30px;
+    width: 1140px;
+    /*height: 720px;*/
+    padding-bottom: 50px;
+    background-color: #FFFFFF;
+    z-index: 9;
+    margin-bottom: 20px;
+}
+.org-lists table{
+    border-bottom: 1px solid #dcdcdc;
+    width: 1100px;
+    margin: 0 0 20px 20px;
+}
+.org-lists th{
+    height: 18px;
+    font-family: SourceHanSansCN-Bold;
+    padding: 20px 0 12px 0;
+    text-align: center;
+    width: 110px;
+    color: #10b9b9;
+}
+.org-lists td{
+    color: #333333;
+    font-family:SourceHanSansCN-Regular;
+    height: 40px;
+    /*line-height: 40px;*/
+    text-align: center;
+    position: relative;
+}
+.org-lists .org-name{
+    width: 350px;
+}
+.org-lists .org-address{
+    width: 420px;
+    padding: 0 5px;
+}
+.org-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+}
+.org-lists td:last-child:after{
+    content:normal;
+}
+.org-lists td:last-child{
+    width: 180px;
+}
+.org-lists .font-color{
+    color: #10b9b9;
+    cursor: pointer;
+}
+.font-color img{
+    width: 16px;
+    height: 16px;
+}
+.edit_icon{
+    margin-right: 20px;
+}
+.bg-tr-color{
+    background-color: #F8F9FB;
+}
+
+.all-nums{
+    float: left;
+    position: relative;
+    top: 5px;
+    margin-left: 40px;
+    font-size: 12px;
+    color: #999999;
+    font-family: SourceHanSansCN-Regular;
+}
+.el-pagination{
+    text-align: right;
+}
+.el-pagination.is-background .el-pager li.active{
+    background-color: #10b9b9 !important;
+    color: #ffffff !important;
+
+}
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+    border:1px solid #e5e5e5 !important;
+    background-color: #FFFFFF !important;
+    border-radius: 4px !important;
+    color: #999999 !important;
+}
+.paging{
+    margin: 0 30px 30px 0;
+}
+.second-menu .second-menu a{
+    text-decoration: none !important;
+}
+.orgPaging span{
+    width: 60px;
+}
+body.modal-open {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+/* 团队头部 */
+#app{
+    font-family: SourceHanSansCN-Regular;
+}
+.org-Name{
+    margin-right: 20px;
+}
+.clear-Name{
+    top:0;
+    right: 50px;
+}
+.clear_OrgName{
+    visibility: hidden;
+}
+/* 添加团队 */
+.model-required:after{
+    content: '*';
+    color: #ff3300;
+    font-size: 12px;
+}
+.modal-dialog{
+    width: 900px;
+    min-width: 900px;
+}
+.Prompt{
+    font-size: 12px;
+    color: #ff3300;
+}
+.el-input--suffix .el-input__inner{
+    height: 30px;
+    width: 300px;
+}
+.el-select .el-input .el-select__caret{
+    line-height: 60px!important;
+}
+ .el-input__suffix{
+    left: 217px!important;
+}
+.el-popper[x-placement^=bottom]{
+    min-width: 300px!important;
+}
+.model-org input{
+    border: 1px solid #666666;
+    background-color: #ffffff;
+    height: 30px;
+    padding: 0 10px;
+    margin: 15px 60px 0 0;
+    width: 300px;
+}
+.add_right{
+    color: #333333;
+    margin-right: 15px;
+}
+.add_right label{
+    font-weight: normal;
+}
+.el-upload__input{
+    display: none!important;
+}
+.avatar-uploader .el-upload {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    height: 75px;
+}
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+}
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 120px;
+    /*height: 75px;*/
+    /*line-height: 75px;*/
+    text-align: center;
+}
+.avatar {
+    width: 120px;
+    height: 75px;
+    display: block;
+}
+.avatar-uploader-icon{
+    position: relative;
+    top:23px;
+}
+#team{
+    display: inline-block;
+}
+.pic_team{
+    display: inline-block;
+    position: relative;
+    top:-95px;
+}
+.teamPic{
+    display: inline-block;
+    text-align: right;
+    vertical-align: text-top;
+    height: 75px;
+}
+.pic-title{
+    position: relative;
+    top: 8px;
+    right: 10px;
+    vertical-align: inherit;
+
+}
+.pic-Prompt{
+    position: relative;
+    bottom: 0;
+    top: 50px;
+    left: 10px;
+    width: 200px;
+}
+.modal-textarea{
+    border: 1px solid #666666;
+    margin-left: 15px;
+    border-radius: 4px;
+    padding: 5px;
+    width: 770px;
+    height: 55px;
+    background-color: #ffffff;
+    resize:none;
+}
+.team-r{
+    vertical-align: top;
+    padding-top: 5px;
+}
+
+/* 穿梭框 */
+.big-Shuttle{
+    border: 1px solid #999999;
+    background-color: #FFFFFF;
+    display: flex;
+    flex-direction: row;
+    height: 550px;
+}
+.left-Shu{
+    width: 455px;
+}
+.left-Shu .inp_shu{
+    width: 140px;
+    border-radius: 15px;
+    margin-right: 0;
+}
+.Shuttle{
+    margin-left: 10px;
+}
+
+/*.el-transfer-panel{
+    width: 360px!important;
+}
+.el-icon-search:before{
+    content: '' !important;
+}
+.el-transfer-panel__filter .el-input__inner{
+    !*width: 150px!important;*!
+    margin-right: 0;
+    text-align: left!important;
+}
+.el-transfer-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label{
+    font-size: 14px!important;
+    font-family: SourceHanSansCN-Regular!important;
+    color: #10b9b9 !important;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label{
+    color: #10b9b9 !important;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner{
+    background-color: #10b9b9!important;
+    border-color: #dcdfe6 !important;
+}
+.el-transfer__button{
+    background-color: #10b9b9!important;
+    color: #FFFFFF!important;
+}
+.el-transfer-panel__item:hover{
+    color: #10b9b9!important;
+}
+.el-input.is-active .el-input__inner, .el-input__inner:focus{
+    border-color: #10b9b9!important;
+}
+ .el-checkbox__input.is-indeterminate .el-checkbox__inner{
+     background-color: #10b9b9!important;
+ }*/
+.title-sel{
+    margin: 0  72px 0 50px;
+    color: #10b9b9;
+}
+.search-Shu{
+    margin-right: 42px;
+    background-color: #109b9b;
+}
+.clearShu{
+    position: relative;
+    left: -30px;
+}
+.contentShu{
+    width: 60px;
+    background-color: #f0f0f0;
+    border-left: 1px solid #666666;
+    border-right: 1px solid #666666;
+}
+.listsShu{
+    margin-top: 20px;
+    padding: 20px 10px 20px 50px;
+    height: 484px;
+    overflow: auto;
+}
+.rightShu{
+    padding-top: 25px;
+    margin: 0 0 0 0;
+    width: 351px;
+}
+.peoShu{
+    color: #10b9b9;
+}
+.listShu{
+    width: 187px;
+    display: flex;
+    flex-direction: row;
+    float: left;
+    margin-bottom: 20px;
+}
+.HeadPic{
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border:1px solid #f0f0f0;
+}
+.selectPic{
+    margin-right: 15px;
+    vertical-align: middle;
+    position: relative;
+    top: 6px;
+    cursor: pointer;
+}
+.sexShu{
+    color: #999999;
+}
+.rightNo{
+    margin-left: 0!important;
+}
+.contentShu{
+    text-align: center;
+    padding-top: 215px;
+}
+.contentShu img{
+    margin-bottom: 10px;
+}
+.contentShu span{
+    color:#10b9b9;
+}
+.addPeo{
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+.ShuInfo{
+    width: 140px;
+}
+.listSelectShu {
+    width: 225px;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+.selectPeoShu{
+    margin: 0 135px 0 50px !important
+}
+.listsSelectPeo{
+    margin:40px 0 0 50px;
+    overflow: auto;
+    height: 462px;
+}
+
+
+/* 团队列表弹出层 */
+#myModaTeam .modal-content{
+    width: 700px;
+    height: 456px;
+}
+.team-lists table{
+    margin: 0 20px 20px 20px;
+}
+.sear-border{
+    border-bottom: 1px solid #dcdcdc;
+}
+.team-lists th,.team-lists td{
+    height: 40px;
+    width: 253px;
+    text-align: center;
+    line-height: 40px;
+}
+.team-lists th{
+    color:#109b9b ;
+}
+.team-lists td{
+    color: #333333;
+    position: relative;
+}
+.team_bg{
+    background-color: #f8f9fb;
+}
+.team-lists{
+    background-color:#F0F0F0 !important ;
+}
+.team-lists td:after{
+    content: "|";
+    color: #e5e5e5;
+    position: absolute;
+    right: 0;
+    top:50%;
+    transform: translateY(-50%);
+}
+.team-lists td:last-child:after{
+    content:normal;
+}
+.myPaging {
+    margin: 15px 10px 20px 20px!important;
+}
+.myPaging span{
+    border: none!important;
+    border-radius: 2px !important;
+    text-align: center!important;
+    width: 60px !important;
+    margin-right: 0!important;
+}
+.team-all-nums{
+    border: none!important;
+    margin-top: 15px;
+    left: -35px;
+    width: 70px!important;
+}
+
+/* 医生人数列表 弹窗 */
+.people-model{
+    height: 60px;
+    background-color: #FFFFFF;
+}
+
+/* 头部移动问题 */
+body.modal-open {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+/* 删除机构 */
+.content-del{
+    width: 400px;
+    height: 150px;
+    border-radius: 2px;
+    background-color: #fafafa;
+}
+.del-con{
+    text-align: center;
+    line-height: 150px;
+    color: #333333;
+}
+.modal-dialog{
+    width: 400px!important;
+}
+.modal-footer{
+    border: none !important;;
+    background-color: #ffffff;
+}
+.modal-footer span{
+    border-radius: 15px;
+    width: 90px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    border: 1px solid #109b9b;
+    margin-right: 15px;
+}
+.btn-qd{
+    color: #FFFFFF;
+    background-color: #106969;
+}
+.btn-qx{
+    color: #106969;
+    background-color: #ffffff;
+}
+.btn-qd:hover{
+    background-color: #999999;
+}
+.btn-qx:hover{
+    background-color: #e5e5e5;
+}
+.modal-del-dia{
+    min-width: 0!important;
+}
+.rem-model{
+    position: absolute;
+    bottom:13px;
+    right: 27px;
+}
+
+/* 错误信息 */
+/*
+.errorText,.meminfotips,.error_message{
+    color: #ff3300;
+    font-size: 12px;
+    z-index: 999!important;
+}
+*/
+
+.el-upload-list__item-name{
+    display: none!important;
+}
+
+.clear_img{
+    width: 15px;
+    height: 15px;
+    background-color: #10b9b9;
+    line-height: 15px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    color: #ffffff;
+    position: relative;
+    top: -10px;
+    left: -10px;
+}
+.clearLeft{
+    left: -10px;
+}
+.teamDisable input{
+    height: 30px!important;
+}
+
+.reset{
+    margin-left: 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+<div id="app_base" v-cloak>
+    <div class="info_my">
+        <p class="title_info">基本信息</p>
+        <ul class="lists_info">
+            <li>
+                <span>证件号码：{{denizen.identity_card}}</span>
+                <span>联系电话：{{denizen.mobile}}</span>
+            </li>
+            <li>
+                <span>出生日期：{{denizen.birthday}}</span>
+                <span>联系地址：{{denizen.address}}</span>
+            </li>
+            <li>
+                <span>年龄：{{denizen.age}}&emsp;岁</span>
+                <span>电子邮箱：{{denizen.email}}</span>
+            </li>
+        </ul>
+    </div>
+    <div class="health_my">
+        <p class="title_info">健康资料</p>
+        <ul class="lists_info">
+            <li class="first_tag">
+                <span class="">疾病史：{{denizen.past_history}}</span>
+                <span class="">过敏史：{{denizen.allergy_history}}</span>
+                <span>血型：{{denizen.blood}}</span>
+            </li>
+            <li>
+                <span>标签：<span v-html="denizen.tags"></span></span>
+            </li>
+            <li>
+                <span style="vertical-align: top">附件：</span>
+                <ul class="el-upload-list el-upload-list--picture-card">
+                    <li tabindex="0" class="el-upload-list__item is-success" v-for="(file,index) in denizen.files">
+                        <img :src="file" alt="" class="el-upload-list__item-thumbnail">
+                        <span class="el-upload-list__item-actions"  @click="picturePreview(file)">
+                            <span class="el-upload-list__item-preview">
+                                <i class="el-icon-zoom-in"></i>
+                            </span>
+                        </span>
+                    </li>
+                </ul>
+                <el-dialog :visible.sync="dialogVisible">
+                    <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script type="text/javascript">
+    new Vue({
+        el: "#app_base",
+        data() {
+            return {
+                denizen: '',
+                id: '',
+                dialogImageUrl: '',
+                dialogVisible: false,
+            }
+        },
+        mounted() {
+            this.id = $.getQueryString('id');
+            this.getDenizen();
+        },
+        methods: {
+            //文件浏览
+            picturePreview(file) {
+                this.dialogImageUrl = file;
+                this.dialogVisible = true;
+            },
+            getDenizen() {
+                let url = $.formateUrl('/backend/denizen/base-info');
+                $.get(url, {
+                    'id': this.id,
+                }, res => {
+                    if (res.code === 0) {
+                        this.denizen = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+        },
+    });
+</script>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>签约录入</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/dy-common.css">
+    <link rel="stylesheet" href="/css/member.css">
+    <link rel="stylesheet" href="/css/sign_member.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="com-title">
+                    <span>签约管理 > 签约居民</span>
+                </div>
+            </div>
+            <div class="com-bg-color">
+                <div class="com-table entering-con">
+                    <div class="errorText"></div>
+                    <div class="member-modal-h">
+                        基本信息
+                        <span class="com-red">*为必填项</span>
+                    </div>
+                    <form id="info_form">
+                        <ul class="member-add-left">
+                            <li><label id="cardType">证件类型</label><span class="com-red1">*</span>
+                                <el-select v-model="models.id_type" placeholder="请选择" class="Card_id">
+                                    <el-option
+                                            v-for="item in idTypes"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <input class="member-edit-modal-phone" placeholder="请输入证件号码" type="text"
+                                       v-model="models.identity_card"
+                                       validator="notNull" vname="cardType"
+                                       :vtype="models.id_type==defined.idCard?'IDNoNull':'BirthCertificate'"
+                                       :maxlength="models.id_type==defined.idCard?'18':'10'">
+                            </li>
+                            <li><span class="font_left_right" style="width: 56px">姓名</span><span class="com-red1">*</span>
+                                <label id="name_label" style="display: none">姓名</label>
+                                <input class="member-edit-modal-name entering-name" placeholder="请输入姓名"
+                                       vname='name_label' validator="notNull" type="text" v-model="models.name">性别：
+                                <el-radio v-model="models.gender" label="1">男</el-radio>
+                                <el-radio v-model="models.gender" label="2">女</el-radio>
+                            </li>
+                            <li><label id="lab_birthday">出生日期</label><span class="com-red1">*</span>
+                                <el-date-picker
+                                        format="yyyy年MM月dd日"
+                                        value-format="yyyy-MM-dd"
+                                        v-model="models.birthday"
+                                        @change="calcAge(models.birthday)"
+                                        type="date"
+                                        clearable=false
+                                        placeholder="请选择出生日期">
+                                </el-date-picker>
+                                <input type="hidden" v-model="models.birthday" vname="lab_birthday"
+                                       validator="notNull" vel-type="select"/>
+                                年龄：<span>{{age}}岁</span></li>
+                        </ul>
+                        <ul class="member-add-right">
+                            <li><label id="phone_label">联系电话</label><span class="com-red1">*</span><input
+                                    class="member-edit-modal-phone" type="text" vname="phone_label" validator="notNull"
+                                    vtype="phone"
+                                    maxlength="11"
+                                    v-model="models.mobile"
+                                    placeholder="请输入联系电话"></li>
+                            <li><label id="address-label">联系地址</label><span class="com-red1">*</span><input
+                                    class="member-edit-modal-dress" type="text" maxlength="50" vname="address-label"
+                                    validator="notNull"
+                                    v-model="models.address"
+                                    placeholder="请输入联系地址"></li>
+                            <li><label id="email-label" style="margin-right: 7px">电子邮箱</label><input
+                                    class="member-edit-modal-email" vname="email-label"
+                                    validator="null"
+                                    vtype="emailNull"
+                                    type="text"
+                                    placeholder="请输入电子邮箱"
+                                    v-model="models.email"></li>
+
+
+                        </ul>
+                        <div class="com-modal-health">
+                            <div class="member-modal-h">健康资料</div>
+                            <div class="com-modal-label-div">
+                                <el-checkbox-group v-model="selectTags" @change="tagClick" size="medium" :min="1" :max="6">
+                                    <el-checkbox-button v-for="item in tags" :label="item.tag_id" :key="item.tag_id"
+                                                        :value="item.tag_id">{{item.name}}
+                                    </el-checkbox-button>
+                                </el-checkbox-group>
+
+                                <input type="text" class="com-modal-label-other" id="com-modal-label-other"
+                                       v-show="otherShow"
+                                       v-model="otherRemark">
+
+                                <label id="lab_mem_tag" class="hidden">居民标签</label>
+                                <input type="hidden" v-model="selectTags" vname="lab_mem_tag" validator="notNull" vel-type="select"/>
+                            </div>
+                            <div><span class="">疾病史</span><input class="member-modal-health-History entering-history"
+                                                                 type="text"
+                                                                 v-model="models.past_history" placeholder="请输入疾病史"
+                                                                 maxlength="50"></div>
+                            <div><span class="">过敏史</span><input
+                                    class="member-modal-health-Anaphylaxis entering-Anaphylaxis" type="text"
+                                    v-model="models.allergy_history" placeholder="请输入过敏史" maxlength="50"></div>
+                            <div class="blood"><span class="blood-title"><span class="font_left_right" style="width: 44px">血型</span></span>
+                                <el-select v-model="models.blood" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in optionsBlood"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                                <el-select v-model="models.rh_blood" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in optionsBloodTwo"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </div>
+                        </div>
+                        <div class="com-modal-health">
+                            <div class="member-modal-h">签约信息</div>
+                            <ul class="member-add-left">
+                                <li><span class="model-required" id="lab_org">签约机构</span>
+                                    <el-select v-model="models.orgid" placeholder="请选择"
+                                               @change="setTeam" class="sign_info">
+                                        <el-option
+                                                v-for="item in optionsOrg"
+                                                :key="item.orgid"
+                                                :label="item.cn_name"
+                                                :value="item.orgid">
+                                        </el-option>
+                                    </el-select>
+                                    <input type="hidden" v-model="models.orgid" vname="lab_org" validator="notNull" vel-type="select"/>
+                                </li>
+                                <li><span class="model-required" id="lab_team">签约团队</span>
+                                    <el-select v-model="models.team_id" placeholder="请选择"
+                                               @change="setLeader" class="sign_info">
+                                        <el-option
+                                                v-for="item in optionsTeam"
+                                                :key="item.value"
+                                                :label="item.text"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                    <input type="hidden" v-model="models.team_id" vname="lab_team" validator="notNull" vel-type="select"/>
+                                </li>
+                                <li class="time"><span class="model-required" id="lab_sign_time">签约时间</span>
+                                    <el-date-picker
+                                            format="yyyy年MM月dd日"
+                                            value-format="yyyy-MM-dd"
+                                            v-model="models.start_time"
+                                            type="date"
+                                            clearable=false
+                                            default-value
+                                            placeholder="">
+                                    </el-date-picker>
+                                    签约有效期1年
+                                </li>
+                                <input type="hidden" v-model="models.start_time" vname="lab_sign_time" validator="notNull" vel-type="select"/>
+                            </ul>
+                            <ul class="member-add-right entering-right">
+                                <li class="doc-res">责任医生:{{leader.name}}</li>
+                                <li>联系电话:{{leader.mobile}}</li>
+                            </ul>
+                            <div class="other"><span>其它附件</span>
+                                <div style="margin-left: 23px;">
+                                    <el-upload
+                                            multiple="true"
+                                            limit="5"
+                                            name="files"
+                                            accept="image/jpg,image/jpeg,image/png"
+                                            :action="uploadUrl"
+                                            list-type="picture-card"
+                                            :on-preview="handlePictureCardPreview"
+                                            :on-remove="handleRemove"
+                                            :on-success="uploadSuccess"
+                                            :on-exceed="exceedMaxFile"
+                                            :before-upload="beforeUpload">
+                                        <i class="el-icon-plus"></i>
+                                    </el-upload>
+                                    <el-dialog :visible.sync="dialogVisible">
+                                        <img width="100%" :src="dialogImageUrl" alt="">
+                                    </el-dialog>
+
+                                    <p class="entering-describe title-img">*jpg/jpeg/png,文件大小不超过2M</p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <span class="entering-btn" @click="signSave">确认签约</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<!--<div class="modal fade" id="entering-pro" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">-->
+<!--<div class="modal-dialog com-del-style-in" role="document">-->
+<!--<div class="content-del">-->
+<!--<div class="com-del-con">-->
+<!--已完成-->
+<!--</div>-->
+<!--<div class="modal-footer">-->
+<!--<span class="com-modal-add-btn">确定</span>-->
+<!--<span class="com-modal-add-cancle" data-dismiss="modal">取消</span>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+                user_id: $.getQueryString('user_id'),
+                age: 0,
+                optionsBlood: [{
+                    value: 'A',
+                    label: 'A型'
+                }, {
+                    value: 'B',
+                    label: 'B型'
+                }, {
+                    value: 'AB',
+                    label: 'AB型'
+                }, {
+                    value: 'O',
+                    label: 'O型'
+                }
+                ],
+                // 血型 2
+                optionsBloodTwo: [{
+                    value: 'Rh(+)',
+                    label: 'Rh(+)'
+                }, {
+                    value: 'Rh(-)',
+                    label: 'Rh(-)'
+                }],
+                // 证件类型
+                idTypes: [{
+                    value: 1,
+                    label: "身份证"
+                }, {
+                    value: 2,
+                    label: "出生证"
+                }],
+                // 所属团队
+                optionsTeam: [],
+                // 所属机构
+                optionsOrg: [],
+                dialogImageUrl: '',
+                dialogVisible: false,
+                models: {
+                    gender:'1'
+                },
+                leader: {},
+                tags: [],
+                selectTags: [],
+                files: [],
+                otherShow: false,
+                otherRemark: "",
+                uploadUrl: $.formateUrl('/backend/upload')
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;            //作者菜单
+
+            this.setOrg();
+            this.setTags();
+            if (this.user_id) {
+                this.getModels({user_id: this.user_id})
+            }
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //获取用户信息
+            getModels(params) {
+                let url = $.formateUrl('/backend/sign/sign');
+                $.get(url, params, res => {
+                    if (res.code === 0) {
+                        if(res.content.user_id){
+                            this.models = res.content;
+                            if (res.content.gender) this.models.gender = this.models.gender.toString();
+                            if (res.content.birthday) this.calcAge(res.content.birthday);
+                            //初始化标签
+                            if (res.content.tags) {
+                                var tags = res.content.tags;
+                                tags.forEach(item =>{
+                                    if (item.tag_id == defined.otherTagId) {
+                                        this.otherShow = true;
+                                        this.otherRemark = item.name;
+                                    }
+                                    this.selectTags.push(item.tag_id)
+                                });
+                            }
+                        }
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //根据证件号获取用户信息
+            getModelsByCard() {
+                if (!this.user_id && this.models.identity_card) {
+                    this.getModels({identity_card: this.models.identity_card})
+                }
+            },
+            //提交签约
+            signSave() {
+                if (validateForm(info_form)) {
+                    if (this.otherShow) {
+                        if (this.otherRemark == '') {
+                            this.$message("请在其他标签里面填入数据");
+                            return false;
+                        }
+                    }
+                    let url = $.formateUrl('/backend/sign/sign');
+                    var tags = [];
+                    this.selectTags.forEach((item, index) => {
+                        if (item == health.otherTagId) {
+                            tags.push({
+                                tag_id: item,
+                                name: this.otherRemark
+                            })
+                        } else {
+                            tags.push({
+                                tag_id: item,
+                                name: ""
+                            })
+                        }
+                    });
+                    this.models.tags = tags;
+                    this.models.files = this.files;
+                    $.post(url, this.models, res => {
+                        if (res.code === 0) {
+                            this.$message("签约成功");
+                            setTimeout("window.location.href = '/health/user/member.html'", 3000);
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //获取机构
+            setOrg() {
+                let url = $.formateUrl('/backend/other/get-orgs');
+                $.get(url, res => {
+                    if (res.code === 0) {
+                        this.optionsOrg = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取团队
+            setTeam() {
+                Vue.set(this.models, 'team_id', "");
+                Vue.set(this, 'leader', {});
+                let url = $.formateUrl('/backend/other/team');
+                if (!this.models.orgid) {
+                    this.optionsTeam = [];
+                    return false;
+                }
+                $.get(url, {
+                    orgid: this.models.orgid
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsTeam = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取团队负责人
+            setLeader() {
+                let url = $.formateUrl('/backend/team/team-leader');
+                if (!this.models.team_id) {
+                    this.leader = {};
+                    return false;
+                }
+                $.get(url, {
+                    team_id: this.models.team_id
+                }, res => {
+                    if (res.code === 0) {
+                        this.leader = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取系统所有标签
+            setTags() {
+                let url = $.formateUrl('/backend/other/get-tags');
+                $.get(url, res => {
+                    if (res.code == 0) {
+                        this.tags = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //标签点击事件
+            tagClick(val) {
+                this.selectTags = val;
+                var isShow = false;
+                this.selectTags.forEach((item) => {
+                    if (item == health.otherTagId) {
+                        isShow = true;
+                    }
+                });
+                this.otherShow = isShow;
+            },
+            //动态计算年龄
+            calcAge(strBirthday) {
+                this.age = $.calcAge(strBirthday);
+            },
+            //文件上传成功
+            uploadSuccess(res, file) {
+                this.imageUrlEdit = URL.createObjectURL(file.raw);
+                this.files.push(res.content[0].file_id);
+            },
+            //文件预上传处理
+            beforeUpload(file) {
+                var allowSize = 2097152;
+                if (file.size > allowSize) {
+                    this.$message.error('图片大小不能超过 300K!');
+                    return false;
+                }
+            },
+            //文件删除
+            handleRemove(file, fileList) {
+
+                var url = $.formateUrl('/backend/upload/delete');
+                var fileInfo = file.response.content[0];
+                this.files = [];
+                fileList.forEach((item) => {
+                    this.files.push(item.response.content[0].file_id);
+                });
+                $.post(url, {file_id: fileInfo.file_id});
+            },
+            //文件浏览
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            },
+            exceedMaxFile() {
+                this.$message.error('附件最多上传5个!');
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    });
+
+</script>
+</body>
+
+
+</html>

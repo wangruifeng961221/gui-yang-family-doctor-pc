@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>机构管理</title>
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/organizational.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=9IBeDDaqnqQGP96q7AeTQE4b1lWYUTDf"></script>
+
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>机构管理 > 机构列表</span>
+                </div>
+                <!-- 头部搜索 -->
+                <div class="search">
+                    <input type="text" class="inp_mec" v-model="orgName" placeholder="请输入机构名称">
+                    <span class="clear-up" @click="clear" :class="orgName===''?'clearNo':''">×</span>
+                    <span class="search-btn" @click="SearchBtn"><img src="/img/icon_serarch.png"></span>
+                    <span class="add-jg" data-toggle="modal" data-target="#myModal" @click="GetOrgCode"><img
+                            src="/img/doc-add-btn.png" style="position: relative;top:-2px">添加机构</span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="bg-color">
+                <div class="org-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>机构编码</th>
+                            <th>机构名称</th>
+                            <th>机构地址</th>
+                            <th>联系方式</th>
+                            <th>团队数量</th>
+                            <th>医生人数</th>
+                            <th>签约居民数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in Organization.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                            <td>{{item.serial}}</td>
+                            <td>{{item.code}}</td>
+                            <td class="org-name">{{item.cn_name}}</td>
+                            <td class="org-address">{{item.address}}</td>
+                            <td style="width: 220px">{{item.tel_phone}}</td>
+                            <td class="font-color" data-toggle="modal" data-target="#myModaTeam"
+                                @click="GetItemList(item.orgid)">{{item.team_count}}
+                            </td>
+                            <td class="font-color" data-toggle="modal" data-target="#myModaPeople"
+                                @click="GetDoctorList(item.orgid)">{{item.doctor_count}}
+                            </td>
+                            <td class="font-color" data-toggle="modal" data-target="#myModaDelResident"
+                                @click="GetOrgList(item.orgid)" style="width: 165px">{{item.sign_count}}
+                            </td>
+                            <td class="font-color">
+                                <img src="/img/icon_edit.png" class="edit_icon" data-toggle="modal"
+                                     data-target="#myModaEdit" @click="EditOrg(item.orgid)" title="编辑">
+                                <img src="/img/icon_del.png" data-toggle="modal" data-target="#myModaDel" title="删除"
+                                     @click="delOrg(item.orgid)">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!-- 分页 -->
+                    <span class="all-nums" v-if="Organization.count>0">共{{Organization.count}}条</span>
+                    <span class="all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="Organization.count>0"
+                            @current-change="CurrentChange"
+                            class="paging orgPaging"
+                            background
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-size="health.BigPageSize"
+                            :page-count="Organization.pages"
+                            :total="Organization.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 添加机构弹出层 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabel">添加机构</div>
+                </div>
+                <div class="modal-body">
+                    <div class="errorText"></div>
+                    <p>机构信息</p>
+                    <form id="add_org">
+                    <div class="model-org">
+
+                            <label class="model-required" id="org_code">机构编码</label>&nbsp;<span><!--{{code}}--><input type="text" vname="org_code" v-model="code" validator="notNull" maxlength="10"></span><br>
+                            <label class="model-required" id="lab_name">机构名称</label>
+                            <input type="text" class="model-org-name" placeholder="请输入机构名称" vname="lab_name"
+                                   validator="notNull" maxlength="20" v-model="CnName">
+                            <label class="model-required" id="lab_tel">联系电话</label>
+                            <!--<input type="text" placeholder="区号" class="area" vname="lab_tel" validator="notNull"
+                                   vtype="AreaCode">-->
+                            <input type="text" placeholder="座机或手机号" class="seat" vname="lab_tel" validator="notNull"
+                                   maxlength="15" vtype="phone" v-model="TelPhone">
+                            <label class="model-required" id="lab_res">覆盖居民数</label>
+                            <input type="text" class="resident" vname="lab_res" validator="notNull" vtype="posIntP"
+                                   v-model="coverage" maxlength="6">
+                            <label class="model-required" id="label_province">所在省份</label>
+                            <el-select v-model="value" class="select-e select-right" placeholder="请选择"
+                                       @change="ChangProvince">
+                                <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                            <input type="hidden" vname="label_province" v-model="value" validator="notNull" vel-type="select">
+                            <label class="model-required" id="label_city">所在城市</label>
+                            <el-select v-model="valueCity" class="select-e select-right" @change="ChangCity"
+                                       placeholder="请选择">
+                                <el-option
+                                        v-for="item in optionsCity"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                            <input type="hidden" vname="label_city" v-model="valueCity" validator="notNull" vel-type="select">
+                            <label class="model-required" id="label_required">所在区县</label>
+                            <el-select v-model="valueCounty" class="select-e" placeholder="请选择" @change="ChangCounty">
+                                <el-option
+                                        v-for="item in optionsCounty"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                            <input type="hidden" vname="label_required" v-model="valueCounty" validator="notNull" vel-type="select">
+                            <label class="model-required" id="lab_address">街道地址</label>
+                            <input type="text" class="model-address" placeholder="请输入详细街道地址" vname="lab_address"
+                                   validator="notNull" v-model="StreetOffice" v-on:blur="GetStreetOffice"><br>
+                            <label class="model-required" id="lab_det">详细地址</label>
+                            <input type="text" class="detail-address" vname="lab_det" validator="notNull"
+                                   v-model="detailedAddress">
+
+
+                    </div>
+
+                    <!-- 获取经纬度 -->
+                    <div>
+                        <div class="lat-lon-con">
+                            <span class="lat-lon" @click="getLatLon">
+                                <img src="/img/icon_coordinate.png">
+                                获取经纬度
+                            </span>
+                            <span class="model-required" id="label_lat_wid">经度</span>
+                            <input type="text" class="lat-wid" v-model="longitude" vname="label_lat_wid" validator="notNull">
+                            <span class="model-required" id="label_lon_wid">纬度</span>
+                            <input type="text" class="lon-wid" v-model="latitude" vname="label_lon_wid" validator="notNull">
+                            <a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank" title="用于获取经纬度">拾取坐标</a>
+                        </div>
+                        <div class="map" id="allmap">
+
+                        </div>
+                    </div>
+                    <!-- 机构图片 -->
+                    <div class="model-img">
+                        <span class="model-required org-img-model" id="label_orgimg">机构图片</span>
+                        <!--<span class="upload-img model-btn-right" @click="delImg"><img src="/img/icon_upload.png">删除图片</span>-->
+
+                        <el-upload
+                                class="avatar-uploader"
+                                :action="urlAction"
+                                accept="image/jpg,image/jpeg,image/png"
+                                :show-file-list="false"
+                                :on-success="handleAvatarSuccess"
+                                name="files"
+                                :before-upload="beforeAvatarUpload">
+                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        <input type="hidden" vname="label_orgimg" v-model="imageUrl" validator="notNull">
+                    </div>
+
+                    <!-- 机构简介 -->
+                    <div class="orgInt model-org-orgInt">
+                        <p class="model-required" id="label_orgtitle">机构简介</p>
+                        <textarea maxlength="500" @input="descInput" v-model="desc" class="modal-textarea"
+                                  placeholder="请输入机构简介..." vname="label_orgtitle" validator="notNull"></textarea>
+                        <span class="rem-model">{{remnant}}/500</span>
+                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <el-button :plain="true" style="display: none"></el-button>
+                    <span class="btn-qd" @click="subAdd">确定添加</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- 编辑机构 弹出层 -->
+    <div class="modal fade" id="myModaEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelEdit">编辑机构</div>
+                </div>
+                <div class="modal-body">
+                    <div class="errorText"></div>
+                    <p>机构信息</p>
+                    <form id="edit_org">
+                    <div class="model-org">
+
+                            <label class="model-required" id="org_label">机构编码</label>&nbsp;<span><!--{{EditOrgContent.code}}--><input
+                                type="text" v-model="jgcodeEdit" validator="notNull" vname="org_label" maxlength="10"></span><br>
+                            <label class="model-required" id="lab_name_edit">机构名称</label>
+                            <input type="text" class="model-org-name" placeholder="请输入机构名称" vname="lab_name_edit"
+                                   validator="notNull" maxlength="20" v-model="CnNameEdit">
+                            <label class="model-required" id="lab_tel_edit">联系电话</label>
+                            <!--<input type="text" placeholder="区号" class="area" vname="lab_tel_edit" validator="notNull"
+                                   vtype="AreaCode">-->
+                            <input type="text" placeholder="座机或手机号" class="seat" vname="lab_tel_edit"
+                                   validator="notNull" maxlength="15" vtype="phone" v-model="TelPhoneEdit">
+                            <label class="model-required" id="lab_res_edit">覆盖居民数</label>
+                            <input type="text" class="resident" vname="lab_res_edit" validator="notNull"
+                                   vtype="posIntP" v-model="coverageEdit" maxlength="6">
+                            <label class="model-required" id="label_e_required">所在省份</label>
+                            <el-select v-model="valueEdit" class="select-e select-right" @change="ChangeoptionsEdit">
+                                <el-option
+                                        v-for="item in optionsEdit"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                        <input type="hidden" vname="label_e_required" v-model="valueEdit" validator="notNull" vtype="posIntP">
+                            <label class="model-required" id="label_e_city">所在城市</label>
+                            <el-select v-model="valueCityEdit" class="select-e select-right"
+                                       @change="ChangeoptionsCityEdit">
+                                <el-option
+                                        v-for="item in optionsCityEdit"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                        <input type="hidden" vname="label_e_city" v-model="valueCityEdit" validator="notNull" vtype="posIntP">
+                            <label class="model-required" id="label_e_county">所在区县</label>
+                            <el-select v-model="valueCountyEdit" class="select-e" @change="ChangeoptionsCountyEdit"
+                                       id="valueCounty">
+                                <el-option
+                                        v-for="item in optionsCountyEdit"
+                                        :key="item.value"
+                                        :label="item.name"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                        <input type="hidden" vname="label_e_county" v-model="valueCountyEdit" validator="notNull" vtype="posIntP">
+                            <label class="model-required" id="lab_address_edit">街道地址</label>
+                            <input type="text" class="model-address" placeholder="请输入详细街道地址" vname="lab_address_edit"
+                                   validator="notNull" v-model="AddressEdit" v-on:blur="GetStreetOfficeEdit"><br>
+                            <label class="model-required" id="lab_det_edit">详细地址</label>
+                            <input type="text" class="detail-address" vname="lab_det_edit" validator="notNull"
+                                   v-model="DetailAddressEdit">
+
+
+                    </div>
+
+                    <!-- 获取经纬度 -->
+                    <div>
+                        <div class="lat-lon-con">
+                            <span class="lat-lon" @click="getLatLonEdit">
+                                <img src="/img/icon_coordinate.png">
+                                获取经纬度
+                            </span>
+                            <span class="model-required" id="label_lon">经度</span>
+                            <input type="text" class="lat-wid" v-model="LonWidEdit" vname="label_lon" validator="notNull">
+                            <span class="model-required" id="label_lat">纬度</span>
+                            <input type="text" class="lon-wid" v-model="LatWidEdit" vname="label_lat" validator="notNull">
+                            <a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank" title="用于获取经纬度">拾取坐标</a>
+                        </div>
+                        <div class="map" id="allmapEdit">
+
+                        </div>
+                    </div>
+                    <!-- 机构图片 -->
+                    <div class="model-img">
+                        <span class="model-required org-img-model" id="label_e_img">机构图片</span>
+                        <!--<span class="upload-img model-btn-right" @click="delImg"><img src="../../img/icon_upload.png">删除图片</span>-->
+
+                        <el-upload
+                                class="avatar-uploader"
+                                :action="urlActionEdit"
+                                :show-file-list="false"
+                                accept="image/jpg,image/jpeg,image/png"
+                                :on-success="handleAvatarSuccessEdit"
+                                name="files"
+                                :before-upload="beforeAvatarUploadEdit">
+                            <img v-if="imageUrlEdit" :src="imageUrlEdit" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        <input type="hidden" vname="label_e_img" v-model="imageUrlEdit" validator="notNull">
+                    </div>
+
+                    <!-- 机构简介 -->
+                    <div class="orgInt model-org-orgInt">
+                        <p class="model-required" id="label_org_req">机构简介</p>
+                        <textarea maxlength="500" @input="descInputEditNum" class="modal-textarea"
+                                  placeholder="请输入机构简介..." v-model="TextareaEdit" vname="label_org_req" validator="notNull"></textarea>
+                        <span class="rem-model">{{remnantEdit}}/500</span>
+                    </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <span class="btn-qd" @click="subEdit" id="subEdit">确定修改</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 删除机构信息 弹出层 myModaDel-->
+    <div class="modal fade" id="myModaDel" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog" role="document">
+            <div class="content-del">
+                <div class="del-con">
+                    确定删除机构信息?
+                </div>
+                <div class="modal-footer">
+                    <span class="btn-qd" data-dismiss="modal" @click="subDel">确定</span>
+                    <span class="btn-qx" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队列表弹窗 myModaTeam-->
+    <div class="modal fade" id="myModaTeam" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelteams">团队列表</div>
+                </div>
+                <div class="team_search sear-border">
+                    <div class="search">
+                        <input type="text" class="inp_mec" v-model="teamName" placeholder="请输入团队名称">
+                        <span class="clear-up" @click="itemClear" :class="teamName===''?'clearNo':''">×</span>
+                        <span class="search-btn" @click="SearchTeam"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+                <div class="modal-body team-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>团队名称</th>
+                            <th>团队负责人</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in ItemList.data" :class="(index+1)%2===0?'':'team_bg'">
+                            <td>{{item.serial}}</td>
+                            <td class="org-name">{{item.name}}</td>
+                            <td class="org-address">{{item.leader}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <span class="all-nums team-all-nums" v-if="ItemList.count>0">共{{ItemList.count}}条</span>
+                    <span class="all-nums team-all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="ItemList.count>0"
+                            @current-change="CurrentChangeItem"
+                            class="paging myPaging"
+                            background
+                            :page-size="health.SmallPageSize"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            :page-count="ItemList.pages"
+                            layout="prev, pager, next"
+                            :total="ItemList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 医生人数列表 弹窗 myModaPeople -->
+    <div class="modal fade" id="myModaPeople" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelPeople">医生列表</div>
+                </div>
+                <div class="team_search sear-border people-model">
+                    <div class="search">
+                        <input type="text" class="inp_mec" v-model="docterName" placeholder="请输入医生姓名">
+                        <span class="clear-up" @click="docNameClear" :class="docterName===''?'clearNo':''">×</span>
+                        <span class="search-btn" @click="GetSearchDocter"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+                <div class="modal-body team-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>医生账号</th>
+                            <th>医生姓名</th>
+                            <th>性别</th>
+                            <th>职称</th>
+                            <th>联系方式</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in DoctorList.data" :class="(index+1)%2===0?'':'team_bg'">
+                            <td>{{item.serial}}</td>
+                            <td class="org-name">{{item.name}}</td>
+                            <td class="org-address">{{item.username}}</td>
+                            <td class="org-address">{{item.gender}}</td>
+                            <td class="org-address">{{item.title}}</td>
+                            <td class="org-address">{{item.mobile}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+
+
+                    <span class="all-nums team-all-nums" v-if="DoctorList.count>0">共{{DoctorList.count}}条</span>
+                    <span class="all-nums team-all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="DoctorList.count>0"
+                            @current-change="CurrentChangeDoctor"
+                            class="paging myPaging"
+                            background
+                            :page-size="health.SmallPageSize"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-count="DoctorList.pages"
+                            :total="DoctorList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 签约居民列表 弹窗 myModaDelResident -->
+    <div class="modal fade" id="myModaDelResident" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="modal-title" id="myModalLabelRes">签约居民列表</div>
+                </div>
+                <div class="team_search sear-border">
+                    <div class="search">
+                        <input type="text" class="inp_mec" v-model="teamNameOrg" placeholder="请输入居民姓名">
+                        <span class="clear-up" @click="itemClear" :class="teamName===''?'clearNo':''">×</span>
+                        <span class="search-btn" @click="SearchOrgList"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+                <div class="modal-body team-lists">
+                    <table cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>居民姓名</th>
+                            <th>性别</th>
+                            <th>证件号码</th>
+                            <th>联系方式</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item,index) in OrgList.data" :class="(index+1)%2===0?'':'team_bg'">
+                            <td>{{item.serial}}</td>
+                            <td class="org-name">{{item.name}}</td>
+                            <td class="org-address">{{item.gender}}</td>
+                            <td class="org-address">{{item.card}}</td>
+                            <td class="org-address">{{item.mobile}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+
+                    <span class="all-nums team-all-nums" v-if="OrgList.count>0">共{{OrgList.count}}条</span>
+                    <span class="all-nums team-all-nums" v-else>暂无数据</span>
+                    <el-pagination
+                            v-if="OrgList.count>0"
+                            @current-change="CurrentChangeOrgDoctor"
+                            class="paging myPaging"
+                            background
+                            :page-size="health.SmallPageSize"
+                            prev-text="上一页"
+                            next-text="下一页"
+                            layout="prev, pager, next"
+                            :page-count="OrgList.pages"
+                            :total="OrgList.count">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                avatar: '',
+                name: '',
+
+                //头部搜索
+                orgName: '',
+
+                //机构列表
+                Organization: {},
+                OrganizationPage: '',
+
+                // 团队列表
+                ItemList: {},
+                ItemListPage: '',
+                teamName: '',
+                ItemOrgid: '',
+                // 医生列表
+                DoctorListPage: '',
+                DoctorList: {},
+                docIdList: '',
+                docterName: '',
+                // 居民列表
+                OrgList: {},
+                teamNameOrg: '',
+                OrgListPage: '',
+                orgid: '',
+
+                //添加机构
+                // jgcode:'',
+                code: '',
+                CnName: '',
+                TelPhone: '',
+                coverage: '',
+                StreetOffice: '',
+                detailedAddress: '',
+                options: [/*{   //选择省份
+                    value: '选项1',
+                    label: '全部机构'
+                }, {
+                    value: '选项2',
+                    label: '机构2'
+                }*/],
+                provinceName: '',
+                value: '',
+                latitude: '',
+                longitude: '',
+                optionsCity: [],  //选择城市
+                optionsCityName: '',
+                valueCity: '',
+                optionsCounty: [],   //选择城市
+                valueCounty: '',
+                optionsCountyName: '',
+                // 上传图片
+                imageUrl: '',
+                fileId: '',
+                urlAction: '',
+                //多行文本框
+                remnant: '0',
+                desc: '',
+                //    修改机构
+                jgcodeEdit: '',
+                remnantEdit: '0',
+                EditOrgId: '',
+                valueEdit: '',
+                valueCityEdit: '',
+                valueCountyEdit: '',
+                optionsEdit: [],   //省
+                optionsCityEdit: [],  //市
+                optionsCountyEdit: [],  //区
+                EditOrgContent: {},
+                CnNameEdit: '',
+                TelPhoneEdit: '',
+                coverageEdit: '',
+                AddressEdit: '',
+                DetailAddressEdit: '',
+                LonWidEdit: '',
+                LatWidEdit: '',
+                TextareaEdit: '',
+                imageUrlEdit: '',
+                fileIdEdit: '',
+                optionsEditName: '',
+                optionsCityEditName: '',
+                optionsCountyEditName: '',
+                initprovName: '',
+                initCityName: '',
+                initCountName: '',
+                urlActionEdit: '',
+                //    删除机构
+                DelOrgId: '',
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.GetOrganization();
+        },
+
+        mounted() {
+            this.detailedAddress = this.provinceName + this.optionsCityName + this.optionsCountyName;
+            // 百度地图API功能
+            var map = new BMap.Map("allmap");
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //  获取机构列表
+            GetOrganization() {
+                let url = $.formateUrl('backend/org/list');
+                $.get(url, {
+                    page_size: health.BigPageSize,
+                    page: this.OrganizationPage,
+                    keywords: this.orgName
+                }, res => {
+                    if (res.code === 0) {
+                        this.Organization = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChange(val) {
+                this.OrganizationPage = val;
+                this.GetOrganization();
+            },
+            //获取团队列表
+            GetItemList(id) {
+                this.ItemOrgid = id;
+                let url = $.formateUrl('backend/org/team');
+                $.get(url, {
+                    orgid: id,
+                    page_size: health.SmallPageSize,
+                    page: this.ItemListPage,
+                    keywords: this.teamName
+                }, res => {
+                    if (res.code === 0) {
+                        this.ItemList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            SearchTeam() {
+                this.GetItemList(this.ItemOrgid);
+            },
+            CurrentChangeItem(val) {
+                this.ItemListPage = val;
+                this.GetItemList(this.ItemOrgid)
+            },
+            // 获取医生列表
+            GetDoctorList(id) {
+                this.docIdList = id;
+                let url = $.formateUrl('backend/org/doctor');
+                $.get(url, {
+                    orgid: id,
+                    page_size: health.SmallPageSize,
+                    page: this.DoctorListPage,
+                    keywords: this.docterName
+                }, res => {
+                    if (res.code === 0) {
+                        this.DoctorList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            docNameClear() {
+                this.docterName = '';
+            },
+            // 搜索医生
+            GetSearchDocter() {
+                this.GetDoctorList(this.docIdList);
+            },
+            CurrentChangeDoctor(val) {
+                this.DoctorListPage = val;
+                this.GetDoctorList(this.docIdList);
+            },
+            //获取签约居民列表
+            GetOrgList(id) {
+                let url = $.formateUrl('backend/org/member');
+                this.orgid = id;
+                $.get(url, {
+                    orgid: id,
+                    page_size: health.SmallPageSize,
+                    page: this.OrgListPage,
+                    keywords: this.teamNameOrg
+                }, res => {
+                    if (res.code === 0) {
+                        this.OrgList = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            CurrentChangeOrgDoctor(val) {
+                this.OrgListPage = val;
+                this.GetOrgList(this.orgid);
+            },
+
+            SearchOrgList() {
+                this.GetOrgList(this.orgid);
+            },
+            // 清除查询的值
+            clear() {
+                this.orgName = '';
+            },
+            //  搜索按钮
+            SearchBtn() {
+                this.GetOrganization();
+            },
+            //获取机构编码
+            GetOrgCode() {
+                //  清除值
+                this.code = '';
+                this.CnName = '';
+                this.TelPhone = '';
+                this.coverage = '';
+                this.StreetOffice = '';
+                this.detailedAddress = '';
+                this.options = [];
+                this.value = '';
+                this.latitude = '';
+                this.longitude = '';
+                this.optionsCity = [];
+                this.optionsCityName = '';
+                this.valueCity = '';
+                this.optionsCounty = [];
+                this.valueCounty = '';
+                this.optionsCountyName = '';
+                this.imageUrl = '';
+                this.remnant = '0';
+                this.desc = '';
+                this.urlAction = $.formateUrl('backend/upload');
+                let url = $.formateUrl('backend/org/create');
+                $.get(url, res => {
+                    if (res.code == 0) {
+                        this.code = res.content.code;
+                        this.GetProvince();
+                    } else {
+                        this.$message(res.message);
+                    }
+
+                })
+            },
+            // 默认详细地址拼接
+            GetStreetOffice() {
+                // this.detailedAddress = this.provinceName + this.optionsCityName + this.optionsCountyName + this.StreetOffice;
+
+            },
+            //获取省
+            GetProvince() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: 0,
+                }, res => {
+                    if (res.code === 0) {
+                        this.options = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            ChangProvince(value) {
+                for (let i = 0; i < this.options.length; i++) {
+                    if (this.options[i].id === value) {
+                        this.provinceName = this.options[i].name;
+                    }
+                }
+                this.valueCity = '';
+
+                this.GetCity();
+            },
+            // 获取区县改变
+            ChangCounty(value) {
+                for (let i = 0; i < this.optionsCounty.length; i++) {
+                    if (this.optionsCounty[i].id === value) {
+                        this.optionsCountyName = this.optionsCounty[i].name;
+                    }
+                }
+            },
+            //获取市
+            GetCity() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.value
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCity = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //区县 市改变
+            ChangCity(value) {
+
+                for (let i = 0; i < this.optionsCity.length; i++) {
+                    if (this.optionsCity[i].id === value) {
+                        this.optionsCityName = this.optionsCity[i].name;
+                    }
+                }
+
+                this.valueCounty = '';
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueCity
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCounty = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取经纬度
+            getLatLon() {
+                if(this.detailedAddress==''||this.detailedAddress==undefined){
+                    this.detailedAddress = this.provinceName + this.optionsCityName + this.optionsCountyName + this.StreetOffice;
+                    var flagNo=true;
+                }
+                let map = new BMap.Map("allmap");
+                let localSearch = new BMap.LocalSearch(map);
+                localSearch.setSearchCompleteCallback((searchResult) => {
+                    let poi = searchResult.getPoi(0);
+                    if (poi == undefined) {
+                        this.$message.error('请输入有效的地址或者点击拾取坐标');
+                        return false;
+                    }
+                    //更新街道地址及详细地址、电话
+                    // this.StreetOffice = poi.title;
+                    if(flagNo){
+                        let poi_address = poi.address ? poi.address : '';
+                        this.detailedAddress = poi_address + poi.title;
+                    }
+                    if (!this.TelPhone) {
+                        this.TelPhone = poi.phoneNumber;
+                    }
+                    this.latitude = poi.point.lat;
+                    this.longitude = poi.point.lng; //经
+
+                    //获取经度和纬度，将结果显示在文本框中
+                    map.centerAndZoom(poi.point, 15);
+
+                    //创建标注
+                    map.clearOverlays();//清除其它标注
+                    let point = new BMap.Point(poi.point.lng, poi.point.lat);
+                    let marker = new BMap.Marker(point);  // 创建标注
+                    map.addOverlay(marker);               // 将标注添加到地图中
+                    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+                });
+                localSearch.search(this.detailedAddress);
+                map.centerAndZoom(new BMap.Point(), 15);
+                let top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+                let top_left_navigation = new BMap.NavigationControl();
+                //map.enableScrollWheelZoom();//启用滚轮
+                map.addControl(top_left_control);
+                map.addControl(top_left_navigation);
+                $('#allmap').css('display', 'block');
+            },
+            //上传图片
+            handleAvatarSuccess(res, file) {
+                if (res.code === 0) {
+                    this.imageUrl = URL.createObjectURL(file.raw);
+                    this.fileId = res.content[0].file_id;
+                }
+            },
+            beforeAvatarUpload(file) {
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isLt2M;
+            },
+            //删除图片
+            delImg() {
+                let url = $.formateUrl('backend/upload/delete');
+                $.post(url, {
+                    file_id: this.fileId
+                }, res => {
+                    if (res.code === 0) {
+                        this.imageUrl = '';
+                    } else {
+                        this.$message(res.message);
+                    }
+                });
+            },
+            //  多行文本框
+            descInput() {
+                let txtVal = this.desc.length;
+                this.remnant = txtVal;
+            },
+            descInputEditNum() {
+                let txtVal = this.TextareaEdit.length;
+                this.remnantEdit = txtVal;
+            },
+            //    确定添加机构
+            subAdd() {
+                if (validateForm(add_org)) {
+                    let url = $.formateUrl('backend/org/create');
+                    $.post(url, {
+                        cn_name: this.CnName,
+                        code: this.code,
+                        file_id: this.fileId,
+                        tel_phone: this.TelPhone,
+                        coverage: this.coverage,
+                        // province: this.provinceName,
+                        province: this.value,
+                        // city: this.optionsCityName,
+                        city: this.valueCity,
+                        // county: this.optionsCountyName,
+                        county: this.valueCounty,
+                        street_office: this.StreetOffice,
+                        longitude: this.longitude,
+                        latitude: this.latitude,
+                        remark: this.desc,
+                        address: this.detailedAddress,
+                    }, res => {
+                        if (res.code === 0) {
+                            $('#myModal').modal('hide');
+                            this.open();
+                            this.GetOrganization();
+                            this.code = '';
+                            this.CnName = '';
+                            this.TelPhone = '';
+                            this.coverage = '';
+                            this.StreetOffice = '';
+                            this.detailedAddress = '';
+                            this.options = [];
+                            this.value = '';
+                            this.latitude = '';
+                            this.longitude = '';
+                            this.optionsCity = [];
+                            this.optionsCityName = '';
+                            this.valueCity = '';
+                            this.optionsCounty = [];
+                            this.valueCounty = '';
+                            this.optionsCountyName = '';
+                            this.imageUrl = '';
+                            this.remnant = '0';
+                            this.desc = '';
+                            $('#allmap').css('display', 'none');
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //成功之后的消息提示(在添加成功之后或者修改成功之后执行)
+            open() {
+                this.$message('添加成功');
+            },
+            //  获取机构
+            EditOrg(id) {
+                this.EditOrgId = id;
+                this.urlActionEdit = health.apiUrl + 'backend/upload?token=' + $.getToken();
+                let url = health.apiUrl + 'backend/org/update?token=' + $.getToken() + '&orgid=' + this.EditOrgId;
+                $.get(url, res => {
+                    if (res.code === 0) {
+                        this.GetProvinceEditInit();      //
+                        this.EditOrgContent = res.content;
+                        this.valueEdit = this.EditOrgContent.province;  //省默认
+                        this.GetCityEditInit();
+                        this.valueCityEdit = this.EditOrgContent.city;
+                        this.GetCountyEditInit();
+                        this.valueCountyEdit = this.EditOrgContent.county;
+                        this.jgcodeEdit = this.EditOrgContent.code;
+                        this.CnNameEdit = this.EditOrgContent.cn_name;
+                        this.TelPhoneEdit = this.EditOrgContent.tel_phone;
+                        this.coverageEdit = this.EditOrgContent.coverage;
+                        this.fileIdEdit = this.EditOrgContent.file_id;
+                        /*this.ProvinceEditId=this.EditOrgContent.province;*/
+                        this.AddressEdit = this.EditOrgContent.street_office;
+
+                        this.DetailAddressEdit = this.EditOrgContent.address;
+                        this.LonWidEdit = this.EditOrgContent.longitude;
+                        this.LatWidEdit = this.EditOrgContent.latitude;
+                        this.TextareaEdit = this.EditOrgContent.remark;
+                        this.imageUrlEdit = this.EditOrgContent.file_path;
+                        this.descInputEditNum();
+                       // this.getLatLonEdit();  //地图
+                        this.getLatLonMap(); //地图默认根据经纬度获取
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetStreetOfficeEdit() {
+                // this.DetailAddressEdit = this.initprovName + this.initCityName + this.initCountName + this.AddressEdit;
+            },
+
+            //  初始化 （省城市区县）
+            GetProvinceEditInit() {  //省
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: 0,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsEdit = res.content;
+                        for (let i = 0; i < this.optionsEdit.length; i++) {
+                            if (this.optionsEdit[i].id === this.valueEdit) {
+                                this.initprovName = this.optionsEdit[i].name;
+                            }
+                        }
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetCityEditInit() {  //市
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCityEdit = res.content;
+                        for (let i = 0; i < this.optionsCityEdit.length; i++) {
+                            if (this.optionsCityEdit[i].id === this.valueCityEdit) {
+                                this.initCityName = this.optionsCityEdit[i].name;
+                            }
+                        }
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            GetCountyEditInit() {  //区
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueCityEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCountyEdit = res.content;
+                        for (let i = 0; i < this.optionsCountyEdit.length; i++) {
+                            if (this.optionsCountyEdit[i].id === this.valueCountyEdit) {
+                                this.initCountName = this.optionsCountyEdit[i].name;
+                            }
+                        }
+                        // this.DetailAddressEdit = this.initprovName + this.initCityName + this.initCountName + this.AddressEdit;
+                        // console.log(this.DetailAddressEdit);
+                        // this.getLatLonEdit();  //地图
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            getLatLonEdit() {
+                if(this.DetailAddressEdit==''||this.DetailAddressEdit==undefined){
+                    this.DetailAddressEdit = this.initprovName + this.initCityName + this.initCountName + this.AddressEdit;
+                    var flagNoEdit=true;
+                }
+                if(!this.DetailAddressEdit){
+                    this.$message.error('请输入地址');
+                    return false;
+                }
+                let map = new BMap.Map("allmapEdit");
+                let localSearch = new BMap.LocalSearch(map);
+                localSearch.setSearchCompleteCallback((searchResult) => {
+                    let poi = searchResult.getPoi(0);
+                    if (poi == undefined) {
+                        this.$message.error('请输入有效的地址或者点击拾取坐标');
+                        return false;
+                    }
+                    //更新街道地址及详细地址
+                    // this.AddressEdit = poi.title;
+                    if(flagNoEdit){
+                        let poi_address = poi.address ? poi.address : '';
+                        this.DetailAddressEdit = poi_address + poi.title;
+                    }
+                    if (!this.TelPhoneEdit) {
+                        this.TelPhoneEdit = poi.phoneNumber;
+                    }
+
+                    this.LonWidEdit = poi.point.lng;
+                    this.LatWidEdit = poi.point.lat;
+                    //获取经度和纬度，将结果显示在文本框中
+                    map.centerAndZoom(poi.point, 15);
+
+                    //创建标注
+                    map.clearOverlays();//清除其它标注
+                    let point = new BMap.Point(poi.point.lng, poi.point.lat);
+                    let marker = new BMap.Marker(point);  // 创建标注
+                    map.addOverlay(marker);               // 将标注添加到地图中
+                    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                });
+                localSearch.search(this.DetailAddressEdit);
+                map.centerAndZoom(new BMap.Point(), 15);
+                let top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+                let top_left_navigation = new BMap.NavigationControl();
+
+                //map.enableScrollWheelZoom();//启用滚轮
+                map.addControl(top_left_control);
+                map.addControl(top_left_navigation);
+            },
+
+            // 编辑刚进入页面，根据经纬度获取地图   （如果有修改，先根据地址获取经纬度，在根据经纬度获取地图）
+            getLatLonMap(){
+                let map = new BMap.Map("allmapEdit");
+                map.centerAndZoom(new BMap.Point(this.LonWidEdit,this.LatWidEdit),13);
+                map.clearOverlays();//清除其它标注
+                let point = new BMap.Point(this.LonWidEdit,this.LatWidEdit);
+                let marker = new BMap.Marker(point);  // 创建标注
+                map.addOverlay(marker);               // 将标注添加到地图中
+                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                let top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
+                let top_left_navigation = new BMap.NavigationControl();
+                map.addControl(top_left_control);
+                map.addControl(top_left_navigation);
+                $('#allmapEdit').css('display', 'block');
+
+            },
+            handleAvatarSuccessEdit(res, file) {
+                if (res.code === 0) {
+                    this.imageUrlEdit = URL.createObjectURL(file.raw);
+                    this.fileIdEdit = res.content[0].file_id;
+                }
+            },
+            beforeAvatarUploadEdit(file) {
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isLt2M;
+
+            },
+            // 获取省（修改）
+            GetCountEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: 0
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetCityEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueEdit
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCityEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            GetCountyEdit() {
+                let url = $.formateUrl('backend/other/district');
+                $.get(url, {
+                    pid: this.valueCityEdit,
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsCountyEdit = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            ChangeoptionsCityEdit(value) {
+                let obj = {};
+                obj = this.optionsCityEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //市名字
+                this.initCityName = obj.name;
+                for (let i = 0; i < this.optionsCityEdit.length; i++) {
+                    if (this.optionsCityEdit[i].id === value) {
+                        this.optionsCityEditName = this.optionsCityEdit[i].name;
+                    }
+                }
+                this.valueCountyEdit = '';
+                this.GetCountyEdit();
+
+            },
+            ChangeoptionsCountyEdit(value) {
+                let obj = {};
+                obj = this.optionsCountyEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //乡村名字
+                this.initCountName = obj.name;
+
+                for (let i = 0; i < this.optionsCountyEdit.length; i++) {
+                    if (this.optionsCountyEdit[i].id === value) {
+                        this.optionsCountyEditName = this.optionsCountyEdit[i].name;
+                    }
+                }
+            },
+            // 省改变（修改）
+            ChangeoptionsEdit(value) {
+                // console.log(value);
+                let obj = {};
+                obj = this.optionsEdit.find((item) => {
+                    return item.id === value;
+                });
+                // console.log(obj.name);   //省名字
+                this.initprovName = obj.name;
+                for (let i = 0; i < this.optionsEdit.length; i++) {
+                    if (this.optionsEdit[i].id === value) {
+                        this.optionsEditName = this.optionsEdit[i].name;
+                    }
+                }
+                this.valueCityEdit = '';
+                this.valueCountyEdit = '';
+                this.GetCityEdit();
+            },
+            // 修改机构内容
+            subEdit() {
+                if (validateForm(edit_org)) {
+                    // 修改机构
+                    let url = $.formateUrl('backend/org/update');
+                    $.post(url, {
+                        orgid: this.EditOrgId,
+                        cn_name: this.CnNameEdit,
+                        code: this.jgcodeEdit,
+                        file_id: this.fileIdEdit,
+                        tel_phone: this.TelPhoneEdit,
+                        coverage: this.coverageEdit,
+                        province: this.valueEdit,
+                        city: this.valueCityEdit,
+                        county: this.valueCountyEdit,
+                        street_office: this.AddressEdit,
+                        longitude: this.LonWidEdit,
+                        latitude: this.LatWidEdit,
+                        remark: this.TextareaEdit,
+                        address: this.DetailAddressEdit
+                    }, res => {
+                        if (res.code === 0) {
+                            $('#myModaEdit').modal('hide');
+                            this.$message('修改成功');
+                            this.GetOrganization();
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+
+
+            //   删除机构
+            delOrg(id) {
+                this.DelOrgId = id;
+            },
+            subDel() {
+                let url = $.formateUrl('backend/org/delete');
+                $.post(url, {
+                    orgid: this.DelOrgId
+                }, res => {
+                    if (res.code === 0) {
+                        this.$message('删除成功');
+                        this.GetOrganization();
+                    } else {
+                        this.$message(res.message);
+                    }
+                });
+            },
+            // 团队列表快速删除
+            itemClear() {
+                this.teamName = '';
+            },
+
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    })
+</script>
+</body>
+</html>

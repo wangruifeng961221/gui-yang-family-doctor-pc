@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户详情</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/details.css">
+</head>
+<body>
+
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-doc">
+                    <span>用户管理 > <span @click="back" style="cursor: pointer">居民管理</span> > 居民详情</span>
+                </div>
+
+                <div class="doc-search">
+                    <div class="search-left">
+                        <img src="/img/pic_admin.png">
+                        <div class="info_details">
+                            <div class="info_name">
+                                <span class="name">{{denizenModel.name}}</span>
+                                <span class="Gender">{{denizenModel.gender}}</span>
+                                <span class="title dot">标签：<span v-html="denizenModel.tags"></span></span>
+                                <span class="state">{{denizenModel.sign_text}}</span>
+                            </div>
+                            <div class="Sign_team">
+                                <span>签约团队：</span>
+                                <span>{{denizenModel.org_name}}—{{denizenModel.team_name}}</span>
+                            </div>
+                            <div class="Sign_team">
+                                <span>团队负责人：</span>
+                                <span>{{denizenModel.team_leader}}</span>
+                                <span>签约有效期：</span>
+                                <span>{{denizenModel.sign_date_start}}~{{denizenModel.sign_date_end}}&nbsp;&nbsp;&nbsp;(有效期&nbsp;{{denizenModel.sign_life}}&nbsp;年)</span>
+                            </div>
+                        </div>
+                        <div class="right_header">
+                            <span class="Surrender" @click="displayModal('Surrender')"
+                                   v-if="denizenModel.sign_status == defined.signStatusSuccess">
+                                    解约
+                                </span>
+                            <span class="Surrender sign_audit" @click="signAudit" v-if="denizenModel.sign_status == defined.signStatusExamine">
+                                通过审核
+                            </span>
+                            <a :href="'/health/sign/member.html?user_id='+ denizenModel.user_id" v-if="denizenModel.sign_status == defined.signStatusSurrender">
+                            <span class="Surrender sign_audit" >
+                                续约
+                            </span></a>
+
+                            <a :href="'/health/sign/member.html?user_id='+ denizenModel.user_id" v-if="denizenModel.sign_status == defined.signStatusNoSign">
+                            <span class="Surrender sign_audit">
+                                签约
+                            </span></a>
+                            <a :href="denizenModel.protocol_exists==1?protocolUrl:'#'"
+                               :target="denizenModel.protocol_exists==1?'_blank':''"
+                               @click="noPrint"
+                               v-if="denizenModel.sign_status == defined.signStatusSuccess">
+                                <span class="Print">
+                                    <img src="/img/icon_print_white.png">打印签约协议
+                                </span>
+                            </a>
+
+                            <span class="Print reject" @click="displayModal('Reject')" v-if="denizenModel.sign_status == defined.signStatusExamine">
+                             <img src="/img/icon_reject.png">
+                                 驳回
+                             </span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 选项卡 -->
+            <div class="doc-bg-color" ref="bgColor">
+                <div class="doc-table">
+                    <el-tabs v-model="activeName" @tab-click="handleClick">
+                        <el-tab-pane label="个人信息" name="first" ref="active_tab"
+                                     data-href="/health/user/_details/_baseInfo.html">
+                        </el-tab-pane>
+
+                        <el-tab-pane label="测量数据" name="second" data-href="/health/user/_details/_measured.html">
+                        </el-tab-pane>
+
+                        <el-tab-pane label="随诊病历" name="third"
+                                     data-href="/health/user/_details/_case.html"></el-tab-pane>
+                        <el-tab-pane label="体检报告" name="fourth" data-href="/health/user/_details/_report.html">体检报告
+                        </el-tab-pane>
+                        <el-tab-pane label="服务包" name="Five" data-href="/health/user/_details/_pack.html">服务包
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 解约提示 -->
+    <div class="modal fade" id="Surrender" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">解约提示</div>
+                </div>
+                <div class="gateway-con">
+                    <div class="errorText" style="margin-right: 30px"></div>
+                    <form id="gateway">
+                        <label id="v-gateway" class="gateway_label model-required">解约原因</label><br>
+                        <textarea class="modal-textarea" placeholder="请输入解约原因" v-model="reason" maxlength="50" vname="v-gateway" validator="notNull"/></textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="signOff">提交</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 驳回 -->
+    <div class="modal fade" id="Reject" tabindex="-1" role="dialog" aria-labelledby="myModalLabelEdit">
+        <div class="modal-dialog modal-del-style" role="document">
+            <div class="content-del">
+                <div class="modal-header doc-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="doc-modal-title">驳回签约申请</div>
+                </div>
+                <div class="gateway-con">
+                    <div class="errorText"></div>
+                    <form id="RejectCon">
+                        <label id="v-Reject" class="gateway_label model-required">驳回原因</label><br>
+                        <textarea class="modal-textarea" placeholder="请输入驳回原因" v-model="reason" maxlength="50" vname="v-Reject" validator="notNull"></textarea>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="doc-modal-add-btn" @click="signReject">提交</span>
+                    <span class="doc-modal-add-cancle" data-dismiss="modal">取消</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+
+                //    选项卡
+                activeName: 'first',
+                denizenModel: {},
+                user_id: '',
+
+                reason:'',
+                protocolUrl:$.formateUrl('backend/denizen/down-protocol?id='+$.getQueryString('id'))
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+
+        },
+        mounted() {
+            this.user_id = $.getQueryString('id');
+            this.getDenizenDetail();
+            this.handleClick(this.$refs.active_tab);
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            displayModal(modalId) {
+                Vue.set(this, 'reason',"");
+                $('#'+modalId).modal('show');
+            },
+            // 返回居民管理页
+            back(){
+                window.history.back(-1);
+            },
+            noPrint(){
+                if(this.denizenModel.protocol_exists==0){
+                    this.$message("该用户的协议暂时还未生成");
+                    return false;
+                }
+            },
+            //解约
+            signOff(){
+                if(validateForm(gateway)){
+                    let url = $.formateUrl('backend/sign/off');
+                    $.post(url, {
+                        'user_id': this.user_id,
+                        'remark': this.reason,
+                    }, res => {
+                        if (res.code === 0) {
+                            this.getDenizenDetail();
+                            this.$message("解约成功");
+                            $('#Surrender').modal('hide');
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //驳回
+            signReject(){
+                if(validateForm(RejectCon)){
+                    let url = $.formateUrl('backend/sign/reject');
+                    $.post(url, {
+                        'sign_id': this.denizenModel.sign_id,
+                        'remark': this.reason,
+                    }, res => {
+                        if (res.code === 0) {
+                            this.getDenizenDetail();
+                            $('#Reject').modal('hide');
+                            this.$message("驳回成功");
+                        } else {
+                            this.$message(res.message);
+                        }
+                    })
+                }
+            },
+            //审核通过
+            signAudit(){
+                let url = $.formateUrl('backend/sign/audit');
+                $.post(url, {'ids': [this.denizenModel.sign_id]}, res => {
+                    if (res.code === 0) {
+                        this.getDenizenDetail();
+                        this.$message("审核成功");
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            getDenizenDetail() {
+                let url = $.formateUrl('backend/denizen/detail');
+                $.get(url, {
+                    'id': this.user_id,
+                }, res => {
+                    if (res.code === 0) {
+                        this.denizenModel = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            // 选项卡
+            handleClick(tab, event) {
+                var target = tab.$el;
+                var templateSrc = target.getAttribute('data-href');
+                if (templateSrc) {
+                    templateSrc = templateSrc + '?r=' + Math.random();
+                    $(target).load(templateSrc); //load
+                }
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    });
+</script>
+</body>
+</html>

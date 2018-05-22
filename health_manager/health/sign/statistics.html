@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>签约数据统计</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    	<link rel="stylesheet" type="text/css" href="/css/statistics.css"/>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>签约管理 > 签约数据统计</span>
+                </div>
+                <!-- 头部菜单 -->
+                <div class="search">
+                   <span class="org-Name">年度家庭医生服务工作月报表</span>
+                    <el-select v-model="search.time" class="select-e Firstui" placeholder="请选择">
+                            <el-option
+                                    v-for="(item,index) in Times"
+                                    :key="item.codes"
+                                    :label="item.time"
+                                    :value="item.time"
+                            >
+                            </el-option>
+                   </el-select>
+                  <span class="org-Name">选择机构</span>
+                  <el-select v-model="search.orgid" @change="changeOrg" class="select-e Secondui" placeholder="北京市海淀区上地社区卫生服务中心">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.code"
+                                    :label="item.cn_name"
+                                    :value="item.orgid"
+
+                            >
+                            </el-option>
+                   </el-select>
+                    <span class="search-btn search-Btn" @click="GetStatisticsList"><img src="/img/icon_serarch.png"></span>
+                    <span class="add-jg" data-toggle="modal" @click="Export"><img src="/img/icon_exports.png">导出数据</span>
+                </div>
+            </div>
+            <!-- 内容列表 -->
+            <!-- 背景颜色 -->
+            <div class="bg-color">
+					<div class="org-lists">
+						<p class="titleCompany">
+							<span>
+								机构：{{orgName}}
+							</span>
+						</p>
+	                    <table cellspacing="0">
+	                        <thead>
+	                        <tr>
+	                            <th>标签</th>
+	                            <th>1月</th>
+	                            <th>2月</th>
+	                            <th>3月</th>
+	                            <th>4月</th>
+	                            <th>5月</th>
+	                            <th>6月</th>
+	                            <th>7月</th>
+	                            <th>8月</th>
+	                            <th>9月</th>
+	                            <th>10月</th>
+	                            <th>11月</th>
+	                            <th>12月</th>
+	                            <th>合计</th>
+	                        </tr>
+	                        </thead>
+	                         <tbody>
+		                        <tr v-for="(item,index) in StatisticsList" :class="(index+1)%2===0?'':'bg-tr-color'">
+		                        	<td class="FirstW" style="max-width: 260px;padding: 0 5px">{{item.name}}</td>
+	                              	<td>{{item.january}}</td>
+	                                <td>{{item.february}}</td>
+	                                <td>{{item.march}}</td>
+	                                <td>{{item.april}}</td>
+	                                <td>{{item.may}}</td>
+	                                <td>{{item.june}}</td>
+	                                <td>{{item.july}}</td>
+	                                <td>{{item.august}}</td>
+	                                <td>{{item.september}}</td>
+	                                <td>{{item.october}}</td>
+	                                <td>{{item.november}}</td>
+	                                <td>{{item.december}}</td>
+	                                <td>{{item.total}}</td>
+		                        </tr>
+		                    </tbody>
+	                    </table>
+                    <!-- 分页 -->
+	                   <span class="all-nums" v-if="StatisticsListD.count>0">共{{StatisticsListD.count}}条</span>
+	                    <span class="all-nums" v-else>暂无数据</span>
+	                    <el-pagination
+	                            v-if="StatisticsListD.count>0"
+	                            @current-change="CurrentChangeList"
+	                            class="paging orgPaging"
+	                            background
+	                            prev-text="上一页"
+	                            next-text="下一页"
+	                            layout="prev, pager, next"
+	                            :page-size="health.BigPageSize"
+	                            :page-count="StatisticsListD.pages"
+	                            :total="StatisticsListD.count">
+	                    </el-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                avatar:'',
+                name:'',
+
+                //添加机构
+                code: '',
+                Times: [],
+                options:[],
+                value: '',
+                //签约统计
+                StatisticsList:[],
+                StatisticsListD:{},
+                PageSizesign:[],
+                CountNum: {},
+                orgName:"全部机构",
+                search:{
+                    time:"",
+                    orgid:"",
+                }
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info=$.getInfo();
+            this.name=info[0].name;
+            this.avatar=info[0].avatar;            //作者菜单
+            this.GetMechanisms();
+            this.GetTimes();
+            this.GetStatisticsList();
+        },
+        mounted(){
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu(){
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+             //  获取时间
+            GetTimes() {
+                let url = health.apiUrl + 'backend/sign/year';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code == 0) {
+                        this.Times = res.content;
+                    }else {
+                        this.$message(res.message);
+					}
+                })
+            },
+            //获取机构列表
+           GetMechanisms() {
+                let url = health.apiUrl + 'backend/other/get-orgs';
+                $.get(url, {
+                    token: $.getToken(),
+                     org_id: this.value,
+                }, res => {
+                    if (res.code === 0) {
+                        this.options = res.content;
+                    }else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+             // 获取签约统计
+            GetStatisticsList(){
+                let url=health.apiUrl+'backend/sign/total';
+                let params = this.search;
+                params.token = $.getToken();
+                params.page_size = health.BigPageSize;
+                params.page = this.PageSizesign;
+            	 $.get(url, params, res => {
+            	     if(res.code==0){
+                         this.StatisticsList = res.content.data;
+                         this.StatisticsListD = res.content;
+                     }else {
+                         this.$message(res.message);
+                     }
+
+                })
+            },
+            CurrentChangeList(val){
+            	this.PageSizesign=val;
+            	this.GetStatisticsList();
+            },
+            changeOrg(val){
+                let obj = {};
+                obj = this.options.find((item)=>{
+                    return item.orgid === val;
+                });
+            	this.orgName=obj.cn_name;
+            },
+            // 导出
+            Export: function () {
+                window.location.href = health.apiUrl + '/backend/sign/total-export?token=' + $.getToken() + '&orgid=' + this.search.orgid + '&time=' + this.search.time;
+            },
+
+            //退出
+            SignOut(){
+                $.SignOut();
+            }
+        },
+    })
+</script>
+</body>
+</html>

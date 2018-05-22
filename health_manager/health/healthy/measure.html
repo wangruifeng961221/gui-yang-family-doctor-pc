@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>测量数据</title>
+    <meta name="description" content="">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta id="metaEle" name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <link rel="stylesheet" href="/css/comUnchange.css"> <!--背景公共不变的-->
+    <link rel="stylesheet" href="/css/measure.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/link.js"></script>
+    <script type="text/javascript" src="/js/element/index.js"></script>
+    <link rel="stylesheet" href="/js/element/index.css">
+    <!--<link rel="stylesheet" href="/css/bootstrap.min.css">-->
+
+</head>
+<body>
+<div class="main" id="app" v-cloak>
+    <div class="header">
+        <div class="header-left">
+            <img src="/img/logo_familyDoc.png" alt="家庭医生云平台" class="titlePic">
+            <!--<p>家庭医生健康管理服务平台</p>-->
+            <div class="header-right">
+                <img :src="avatar" class="adminPic">
+                <span class="adminPeo">{{name}}</span>
+                <img src="/img/icon_exit.png" class="exit">
+                <span @click="SignOut">退出</span>
+            </div>
+        </div>
+    </div>
+    <div class="content clear content-th">
+        <!-- 左侧菜单 -->
+        <div class="menu">
+
+        </div>
+
+        <div class="continue">
+            <div class="select-con">
+                <div class="title-org">
+                    <span>健康数据</span>
+                    <span>></span>
+                    <span>测量数据</span>
+                </div>
+                <!--头部搜索添加 -->
+                <div class="search">
+                    <div>
+                        <span>居民姓名</span>
+                        <input type="text" placeholder="请输入居民姓名" class="ResName" v-model="search.name">
+                        <span>测量项目</span>
+                        <el-select v-model="search.type" placeholder="请选择" class="project">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <span>是否异常</span>
+                        <el-select v-model="search.status" placeholder="请选择">
+                            <el-option
+                                    v-for="item in optionsType"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <br>
+                        <span>所属机构</span>
+                        <el-select v-model="search.orgid" placeholder="请选择" class="suTeam" @change="setTeam">
+                            <el-option
+                                    v-for="item in optionsOrg"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <span>签约团队</span>
+                        <el-select v-model="search.team_id" placeholder="请选择" class="suTeam" @change="setTeam">
+                            <el-option
+                                    v-for="item in optionsTeam"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    <div style="margin-left: 280px">
+                        <span class="search-btn search-Btn" @click="getList"><img src="/img/icon_serarch.png"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- 内容列表 -->
+        <!-- 背景颜色 -->
+        <div class="bg-color">
+            <div class="org-lists">
+                <table cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th style="width:70px">序号</th>
+                        <th style="width: 80px">姓名</th>
+                        <th style="width: 120px;">医生</th>
+                        <th style="width: 300px;">所属机构</th>
+                        <th>签约团队</th>
+                        <th style="width: 150px">测量项</th>
+                        <th style="width: 400px">测量值</th>
+                        <th style="width: 50px;">异常</th>
+                        <th style="width: 110px;">测量时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item,index) in list" :class="(index+1)%2===0?'':'bg-tr-color'">
+                        <td>{{item.serial}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.doc_name}}</td>
+                        <td style="padding: 0 5px">{{item.org_name}}</td>
+                        <td class="org-name" style="padding: 0 5px">{{item.team}}</td>
+                        <td class="">{{item.type}}</td>
+                        <td class="org-name" style="padding: 0 5px">{{item.text}}</td>
+                        <td class=""><img src="/img/icon_warning.png" v-if="item.status ? true : false"></td>
+                        <td>{{item.created_at}}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- 分页 -->
+                <span class="all-nums" v-if="count">共{{count}}条</span>
+                <span class="all-nums" v-else>暂无数据</span>
+                <el-pagination
+                        v-if="count>0"
+                        @current-change="CurrentChange"
+                        class="paging orgPaging"
+                        background
+                        prev-text="上一页"
+                        next-text="下一页"
+                        layout="prev, pager, next"
+                        :page-size="health.BigPageSize"
+                        :page-count="pages"
+                        :total="count">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                name: '',
+                avatar: '',
+
+                //    测量项目
+                options: [{
+                    // value: '选项1',
+                    // text: '黄金糕'
+                }],
+                //是否异常
+                optionsType: [{
+                    // value: '选项1',
+                    // text: '黄金糕'
+                }],
+                // 所属团队
+                optionsTeam: [{
+                    // value: '选项1',
+                    // text: '黄金糕'
+                }],
+                // 所属机构
+                optionsOrg: [{
+                    // value: '选项1',
+                    // text: '黄金糕'
+                }],
+                //
+                page: 1,
+                pages: 0,
+                count: 0,
+                list: {},
+                search: {
+                    name: '',
+                    type: '',
+                    status: '',
+                    orgid: '',
+                    team_id: '',
+                }
+
+            }
+        },
+        beforeCreate() {
+            $.getToken();
+        },
+        created() {
+            let info = $.getInfo();
+            this.name = info[0].name;
+            this.avatar = info[0].avatar;
+            this.getList();
+            this.initSearch();
+        },
+        mounted() {
+            this.initMenu();
+        },
+        methods: {
+            // 菜单
+            initMenu() {
+                var templateSrc = '/health/menu/menu.html' + '?r=' + Math.random();
+                $('.menu').load(templateSrc); //load
+            },
+            //获取列表
+            getList() {
+                let url = health.apiUrl + 'backend/measured/list';
+                let params = this.search;
+                params.token = $.getToken();
+                params.page_size = health.BigPageSize;
+                params.page = this.page;
+                $.get(url, params, res => {
+                    if (res.code === 0) {
+                        this.list = res.content.data;
+                        this.count = res.content.count;
+                        this.pages = res.content.pages;
+
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+
+            //获取测量项目
+            initSearch() {
+                let url = health.apiUrl + 'backend/measured/get-search';
+                $.get(url, {
+                    token: $.getToken()
+                }, res => {
+                    if (res.code === 0) {
+                        this.options = res.content.type_select;
+                        this.optionsType = res.content.status_select;
+                        this.optionsOrg = res.content.org_select;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取团队
+            setTeam() {
+                let url = health.apiUrl + 'backend/other/team';
+                if (!this.search.orgid) {
+                    this.optionsTeam = [];
+                    return false;
+                }
+                $.get(url, {
+                    token: $.getToken(),
+                    orgid: this.search.orgid
+                }, res => {
+                    if (res.code === 0) {
+                        this.optionsTeam = res.content;
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //分页
+            CurrentChange(val) {
+                this.page = val;
+                this.getList();
+            },
+            //退出
+            SignOut() {
+                $.SignOut();
+            },
+        },
+    })
+</script>
+</body>
+</html>

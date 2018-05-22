@@ -1,0 +1,374 @@
+<script type="text/javascript" src="/js/echarts.min.js"></script>
+<div id="app_sugar_tabs" v-cloak>
+    <div class="ecg_search">
+        <span class="date">选择日期</span>
+        <el-date-picker
+                v-model="times"
+                type="daterange"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                value-format="yyyy-MM-dd"
+                @change="change"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions">
+        </el-date-picker>
+        <span class="search-btn" @click="initAllData"><img src="/img/icon_serarch.png"></span>
+    </div>
+    <div class="bg_color_ecg">
+
+    </div>
+    <div class="Chart" id="mySugarBeforeChart">
+    </div>
+    <div class="Chart" id="mySugarAfterChart">
+    </div>
+    <div class="table_ecg">
+        <span class="ecg_title">血糖记录</span>
+        <span class="print"><img src="/img/icon_print_green.png" title="全部打印" style="cursor: pointer" @click="toReportAll"></span>
+        <div class="org-lists">
+            <form id="sugar-report-form" :action="reportUrl" method="post"
+                  target="_blank">
+                <input type="hidden" name="type" v-model="type">
+                <input type="hidden" name="start_time" v-model="models.start_time">
+                <input type="hidden" name="end_time" v-model="models.end_time">
+                <table cellspacing="0">
+                    <thead>
+                    <tr style="border-top:1px solid #f5f5f5">
+                        <th><input type="checkbox" id="sugar-select-all" @click="selectAll"></th>
+                        <th>序号</th>
+                        <th>上传日期</th>
+                        <th>测量日期</th>
+                        <th>血糖值</th>
+                        <th>餐前/餐后</th>
+                        <th>异常</th>
+                        <th>打印</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item,index) in models.data" :class="(index+1)%2===0?'':'bg-tr-color'">
+                        <td><input type="checkbox" name="data[]" :id="item.id"
+                                   :value="item.id" @click="selectOne(item.id,$event)" class="checkBox"></td>
+                        <td>{{item.serial}}</td>
+                        <td>{{item.create_time}}</td>
+                        <td>{{item.collect_time}}</td>
+                        <td>{{item.bloodsugar}}</td>
+                        <td>{{item.timesection_msg}}</td>
+                        <td><img src="/img/icon_warning.png" title="异常" v-if="item.status == 1"></td>
+                        <td class="font-color">
+                            <a :href="reportUrl+ '&type='+type + '&data='+item.id" target="_blank">
+                                <img src="/img/icon_print_green.png" data-toggle="modal" title="打印">
+                            </a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+            <!-- 分页 -->
+            <span class="all-nums" v-if="models.count>0">共{{models.count}}条</span>
+            <span class="all-nums" v-else>暂无数据</span>
+            <el-pagination
+                    v-if="models.count>0"
+                    @current-change="CurrentChange"
+                    class="paging orgPaging"
+                    background
+                    prev-text="上一页"
+                    next-text="下一页"
+                    layout="prev, pager, next"
+                    :page-size="health.BigPageSize"
+                    :page-count="models.pages"
+                    :total="models.count">
+            </el-pagination>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    new Vue({
+        el: "#app_sugar_tabs",
+        data() {
+            return {
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                },
+                times: [],
+                Organization: '',
+
+                type:defined.recordDataTypeBloodSugar,
+                data:[],
+                page:1,
+                models:"",
+                start_time: '',
+                end_time: '',
+                user_id: $.getQueryString('id'),
+                reportUrl: $.formateUrl('report/index?token='+$.getToken()+'&id='+$.getQueryString('id')),
+            }
+        },
+        mounted() {
+            this.initAllData();
+        },
+        methods: {
+            initAllData(){
+                this.getListData();
+                this.getChartData();
+            },
+            //获取列表数据
+            getListData(){
+                let url = $.formateUrl('/backend/record/sugar');
+                $.get(url, {
+                    token: $.getToken(),
+                    user_id: this.user_id,
+                    page: this.page,
+                    page_size: health.indexPageSize,
+                    start_time: this.models.start_time,
+                    end_time: this.models.end_time,
+                }, res => {
+                    if (res.code === 0) {
+                        this.models = res.content;
+                        Vue.set(this, 'times', [res.content.start_time,res.content.end_time]);
+                        Vue.set(this.models, 'start_time', res.content.start_time);
+                        Vue.set(this.models, 'end_time', res.content.end_time);
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //获取图表数据
+            getChartData(){
+                let url = $.formateUrl('/backend/record/sugar-chart');
+                $.get(url, {
+                    token: $.getToken(),
+                    user_id: this.user_id,
+                    start_time: this.models.start_time,
+                    end_time: this.models.end_time,
+                }, res => {
+                    if (res.code === 0) {
+                        this.initChart(res.content)
+                    } else {
+                        this.$message(res.message);
+                    }
+                })
+            },
+            //打印多条记录跳转
+            toReportAll(){
+                var count = 0;
+                $.each($("form[id='sugar-report-form'] input[name='data[]']"), (index, input) => {
+                    if(input.checked) count++;
+                });
+
+                if (count <= 0) {
+                    this.$message('请至少选择一条数据');
+                    return false;
+                }
+
+                let form = document.getElementById('sugar-report-form');
+                form.submit();
+            },
+            //实例化图标
+            initChart(chartData) {
+                let beforeChart = echarts.init(document.getElementById('mySugarBeforeChart'));
+                let afterChart = echarts.init(document.getElementById('mySugarAfterChart'));
+                beforeChart.setOption({
+                    backgroundColor: 'white',
+                    title: {
+                        text: '血糖趋势图'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: ['餐前']
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '6%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        feature: {
+                            magicType:{
+                                type:['line', 'bar']
+                            },
+                            saveAsImage:[]
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartData.beforeDate
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: '餐前',
+                            type: 'line',
+                            stack: '总量',
+                            barMaxWidth:30,
+                            itemStyle : {
+                                normal : {
+                                    lineStyle:{
+                                        color:'#ff6600'
+                                    }
+                                }
+                            },
+                            markPoint: {
+                                data: [
+                                    {
+                                        type: 'max',
+                                        name: '最大值',
+                                        itemStyle : {
+                                            normal : {
+                                                color:'#ff6600'
+                                            }
+                                        }
+                                    }, {
+                                        type: 'min',
+                                        name: '最小值',
+                                        itemStyle : {
+                                            normal : {
+                                                color:'#ff6600'
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            data: chartData.lineBefore
+                        }
+                    ]
+                });
+
+                afterChart.setOption({
+                    backgroundColor: 'white',
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: ['餐后']
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '6%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        feature: {
+                            magicType:{
+                                type:['line', 'bar']
+                            },
+                            saveAsImage:[]
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartData.afterDate
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: '餐后',
+                            type: 'line',
+                            stack: '总量',
+                            barMaxWidth:30,
+                            itemStyle : {
+                                normal : {
+                                    lineStyle:{
+                                        color:'#77b2ba'
+                                    }
+                                }
+                            },
+                            markPoint: {
+                                data: [
+                                    {
+                                        type: 'max',
+                                        name: '最大值',
+                                        itemStyle : {
+                                            normal : {
+                                                color:'#77b2ba'
+                                            }
+                                        }
+                                    }, {
+                                        type: 'min',
+                                        name: '最小值',
+                                        itemStyle : {
+                                            normal : {
+                                                color:'#77b2ba'
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            data: chartData.lineAfter
+                        }
+                    ]
+                });
+            },
+            //全选
+            selectAll() {
+                var inputModel = $("form[id='sugar-report-form'] input[name='data[]']");
+                if ($("#sugar-select-all").prop("checked")) {
+                    inputModel.prop("checked", true);
+                } else {
+                    inputModel.prop("checked", false);
+                }
+            },
+            //单点按钮
+            selectOne(id, event) {
+                let flag = event.target.checked;
+                var inputModel = $("form[id='sugar-report-form'] input[name='data[]']");
+                var selectAll = $('#sugar-select-all');
+
+                if (flag) {
+                    var count = 0;
+                    $.each(inputModel, (index, input) => {
+                        if(input.checked) count++;
+                    });
+                    count === inputModel.length ? selectAll.prop('checked', true) : selectAll.prop('checked', false);
+                }else{
+                    selectAll.prop('checked', false)
+                }
+            },
+            //时间改变
+            change(val) {
+                Vue.set(this.models, 'start_time', val[0]);
+                Vue.set(this.models, 'end_time', val[1]);
+            },
+            //分页
+            CurrentChange(val) {
+                this.page = val;
+                this.getListData();
+            },
+        },
+    });
+</script>
+
+
